@@ -1,9 +1,14 @@
 # Alison's Assistant
 
-A personal Progressive Web App (PWA) for tracking workouts, meals, budget, and more.
-Stage 1 ships with the **Workouts** module (Alison's 4-day Upper/Lower split with
-tap-to-complete checkboxes, weight/rep logging, and last-week reference numbers).
-Other tiles are placeholders for upcoming modules.
+A personal Progressive Web App (PWA) for Alison and Darlene — workouts, meals,
+budget, and more, with per-person separation where it matters.
+
+Current modules:
+- **Alison's Gym** — 4-day Upper/Lower split (Upper A / Lower A / Upper B / Lower B)
+- **Darlene's Gym** — T3 pregnancy-modified plan with safety banner, RPE 6-7 cap, 45° incline only
+
+Other tiles are placeholders for upcoming modules (Groceries, Schedule, Recipes,
+Fridge Cards, Tracker).
 
 ## Run it locally
 

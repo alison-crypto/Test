@@ -1,12 +1,14 @@
-const CACHE = 'assistant-v2';
+const CACHE = 'assistant-v3';
 const ASSETS = [
   './',
   './index.html',
-  './workouts.html',
+  './gym-alison.html',
+  './gym-darlene.html',
   './styles.css',
-  './app.js',
-  './workouts.js',
+  './gym.js',
   './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
 ];
 
 self.addEventListener('install', (event) => {

@@ -121,6 +121,12 @@ body {
 }
 .tile-workouts .tile-label { color: #fff; }
 
+.tile-darlene {
+  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+  color: #fff;
+}
+.tile-darlene .tile-label { color: #fff; }
+
 .app-footer {
   text-align: center;
   color: var(--muted);
@@ -145,7 +151,26 @@ body {
   max-width: 600px;
   margin: 0 auto;
   padding: 10px 12px 80px;
+  --gym-accent: var(--accent);
+  --gym-accent-deep: #2563eb;
 }
+
+.workouts-body.theme-darlene {
+  --gym-accent: #ec4899;
+  --gym-accent-deep: #be185d;
+}
+
+.safety-banner {
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #5b1f3a 0%, #7c2348 100%);
+  border-radius: 8px;
+  font-size: 11px;
+  color: #fce7f3;
+  line-height: 1.4;
+}
+
+.safety-banner b { color: #fff; }
 
 .workouts-header {
   position: sticky;
@@ -206,8 +231,8 @@ body {
 }
 
 .day-btn.active {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--gym-accent);
+  border-color: var(--gym-accent);
 }
 .day-btn.active .day-btn-label,
 .day-btn.active .day-btn-name { color: #fff; }
@@ -234,7 +259,7 @@ body {
 
 .day-progress-fill {
   height: 100%;
-  background: var(--accent);
+  background: var(--gym-accent);
   width: 0%;
   transition: width 0.3s ease;
 }
@@ -275,7 +300,7 @@ body {
 .day-header {
   margin: 10px 0 12px;
   padding: 12px 14px;
-  background: linear-gradient(135deg, #0a84ff 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--gym-accent) 0%, var(--gym-accent-deep) 100%);
   border-radius: 10px;
 }
 
@@ -351,7 +376,7 @@ body {
 
 .ex-target {
   font-size: 11px;
-  color: var(--accent);
+  color: var(--gym-accent);
   margin-top: 3px;
   font-weight: 500;
 }
@@ -367,7 +392,7 @@ body {
   flex-shrink: 0;
   font-size: 10px;
   background: var(--card-2);
-  color: var(--accent);
+  color: var(--gym-accent);
   padding: 4px 8px;
   border-radius: 4px;
   text-decoration: none;
@@ -414,7 +439,7 @@ body {
 
 .set-input:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--gym-accent);
 }
 
 .set-input::placeholder {

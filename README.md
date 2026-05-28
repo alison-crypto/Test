@@ -9,8 +9,9 @@ Current modules:
 - **Groceries** — 4-week rotation (Original / Mediterranean / Moroccan-Indian / Latin-Cajun), each with Meals + Fixed Weekly + Pantry sections, tap-to-check, separate state per week
 - **Schedule** — daily timeline with day picker, defaults to today; Alison/Darlene/Together info cards
 - **Chores & SOPs** — daily / weekly / monthly / as-needed chore master list with who-chips, plus SOPs (Sunday setup, gym morning, meal prep, cat care), pregnancy ramp, and time accounting
+- **Recipes** — 21 recipes with search + cuisine/type filter pills, expandable cards showing ingredients/method/macros (him + her), per-person 5-star ratings, and a "just cooked this" log
 
-Other tiles are placeholders for upcoming modules (Recipes, Fridge Cards, Tracker).
+Other tiles are placeholders for upcoming modules (Fridge Cards, Tracker).
 
 ## Run it locally
 

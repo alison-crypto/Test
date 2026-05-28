@@ -13,8 +13,8 @@ Last updated: 2026-05-28 (session 2)
 | Groceries (4-week rotation) | ✅ Done | `groceries.html` + `groceries.js` |
 | Schedule (daily timeline) | ✅ Done | `schedule.html` + `schedule.js` |
 | Chores & SOPs | ✅ Done | `chores.html` |
-| Recipes | ⏳ Next | — |
-| Fridge Cards | ⏳ | — |
+| Recipes (21 recipes, search/filter, ratings, cook log) | ✅ Done | `recipes.html` + `recipes.js` |
+| Fridge Cards | ⏳ Next | — |
 | Tracker | ⏳ (Excel — needs design discussion) | — |
 | Supabase sync (Stage 2) | ⏳ After modules | — |
 
@@ -31,9 +31,9 @@ Already imported:
 - `Grocery_Week_C.html` — `1iSuSpzAAQaPhcPQOSHCEs9FGkFJQ7qiS`
 - `Grocery_Week_D.html` — `1UAP2ExZt7uEgKtMxv6-uk7ZpXfmPcynY`
 - `Weekly_Schedule.html` — `1p7y6aDF2Q6nYIYQog2Lm1xTNsaBU6Tuc` (split into Schedule + Chores & SOPs)
+- `Recipe_Book.html` — `1a2HARaLZ0kr5Mww8Hx5HLoMddouvUNt2`
 
 Pending (next sessions):
-- `Recipe_Book.html` — `1a2HARaLZ0kr5Mww8Hx5HLoMddouvUNt2`
 - `Fridge_Cards.html` — `1M8_Q0cHrW5EfL8saxBMee_5Wk2AU9FmJ`
 - `Tracker.xlsx` — `1gnYKetjpKkMsKKiiV2qg5g2oyoHJmZZY` (needs design pass)
 - `Test_Artifact.html` — `1BIUx778p5s5tbjCWT6HQRxo8VHJpDU0L` (skipping — looks like a test file)

@@ -718,3 +718,183 @@ body {
   color: #0b0b0e;
 }
 .tile-groceries .tile-label { color: #0b0b0e; }
+
+/* ===================================================================== */
+/* Schedule page                                                          */
+/* ===================================================================== */
+
+.schedule-body {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 10px 12px 80px;
+}
+
+.day-h2 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted-strong);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 12px 0 6px;
+}
+
+.sched-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+  font-size: 11px;
+}
+
+.leg-chip {
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.leg-him   { background: #DCE9F4; color: #1F4E79; }
+.leg-her   { background: #F8E0EA; color: #8B4A6B; }
+.leg-both  { background: #E0EDE0; color: #2A5A2A; }
+.leg-work  { background: #ECECEC; color: #555; }
+.leg-sleep { background: #1a1a1a; color: #aaa; }
+.leg-free  { background: #FAFAFA; color: #888; border: 1px solid var(--border); }
+
+@media (prefers-color-scheme: dark) {
+  .leg-him   { background: rgba(28,84,166,0.25); color: #93C5FD; }
+  .leg-her   { background: rgba(236,72,153,0.20); color: #FBA5C5; }
+  .leg-both  { background: rgba(34,197,94,0.20); color: #86EFAC; }
+  .leg-work  { background: rgba(255,255,255,0.06); color: #aaa; }
+  .leg-sleep { background: #050507; color: #666; }
+  .leg-free  { background: var(--card-2); color: var(--muted); border: 1px solid var(--border); }
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.t-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  min-height: 38px;
+}
+
+.t-time {
+  flex-shrink: 0;
+  width: 72px;
+  font-size: 11px;
+  font-weight: 700;
+  font-feature-settings: 'tnum';
+  letter-spacing: 0.3px;
+  padding-top: 2px;
+}
+
+.t-act {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.t-act b {
+  font-weight: 600;
+  display: block;
+}
+
+.t-det {
+  display: block;
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+/* Color variants — matched to original print palette */
+.t-row.him   { background: #DCE9F4; color: #1F4E79; }
+.t-row.her   { background: #F8E0EA; color: #8B4A6B; }
+.t-row.both  { background: #E0EDE0; color: #2A5A2A; }
+.t-row.work  { background: #ECECEC; color: #555; font-style: italic; }
+.t-row.sleep { background: #1a1a1a; color: #aaa; font-style: italic; }
+.t-row.free  { background: #FAFAFA; color: #888; font-style: italic; border: 1px solid var(--border); }
+
+@media (prefers-color-scheme: dark) {
+  .t-row.him   { background: rgba(28,84,166,0.22); color: #93C5FD; }
+  .t-row.her   { background: rgba(236,72,153,0.18); color: #FBA5C5; }
+  .t-row.both  { background: rgba(34,197,94,0.18); color: #86EFAC; }
+  .t-row.work  { background: rgba(255,255,255,0.05); color: #888; }
+  .t-row.sleep { background: #050507; color: #555; }
+  .t-row.free  { background: var(--card-2); color: var(--muted); border: 1px solid var(--border); }
+}
+
+/* Info cards */
+.sched-info {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (min-width: 520px) {
+  .sched-info { grid-template-columns: repeat(3, 1fr); }
+}
+
+.info-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.info-him  { border-left-color: #1F4E79; }
+.info-her  { border-left-color: #8B4A6B; }
+.info-both { border-left-color: #2A5A2A; }
+
+@media (prefers-color-scheme: dark) {
+  .info-him  { border-left-color: #93C5FD; }
+  .info-her  { border-left-color: #FBA5C5; }
+  .info-both { border-left-color: #86EFAC; }
+}
+
+.info-card h3 {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.info-him h3  { color: #1F4E79; }
+.info-her h3  { color: #8B4A6B; }
+.info-both h3 { color: #2A5A2A; }
+
+@media (prefers-color-scheme: dark) {
+  .info-him h3  { color: #93C5FD; }
+  .info-her h3  { color: #FBA5C5; }
+  .info-both h3 { color: #86EFAC; }
+}
+
+.info-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-card li {
+  font-size: 12.5px;
+  padding: 4px 0;
+  border-bottom: 1px dotted var(--border);
+  color: var(--text);
+}
+
+.info-card li:last-child { border-bottom: none; }
+
+/* Home-tile color for Schedule */
+.tile-schedule {
+  background: linear-gradient(135deg, #2A5A2A 0%, #4A8A4A 100%);
+  color: #fff;
+}
+.tile-schedule .tile-label { color: #fff; }

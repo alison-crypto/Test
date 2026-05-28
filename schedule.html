@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2a5a2a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Schedule</title>
+</head>
+<body class="schedule-body">
+
+<header class="workouts-header">
+  <a href="index.html" class="back-link">‹ Home</a>
+  <h1>📅 Schedule</h1>
+  <div class="workouts-subtitle">Weekly rhythm · Alison + Darlene · v2 effective May 25</div>
+
+  <div class="day-picker">
+    <div class="day-btn" data-day="mon">
+      <div class="day-btn-label">MON</div>
+      <div class="day-btn-name">Mon</div>
+    </div>
+    <div class="day-btn" data-day="tue">
+      <div class="day-btn-label">TUE</div>
+      <div class="day-btn-name">Tue</div>
+    </div>
+    <div class="day-btn" data-day="wed">
+      <div class="day-btn-label">WED</div>
+      <div class="day-btn-name">Wed</div>
+    </div>
+    <div class="day-btn" data-day="thu">
+      <div class="day-btn-label">THU</div>
+      <div class="day-btn-name">Thu</div>
+    </div>
+    <div class="day-btn" data-day="fri">
+      <div class="day-btn-label">FRI</div>
+      <div class="day-btn-name">Fri</div>
+    </div>
+    <div class="day-btn" data-day="sat">
+      <div class="day-btn-label">SAT</div>
+      <div class="day-btn-name">Sat</div>
+    </div>
+    <div class="day-btn" data-day="sun">
+      <div class="day-btn-label">SUN</div>
+      <div class="day-btn-name">Sun</div>
+    </div>
+  </div>
+</header>
+
+<div class="sched-legend">
+  <span class="leg-chip leg-him">Alison</span>
+  <span class="leg-chip leg-her">Darlene</span>
+  <span class="leg-chip leg-both">Together</span>
+  <span class="leg-chip leg-work">Work</span>
+  <span class="leg-chip leg-sleep">Sleep</span>
+  <span class="leg-chip leg-free">Free</span>
+</div>
+
+<div class="day-page" data-day="mon">
+  <h2 class="day-h2">Monday</h2>
+  <div class="timeline">
+    <div class="t-row sleep"><div class="t-time">5:30 AM</div><div class="t-act"><b>sleep</b></div></div>
+    <div class="t-row sleep"><div class="t-time">6:00 AM</div><div class="t-act"><b>sleep</b></div></div>
+    <div class="t-row both"><div class="t-time">7:00 AM</div><div class="t-act"><b>Wake + breakfast together</b></div></div>
+    <div class="t-row him"><div class="t-time">7:30 AM</div><div class="t-act"><b>A → Work</b><span class="t-det">D: breakfast, tidy LR (5min)</span></div></div>
+    <div class="t-row her"><div class="t-time">8:00 AM</div><div class="t-act"><b>Bathroom 1 clean</b><span class="t-det">toilet, sink, shower, mirror (25min)</span></div></div>
+    <div class="t-row her"><div class="t-time">9:00 AM</div><div class="t-act"><b>Laundry: start load 1</b><span class="t-det">(3min start)</span></div></div>
+    <div class="t-row her"><div class="t-time">10:00 AM</div><div class="t-act"><b>Free / snack / rest</b></div></div>
+    <div class="t-row her"><div class="t-time">11:00 AM</div><div class="t-act"><b>Free / errands</b></div></div>
+    <div class="t-row him"><div class="t-time">12:00 PM</div><div class="t-act"><b>A: lunch at desk + 15min walk</b><span class="t-det">D: lunch home, dishes</span></div></div>
+    <div class="t-row work"><div class="t-time">1:00 PM</div><div class="t-act"><b>Work</b></div></div>
+    <div class="t-row work"><div class="t-time">2:00 PM</div><div class="t-act"><b>Work</b></div></div>
+    <div class="t-row work"><div class="t-time">3:00 PM</div><div class="t-act"><b>Work</b><span class="t-det">D: afternoon shake</span></div></div>
+    <div class="t-row him"><div class="t-time">4:00 PM</div><div class="t-act"><b>A: leave work</b><span class="t-det">15min commute</span></div></div>
+    <div class="t-row both"><div class="t-time">4:30 PM</div><div class="t-act"><b>🚶 Walk together 1h</b><span class="t-det">no-gym day</span></div></div>
+    <div class="t-row him"><div class="t-time">5:00 PM</div><div class="t-act"><b>🐈 Cat: litter + water + food</b><span class="t-det">D: starts dinner</span></div></div>
+    <div class="t-row both"><div class="t-time">6:00 PM</div><div class="t-act"><b>🍽 Dinner together</b></div></div>
+    <div class="t-row both"><div class="t-time">6:30 PM</div><div class="t-act"><b>Dishwasher load + counters</b><span class="t-det">10min, both</span></div></div>
+    <div class="t-row him"><div class="t-time">7:00 PM</div><div class="t-act"><b>💼 A: Side dev / income work</b><span class="t-det">2h block · D: free / rest</span></div></div>
+    <div class="t-row him"><div class="t-time">8:00 PM</div><div class="t-act"><b>💼 A: Side dev</b></div></div>
+    <div class="t-row both"><div class="t-time">9:00 PM</div><div class="t-act"><b>🚶 Evening walk 30min (opt)</b></div></div>
+    <div class="t-row free"><div class="t-time">9:30 PM</div><div class="t-act"><b>Wind down · phones away</b></div></div>
+    <div class="t-row sleep"><div class="t-time">10:00 PM</div><div class="t-act"><b>Bed</b></div></div>
+  </div>
+</div>
+
+<div class="day-page" data-day="tue">
+  <h2 class="day-h2">Tuesday</h2>
+  <div class="timeline">
+    <div class="t-row both"><div class="t-time">5:30 AM</div><div class="t-act"><b>Wake</b><span class="t-det">coffee shake</span></div></div>
+    <div class="t-row both"><div class="t-time">6:00 AM</div><div class="t-act"><b>🏋 Gym — Upper A</b><span class="t-det">YMCA Westhills</span></div></div>
+    <div class="t-row both"><div class="t-time">7:00 AM</div><div class="t-act"><b>Home · A: shower</b><span class="t-det">D: changes, slow morning</span></div></div>
+    <div class="t-row him"><div class="t-time">7:30 AM</div><div class="t-act"><b>A → Work</b><span class="t-det">D: breakfast, dishwasher unload</span></div></div>
+    <div class="t-row her"><div class="t-time">8:00 AM</div><div class="t-act"><b>Robot vacuum + manual edges</b><span class="t-det">(25min)</span></div></div>
+    <div class="t-row her"><div class="t-time">9:00 AM</div><div class="t-act"><b>Robot mop run</b><span class="t-det">refill water, start (10min)</span></div></div>
+    <div class="t-row her"><div class="t-time">10:00 AM</div><div class="t-act"><b>🇵🇹 Portuguese class</b><span class="t-det">10–11am</span></div></div>
+    <div class="t-row her"><div class="t-time">11:00 AM</div><div class="t-act"><b>Errands after class</b></div></div>
+    <div class="t-row him"><div class="t-time">12:00 PM</div><div class="t-act"><b>A: lunch + walk</b><span class="t-det">D: lunch home</span></div></div>
+    <div class="t-row work"><div class="t-time">1:00 PM</div><div class="t-act"><b>Work</b></div></div>
+    <div class="t-row work"><div class="t-time">2:00 PM</div><div class="t-act"><b>Work</b></div></div>
+    <div class="t-row work"><div class="t-time">3:00 PM</div><div class="t-act"><b>Work</b><span class="t-det">D: afternoon shake</span></div></div>
+    <div class="t-row him"><div class="t-time">4:00 PM</div><div class="t-act"><b>A: leave work</b></div></div>
+    <div class="t-row both"><div class="t-time">4:30 PM</div><div class="t-act"><b>🚶 Walk together 30min</b></div></div>
+    <div class="t-row him"><div class="t-time">5:00 PM</div><div class="t-act"><b>🐈 Cat care</b><span class="t-det">D: starts dinner</span></div></div>
+    <div class="t-row both"><div class="t-time">6:00 PM</div><div class="t-act"><b>🍽 Dinner together</b></div></div>
+    <div class="t-row both"><div class="t-time">6:30 PM</div><div class="t-act"><b>Dishwasher + counters</b></div></div>
+    <div class="t-row him"><div class="t-time">7:00 PM</div><div class="t-act"><b>💼 A: Side dev</b><span class="t-det">D: free / rest</span></div></div>
+    <div class="t-row him"><div class="t-time">8:00 PM</div><div class="t-act"><b>💼 A: Side dev</b></div></div>
+    <div class="t-row both"><div class="t-time">9:00 PM</div><div class="t-act"><b>🚶 Evening walk (opt)</b></div></div>
+    <div class="t-row free"><div class="t-time">9:30 PM</div><div class="t-act"><b>Wind down</b></div></div>
+    <div class="t-row sleep"><div class="t-time">10:00 PM</div><div class="t-act"><b>Bed</b><span class="t-det">5:30 wake</span></div></div>
+  </div>
+</div>
+
+<div class="day-page" data-day="wed">
+  <h2 class="day-h2">Wednesday</h2>
+  <div class="timeline">
+    <div class="t-row both"><div class="t-time">5:30 AM</div><div class="t-act"><b>Wake</b><span class="t-det">coffee shake</span></div></div>
+    <div class="t-row both"><div class="t-time">6:00 AM</div><div class="t-act"><b>🏋 Gym — Lower A</b><span class="t-det">YMCA Westhills</span></div></div>
+    <div class="t-row both"><div class="t-time">7:00 AM</div><div class="t-act"><b>Home · A: shower</b><span class="t-det">D: changes, slow morning</span></div></div>
+    <div class="t-row him"><div class="t-time">7:30 AM</div><div class="t-act"><b>A → Work</b><span class="t-det">D: breakfast, dishwasher unload</span></div></div>
+    <div class="t-row her"><div class="t-time">8:00 AM</div><div class="t-act"><b>Bathroom 2 clean</b><span class="t-det">toilet, sink, shower, mirror (20min)</span></div></div>
+    <div class="t-row her"><div class="t-time">9:00 AM</div><div class="t-act"><b>Balcony sweep + table wipe</b><span class="t-det">(10min)</span></div></div>
+    <div class="t-row her"><div class="t-time">10:00 AM</div><div class="t-act"><b>Free / snack</b></div></div>
+    <div class="t-row her"><div class="t-time">11:00 AM</div><div class="t-act"><b>Laundry: fold + put away</b><span class="t-det">if load done (15min)</span></div></div>
+    <div class="t-row him"><div class="t-time">12:00 PM</div><div class="t-act"><b>A: lunch + walk</b><span class="t-det">D: lunch home</span></div></div>
+    <div class="t-row work"><div class="t-time">1:00 PM</div><div class="t-act"><b>Work</b></div></div>
+    <div class="t-row work"><div class="t-time">2:00 PM</div><div class="t-act"><b>Work</b></div></div>
+    <div class="t-row work"><div class="t-time">3:00 PM</div><div class="t-act"><b>Work</b><span class="t-det">D: afternoon shake</span></div></div>
+    <div class="t-row him"><div class="t-time">4:00 PM</div><div class="t-act"><b>A: leave work</b></div></div>
+    <div class="t-row both"><div class="t-time">4:30 PM</div><div class="t-act"><b>🚶 Walk together 30min</b></div></div>
+    <div class="t-row him"><div class="t-time">5:00 PM</div><div class="t-act"><b>🐈 Cat care</b><span class="t-det">D: starts dinner</span></div></div>
+    <div class="t-row both"><div class="t-time">6:00 PM</div><div class="t-act"><b>🍽 Dinner together</b></div></div>
+    <div class="t-row both"><div class="t-time">6:30 PM</div><div class="t-act"><b>Dishwasher + counters</b></div></div>
+    <div class="t-row him"><div class="t-time">7:00 PM</div><div class="t-act"><b>💼 A: Side dev</b><span class="t-det">D: free / rest</span></div></div>
+    <div class="t-row him"><div class="t-time">8:00 PM</div><div class="t-act"><b>💼 A: Side dev</b></div></div>
+    <div class="t-row both"><div class="t-time">9:00 PM</div><div class="t-act"><b>🚶 Evening walk (opt)</b></div></div>
+    <div class="t-row free"><div class="t-time">9:30 PM</div><div class="t-act"><b>Wind down</b></div></div>
+    <div class="t-row sleep"><div class="t-time">10:00 PM</div><div class="t-act"><b>Bed</b><span class="t-det">5:30 wake</span></div></div>
+  </div>
+</div>
+
+<div class="day-page" data-day="thu">
+  <h2 class="day-h2">Thursday</h2>
+  <div class="timeline">
+    <div class="t-row sleep"><div class="t-time">5:30 AM</div><div class="t-act"><b>sleep</b></div></div>
+    <div class="t-row sleep"><div class="t-time">6:00 AM</div><div class="t-act"><b>sleep</b></div></div>
+    <div class="t-row both"><div class="t-time">7:00 AM</div><div class="t-act"><b>Wake + breakfast together</b></div></div>
+    <div class="t-row him"><div class="t-time">7:30 AM</div><div class="t-act"><b>A → Work</b><span class="t-det">D: breakfast, dishwasher unload</span></div></div>
+    <div class="t-row her"><div class="t-time">8:00 AM</div><div class="t-act"><b>Dust all surfaces</b><span class="t-det">TV stand, shelves, frames (20min)</span></div></div>
+    <div class="t-row her"><div class="t-time">9:00 AM</div><div class="t-act"><b>Change bed sheets</b><span class="t-det">master + guest (15min)</span></div></div>
+    <div class="t-row her"><div class="t-time">10:00 AM</div><div class="t-act"><b>Mirrors + entryway tidy</b><span class="t-det">(10min)</span></div></div>
+    <div class="t-row her"><div class="t-time">11:00 AM</div><div class="t-act"><b>Free / rest</b></div></div>
+    <div class="t-row him"><div class="t-time">12:00 PM</div><div class="t-act"><b>A: lunch + walk</b><span class="t-det">D: lunch home</span></div></div>
+    <div class="t-row work"><div class="t-time">1:00 PM</div><div class="t-act"><b>Work</b></div></div>
+    <div class="t-row work"><div class="t-time">2:00 PM</div><div class="t-act"><b>Work</b></div></div>
+    <div class="t-row work"><div class="t-time">3:00 PM</div><div class="t-act"><b>Work</b><span class="t-det">D: afternoon shake</span></div></div>
+    <div class="t-row him"><div class="t-time">4:00 PM</div><div class="t-act"><b>A: leave work</b></div></div>
+    <div class="t-row both"><div class="t-time">4:30 PM</div><div class="t-act"><b>🚶 Walk together 1h</b><span class="t-det">no-gym day</span></div></div>
+    <div class="t-row him"><div class="t-time">5:00 PM</div><div class="t-act"><b>🐈 Cat care</b><span class="t-det">D: starts dinner</span></div></div>
+    <div class="t-row both"><div class="t-time">6:00 PM</div><div class="t-act"><b>🍽 Dinner together</b></div></div>
+    <div class="t-row both"><div class="t-time">6:30 PM</div><div class="t-act"><b>Dishwasher + counters</b></div></div>
+    <div class="t-row him"><div class="t-time">7:00 PM</div><div class="t-act"><b>💼 A: Side dev</b><span class="t-det">D: free / rest</span></div></div>
+    <div class="t-row him"><div class="t-time">8:00 PM</div><div class="t-act"><b>💼 A: Side dev</b></div></div>
+    <div class="t-row both"><div class="t-time">9:00 PM</div><div class="t-act"><b>🚶 Evening walk (opt)</b></div></div>
+    <div class="t-row free"><div class="t-time">9:30 PM</div><div class="t-act"><b>Wind down</b></div></div>
+    <div class="t-row sleep"><div class="t-time">10:00 PM</div><div class="t-act"><b>Bed</b></div></div>
+  </div>
+</div>
+
+<div class="day-page" data-day="fri">
+  <h2 class="day-h2">Friday</h2>
+  <div class="timeline">
+    <div class="t-row both"><div class="t-time">5:30 AM</div><div class="t-act"><b>Wake</b><span class="t-det">coffee shake</span></div></div>
+    <div class="t-row both"><div class="t-time">6:00 AM</div><div class="t-act"><b>🏋 Gym — Upper B</b><span class="t-det">YMCA Westhills</span></div></div>
+    <div class="t-row both"><div class="t-time">7:00 AM</div><div class="t-act"><b>Home · A: shower</b><span class="t-det">D: changes, slow morning</span></div></div>
+    <div class="t-row him"><div class="t-time">7:30 AM</div><div class="t-act"><b>A → Work</b><span class="t-det">D: breakfast, dishwasher unload</span></div></div>
+    <div class="t-row her"><div class="t-time">8:00 AM</div><div class="t-act"><b>Kitchen deep wipe</b><span class="t-det">stove, microwave, hood (15min)</span></div></div>
+    <div class="t-row her"><div class="t-time">9:00 AM</div><div class="t-act"><b>Fridge quick clean</b><span class="t-det">toss expired, wipe (10min)</span></div></div>
+    <div class="t-row her"><div class="t-time">10:00 AM</div><div class="t-act"><b>Plants + balcony plants</b><span class="t-det">water, check (5min)</span></div></div>
+    <div class="t-row her"><div class="t-time">11:00 AM</div><div class="t-act"><b>Towels swap</b><span class="t-det">master + 2nd bath + kitchen (5min)</span></div></div>
+    <div class="t-row him"><div class="t-time">12:00 PM</div><div class="t-act"><b>A: lunch + walk</b><span class="t-det">D: lunch home</span></div></div>
+    <div class="t-row work"><div class="t-time">1:00 PM</div><div class="t-act"><b>Work</b></div></div>
+    <div class="t-row work"><div class="t-time">2:00 PM</div><div class="t-act"><b>Work</b></div></div>
+    <div class="t-row work"><div class="t-time">3:00 PM</div><div class="t-act"><b>Work</b><span class="t-det">D: afternoon shake</span></div></div>
+    <div class="t-row him"><div class="t-time">4:00 PM</div><div class="t-act"><b>A: leave work</b></div></div>
+    <div class="t-row both"><div class="t-time">4:30 PM</div><div class="t-act"><b>🚶 Walk together 30min</b></div></div>
+    <div class="t-row him"><div class="t-time">5:00 PM</div><div class="t-act"><b>🐈 Cat care</b><span class="t-det">D: starts dinner</span></div></div>
+    <div class="t-row both"><div class="t-time">6:00 PM</div><div class="t-act"><b>🍽 Dinner together</b></div></div>
+    <div class="t-row both"><div class="t-time">6:30 PM</div><div class="t-act"><b>Dishwasher + counters</b></div></div>
+    <div class="t-row him"><div class="t-time">7:00 PM</div><div class="t-act"><b>💼 A: Side dev</b><span class="t-det">D: free / rest</span></div></div>
+    <div class="t-row him"><div class="t-time">8:00 PM</div><div class="t-act"><b>💼 A: Side dev</b></div></div>
+    <div class="t-row both"><div class="t-time">9:00 PM</div><div class="t-act"><b>🚶 Evening walk (opt)</b></div></div>
+    <div class="t-row free"><div class="t-time">9:30 PM</div><div class="t-act"><b>Wind down</b></div></div>
+    <div class="t-row sleep"><div class="t-time">10:00 PM</div><div class="t-act"><b>Bed</b></div></div>
+  </div>
+</div>
+
+<div class="day-page" data-day="sat">
+  <h2 class="day-h2">Saturday</h2>
+  <div class="timeline">
+    <div class="t-row sleep"><div class="t-time">5:30 AM</div><div class="t-act"><b>sleep</b></div></div>
+    <div class="t-row sleep"><div class="t-time">6:00 AM</div><div class="t-act"><b>💤 sleep in</b><span class="t-det">🏋 gym 9am</span></div></div>
+    <div class="t-row sleep"><div class="t-time">7:00 AM</div><div class="t-act"><b>sleep in</b></div></div>
+    <div class="t-row both"><div class="t-time">7:30 AM</div><div class="t-act"><b>Slow wake · coffee</b></div></div>
+    <div class="t-row both"><div class="t-time">8:00 AM</div><div class="t-act"><b>Brunch together (fresh)</b></div></div>
+    <div class="t-row both"><div class="t-time">9:00 AM</div><div class="t-act"><b>🏋 Gym 9am — Lower B</b><span class="t-det">YMCA, slow weekend session</span></div></div>
+    <div class="t-row both"><div class="t-time">10:00 AM</div><div class="t-act"><b>🍳 Brunch after gym</b><span class="t-det">eggs/bacon, easy</span></div></div>
+    <div class="t-row both"><div class="t-time">11:00 AM</div><div class="t-act"><b>🛒 Groceries together</b><span class="t-det">A drives, D picks</span></div></div>
+    <div class="t-row both"><div class="t-time">12:00 PM</div><div class="t-act"><b>Lunch together (easy)</b></div></div>
+    <div class="t-row both"><div class="t-time">1:00 PM</div><div class="t-act"><b>Free / errands / nap</b></div></div>
+    <div class="t-row both"><div class="t-time">2:00 PM</div><div class="t-act"><b>Free / together time</b></div></div>
+    <div class="t-row both"><div class="t-time">3:00 PM</div><div class="t-act"><b>Snack / date prep</b></div></div>
+    <div class="t-row free"><div class="t-time">4:00 PM</div><div class="t-act"><b>Free</b></div></div>
+    <div class="t-row free"><div class="t-time">4:30 PM</div><div class="t-act"><b>Free / date afternoon</b></div></div>
+    <div class="t-row both"><div class="t-time">5:00 PM</div><div class="t-act"><b>Date dinner: cook together</b></div></div>
+    <div class="t-row both"><div class="t-time">6:00 PM</div><div class="t-act"><b>🍽 Sat date dinner</b><span class="t-det">steak or Bolognese</span></div></div>
+    <div class="t-row free"><div class="t-time">6:30 PM</div><div class="t-act"><b>Unwind together</b></div></div>
+    <div class="t-row both"><div class="t-time">7:00 PM</div><div class="t-act"><b>Date night continues</b></div></div>
+    <div class="t-row free"><div class="t-time">8:00 PM</div><div class="t-act"><b>Free</b></div></div>
+    <div class="t-row free"><div class="t-time">9:00 PM</div><div class="t-act"><b>Free</b></div></div>
+    <div class="t-row sleep"><div class="t-time">9:30 PM</div><div class="t-act"><b>Bed by 10:30</b></div></div>
+    <div class="t-row sleep"><div class="t-time">10:00 PM</div><div class="t-act"><b>Sleep</b></div></div>
+  </div>
+</div>
+
+<div class="day-page" data-day="sun">
+  <h2 class="day-h2">Sunday</h2>
+  <div class="timeline">
+    <div class="t-row sleep"><div class="t-time">5:30 AM</div><div class="t-act"><b>sleep</b></div></div>
+    <div class="t-row sleep"><div class="t-time">6:00 AM</div><div class="t-act"><b>💤 sleep in</b><span class="t-det">🏊 pool 10am</span></div></div>
+    <div class="t-row sleep"><div class="t-time">7:00 AM</div><div class="t-act"><b>sleep in</b></div></div>
+    <div class="t-row both"><div class="t-time">7:30 AM</div><div class="t-act"><b>Slow wake · coffee</b></div></div>
+    <div class="t-row both"><div class="t-time">8:00 AM</div><div class="t-act"><b>🍳 Phase 1 prep</b><span class="t-det">slow-cookers ON · marinades · A leads</span></div></div>
+    <div class="t-row both"><div class="t-time">9:00 AM</div><div class="t-act"><b>🚶 Walk to YMCA</b><span class="t-det">leave 9:15 · 2.2km · ~30min at D&#x27;s pace</span></div></div>
+    <div class="t-row both"><div class="t-time">10:00 AM</div><div class="t-act"><b>🏊 Pool / float (1h)</b><span class="t-det">Langford Aquatic · relax, low-key</span></div></div>
+    <div class="t-row both"><div class="t-time">11:00 AM</div><div class="t-act"><b>🚶 Walk home + snack</b><span class="t-det">apple/yogurt — slow-cookers nearly done</span></div></div>
+    <div class="t-row both"><div class="t-time">12:00 PM</div><div class="t-act"><b>🍳 Phase 2 prep</b><span class="t-det">sheet pans · chop veg · D helps if up to it</span></div></div>
+    <div class="t-row both"><div class="t-time">1:00 PM</div><div class="t-act"><b>🍳 Portion + label + clean</b><span class="t-det">finish prep · lunch together when done</span></div></div>
+    <div class="t-row both"><div class="t-time">2:00 PM</div><div class="t-act"><b>Free / family time</b></div></div>
+    <div class="t-row both"><div class="t-time">3:00 PM</div><div class="t-act"><b>Snack / wind-down</b></div></div>
+    <div class="t-row free"><div class="t-time">4:00 PM</div><div class="t-act"><b>Free</b></div></div>
+    <div class="t-row free"><div class="t-time">4:30 PM</div><div class="t-act"><b>Free / family</b></div></div>
+    <div class="t-row both"><div class="t-time">5:00 PM</div><div class="t-act"><b>Wind down weekend</b></div></div>
+    <div class="t-row both"><div class="t-time">6:00 PM</div><div class="t-act"><b>🍽 Dinner (Sun options)</b></div></div>
+    <div class="t-row him"><div class="t-time">6:30 PM</div><div class="t-act"><b>🗑 Garbage + recycling out</b><span class="t-det">pickup tomorrow AM</span></div></div>
+    <div class="t-row him"><div class="t-time">7:00 PM</div><div class="t-act"><b>💼 A: Side dev (optional)</b><span class="t-det">D: prep for week</span></div></div>
+    <div class="t-row both"><div class="t-time">8:00 PM</div><div class="t-act"><b>Sun 15min sync</b><span class="t-det">plan the week ahead</span></div></div>
+    <div class="t-row free"><div class="t-time">9:00 PM</div><div class="t-act"><b>Wind down · phones away</b></div></div>
+    <div class="t-row sleep"><div class="t-time">9:30 PM</div><div class="t-act"><b>Bed by 10:00</b><span class="t-det">Mon = no gym</span></div></div>
+    <div class="t-row sleep"><div class="t-time">10:00 PM</div><div class="t-act"><b>Sleep</b></div></div>
+  </div>
+</div>
+
+<div class="sched-info">
+  <div class="info-card info-him">
+    <h3>Alison this week</h3>
+    <ul>
+      <li>🏋 Gym 4× (Tue/Wed/Fri/Sat)</li>
+      <li>🏊 Sun pool (10–11am)</li>
+      <li>🐈 Cat care daily, 5pm</li>
+      <li>🍳 Sun meal prep: 2 phases (before + after pool)</li>
+      <li>🗑 Garbage Sun PM</li>
+      <li>💼 Side dev 7–9pm Mon–Fri (10h)</li>
+      <li>🚶 5 walks + Sun walk to YMCA</li>
+    </ul>
+  </div>
+  <div class="info-card info-her">
+    <h3>Darlene this week</h3>
+    <ul>
+      <li>🏋 Gym 4× with Alison</li>
+      <li>🏊 Sun pool (10–11am) · relax/float</li>
+      <li>🇵🇹 Portuguese Tue 10am</li>
+      <li>House chores: ~30–40min/day</li>
+      <li>🍽 Dinner ~5pm daily</li>
+      <li>Whey+yogurt 3pm daily</li>
+      <li>Free afternoons for rest</li>
+    </ul>
+  </div>
+  <div class="info-card info-both">
+    <h3>Together this week</h3>
+    <ul>
+      <li>🍽 Dinner together every night</li>
+      <li>🚶 4:30pm walk daily</li>
+      <li>🛒 Sat groceries together</li>
+      <li>🍽 Sat date-night dinner</li>
+      <li>Sun 8pm 15min week sync</li>
+      <li>Phones away after 9:30pm</li>
+    </ul>
+  </div>
+</div>
+
+<footer class="workouts-footer">
+  Training split: Tue Upper A · Wed Lower A · Fri Upper B · Sat Lower B · Sun pool/walk · Mon + Thu = full rest<br />
+  Wake: 5:30am gym days, ~7am rest days · Bed: 10pm latest on gym-eve nights
+</footer>
+
+<script src="schedule.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

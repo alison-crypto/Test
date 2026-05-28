@@ -167,10 +167,79 @@ function exportData() {
   }
 }
 
+// Save the current day's session into the Tracker's training history.
+// Person ('him' or 'her') and a human day label are derived from the page's
+// data-* attributes so the same code works for both gym pages.
+function saveToTracker() {
+  const person = cfg.exportLabel && cfg.exportLabel.toLowerCase().startsWith('darlene') ? 'her' : 'him';
+  const dayPage = document.querySelector('.day-page.active');
+  if (!dayPage) return;
+  const dayLabel = (dayPage.querySelector('.day-title') || {}).textContent || currentDay;
+
+  const exercises = [];
+  dayPage.querySelectorAll('.exercise').forEach((ex) => {
+    const name = ex.querySelector('.ex-name').textContent.trim();
+    const target = (ex.querySelector('.ex-target') || {}).textContent || '';
+    const sets = [];
+    ex.querySelectorAll('.set-row').forEach((row) => {
+      const w = row.querySelector('[data-field^="w"]').value;
+      const r = row.querySelector('[data-field^="r"]').value;
+      sets.push({ w, r });
+    });
+    // Only include the exercise if it was checked off OR at least one set has data
+    const hasData = sets.some((s) => s.w || s.r);
+    if (ex.classList.contains('done') || hasData) {
+      exercises.push({
+        exId: ex.dataset.ex,
+        name,
+        target: target.trim(),
+        done: ex.classList.contains('done'),
+        sets,
+      });
+    }
+  });
+
+  if (!exercises.length) {
+    alert('No exercise data on this page — nothing to save.');
+    return;
+  }
+
+  const today = new Date();
+  const tz = today.getTimezoneOffset() * 60000;
+  const dateISO = new Date(today - tz).toISOString().slice(0, 10);
+
+  const entry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+    date: dateISO,
+    person,
+    day: currentDay,
+    dayLabel: dayLabel.trim(),
+    exercises,
+  };
+
+  try {
+    const KEY = 'rtc_tracker_training_v1';
+    const arr = JSON.parse(localStorage.getItem(KEY) || '[]');
+    arr.push(entry);
+    localStorage.setItem(KEY, JSON.stringify(arr));
+  } catch (e) {
+    alert('Could not save (storage unavailable).');
+    return;
+  }
+
+  // Inline confirmation toast
+  const toast = document.createElement('div');
+  toast.className = 't-toast';
+  toast.textContent = '✓ Saved to Tracker';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2900);
+}
+
 window.toggleEx = toggleEx;
 window.switchDay = switchDay;
 window.resetCurrentDay = resetCurrentDay;
 window.exportData = exportData;
+window.saveToTracker = saveToTracker;
 
 load();
 loadPrev();

@@ -1,4 +1,4 @@
-const CACHE = 'assistant-v8';
+const CACHE = 'assistant-v9';
 const ASSETS = [
   './',
   './index.html',
@@ -9,12 +9,14 @@ const ASSETS = [
   './chores.html',
   './recipes.html',
   './fridge.html',
+  './tracker.html',
   './styles.css',
   './gym.js',
   './groceries.js',
   './schedule.js',
   './recipes.js',
   './fridge.js',
+  './tracker.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',

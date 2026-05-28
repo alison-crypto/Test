@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Tracker</title>
+</head>
+<body class="tracker-body">
+
+<header class="workouts-header">
+  <a href="index.html" class="back-link">‹ Home</a>
+  <h1>📊 Tracker</h1>
+  <div class="workouts-subtitle">Body · Meals · Training history · Weekly summary · PRs</div>
+
+  <div class="t-tabs">
+    <button class="t-tab-btn" data-tab="body">📏 Body</button>
+    <button class="t-tab-btn" data-tab="meals">🍽️ Meals</button>
+    <button class="t-tab-btn" data-tab="training">🏋 Training</button>
+    <button class="t-tab-btn" data-tab="summary">📊 Summary</button>
+    <button class="t-tab-btn" data-tab="prs">🏆 PRs</button>
+  </div>
+</header>
+
+<!-- BODY LOG -->
+<section class="t-tab" data-tab="body">
+  <form id="body-form" class="t-form">
+    <h2 class="t-form-h2">Log this week</h2>
+
+    <div class="t-row">
+      <label>Date<input type="date" name="date" id="body-date" required /></label>
+      <label>Person
+        <select name="person" id="body-person" required>
+          <option value="him">Alison</option>
+          <option value="her">Darlene</option>
+        </select>
+      </label>
+    </div>
+
+    <label>Weight (kg) *
+      <input type="number" name="weight" step="0.1" min="0" required />
+    </label>
+
+    <div class="t-row3">
+      <label>Waist<input type="number" name="waist" step="0.1" min="0" /></label>
+      <label>Chest<input type="number" name="chest" step="0.1" min="0" /></label>
+      <label>Hips<input type="number" name="hips" step="0.1" min="0" /></label>
+    </div>
+
+    <div class="t-row3">
+      <label>Bicep L<input type="number" name="bicepL" step="0.1" min="0" /></label>
+      <label>Bicep R<input type="number" name="bicepR" step="0.1" min="0" /></label>
+      <label>RHR<input type="number" name="rhr" step="1" min="0" /></label>
+    </div>
+
+    <div class="t-row">
+      <label>Thigh L<input type="number" name="thighL" step="0.1" min="0" /></label>
+      <label>Thigh R<input type="number" name="thighR" step="0.1" min="0" /></label>
+    </div>
+
+    <label class="t-checkbox">
+      <input type="checkbox" name="photos" /> 4-angle photos taken today
+    </label>
+
+    <label>Notes<textarea name="notes" rows="2" placeholder="How the week felt, observations…"></textarea></label>
+
+    <button type="submit" class="t-primary-btn">Save body log entry</button>
+  </form>
+
+  <h2 class="t-section-h2">History</h2>
+  <div id="body-entries"></div>
+</section>
+
+<!-- MEAL LOG -->
+<section class="t-tab" data-tab="meals">
+  <div id="today-totals"></div>
+
+  <form id="meal-form" class="t-form">
+    <h2 class="t-form-h2">Log a meal</h2>
+
+    <div class="t-row">
+      <label>Date<input type="date" name="date" id="meal-date" required /></label>
+      <label>Slot
+        <select name="slot" id="meal-slot" required></select>
+      </label>
+    </div>
+
+    <label>Meal
+      <select name="mealKey" id="meal-key" required>
+        <option value="">Choose a meal…</option>
+      </select>
+    </label>
+
+    <label>Notes<textarea name="notes" rows="2" placeholder="Deviations, substitutions…"></textarea></label>
+
+    <button type="submit" class="t-primary-btn">Save meal entry</button>
+  </form>
+
+  <h2 class="t-section-h2">Recent meals</h2>
+  <div id="meal-entries"></div>
+</section>
+
+<!-- TRAINING HISTORY -->
+<section class="t-tab" data-tab="training">
+  <div class="t-info">Tap <b>"Save to Tracker"</b> on the Gym page after a workout. Sessions appear here, oldest at the bottom. Used to compute PRs.</div>
+  <div id="training-entries"></div>
+</section>
+
+<!-- WEEKLY SUMMARY -->
+<section class="t-tab" data-tab="summary">
+  <div class="t-info">Auto-rolled-up from Body / Meals / Training. One row per ISO week. Δ = change vs. the previous week.</div>
+  <div id="summary-table"></div>
+</section>
+
+<!-- PRs -->
+<section class="t-tab" data-tab="prs">
+  <div class="t-info">Auto-computed from saved training sessions. Top weight × reps per exercise, per person.</div>
+  <div id="prs-content"></div>
+</section>
+
+<footer class="workouts-footer">
+  Pair with the weekly check-in prompt in Tracker.xlsx · Source plan: Household_Plan_v14
+</footer>
+
+<script src="tracker.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

@@ -11,8 +11,11 @@ Current modules:
 - **Chores & SOPs** — daily / weekly / monthly / as-needed chore master list with who-chips, plus SOPs (Sunday setup, gym morning, meal prep, cat care), pregnancy ramp, and time accounting
 - **Recipes** — 21 recipes with search + cuisine/type filter pills, expandable cards showing ingredients/method/macros (him + her), per-person 5-star ratings, and a "just cooked this" log
 - **Fridge Cards** — 4-week menu rotation card view (A → B → C → D → A) with daily fixed bar (breakfast/snacks/pre-post), Mon–Sun lunch+dinner grid, and Sunday-prep + don't-forget reminders per week
+- **Tracker** — Body Log (weekly weight/measurements), Meal Log (today's macros auto-totalled), Training history, Weekly Summary roll-up, and auto-computed PRs
 
-One placeholder remaining: Tracker (Excel — needs a design discussion).
+**Cross-module integration**: Gym pages have a "Save to Tracker" button that writes the day's logged sets into the Tracker's training history (which then drives PRs and Weekly Summary). Recipe cards have a "Log to Tracker" button that pushes a meal entry with the recipe's macros.
+
+All source files imported. Next phase: Supabase cross-device sync so Alison + Darlene share Tracker data.
 
 ## Run it locally
 

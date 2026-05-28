@@ -725,7 +725,10 @@ function renderRecipe(r) {
             <div class="cook-log-item">Last cooked:<span class="val">${rd.lastCooked || '—'}</span></div>
             <div class="cook-log-item">Times made:<span class="val">${rd.timesMade || 0}</span></div>
           </div>
-          <button class="cook-btn" onclick="logCook('${r.id}')">📝 Just cooked this</button>
+          <div class="rec-btn-row">
+            <button class="cook-btn" onclick="logCook('${r.id}')">📝 Just cooked this</button>
+            <button class="cook-btn rec-log-tracker-btn" onclick="logRecipeToTracker('${r.id}')">📊 Log to Tracker</button>
+          </div>
         </div>
 
         <div class="source">${r.source}</div>
@@ -758,6 +761,46 @@ function logCook(id) {
   saved[id].timesMade = (saved[id].timesMade || 0) + 1;
   saveSaved(saved);
   renderAll();
+}
+
+// Push a meal log entry to the Tracker using this recipe's own macros.
+function logRecipeToTracker(id) {
+  const r = RECIPES.find((x) => x.id === id);
+  if (!r) return;
+  const slot = prompt('Which meal slot? (Breakfast / Lunch / Dinner / Snack / Pre-workout / Pre-bed)', 'Lunch');
+  if (slot === null) return;
+  const slotClean = (slot || '').trim() || 'Lunch';
+
+  const today = new Date();
+  const tz = today.getTimezoneOffset() * 60000;
+  const dateISO = new Date(today - tz).toISOString().slice(0, 10);
+
+  const entry = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
+    date: dateISO,
+    slot: slotClean,
+    mealKey: 'custom:' + r.id,
+    customName: r.name.replace(/&amp;/g, '&'),
+    himKcal: (r.macros.him && r.macros.him[0]) || 0,
+    himP:    (r.macros.him && r.macros.him[1]) || 0,
+    herKcal: (r.macros.her && r.macros.her[0]) || 0,
+    herP:    (r.macros.her && r.macros.her[1]) || 0,
+    notes: '',
+  };
+  try {
+    const KEY = 'rtc_tracker_meals_v1';
+    const arr = JSON.parse(localStorage.getItem(KEY) || '[]');
+    arr.push(entry);
+    localStorage.setItem(KEY, JSON.stringify(arr));
+  } catch (e) {
+    alert('Could not save (storage unavailable).');
+    return;
+  }
+  const toast = document.createElement('div');
+  toast.className = 't-toast';
+  toast.textContent = '✓ Logged to Tracker';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2900);
 }
 
 let activeFilter = 'all';

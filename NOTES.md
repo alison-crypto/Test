@@ -15,7 +15,9 @@ Last updated: 2026-05-28 (session 2)
 | Chores & SOPs | ✅ Done | `chores.html` |
 | Recipes (21 recipes, search/filter, ratings, cook log) | ✅ Done | `recipes.html` + `recipes.js` |
 | Fridge Cards (4-week menu, tabbed, themed per week) | ✅ Done | `fridge.html` + `fridge.js` |
-| Tracker | ⏳ Last (Excel — needs design discussion) | — |
+| Tracker (Body / Meals / Training / Summary / PRs) | ✅ Done | `tracker.html` + `tracker.js` |
+| **Cross-module import**: Gym "Save to Tracker" + Recipes "Log to Tracker" | ✅ Done | wired in `gym.js` + `recipes.js` |
+| Supabase cross-device sync (Stage 2) | ⏳ When ready | — |
 | Supabase sync (Stage 2) | ⏳ After modules | — |
 
 ## Source files in Google Drive
@@ -33,9 +35,9 @@ Already imported:
 - `Weekly_Schedule.html` — `1p7y6aDF2Q6nYIYQog2Lm1xTNsaBU6Tuc` (split into Schedule + Chores & SOPs)
 - `Recipe_Book.html` — `1a2HARaLZ0kr5Mww8Hx5HLoMddouvUNt2`
 - `Fridge_Cards.html` — `1M8_Q0cHrW5EfL8saxBMee_5Wk2AU9FmJ`
+- `Tracker.xlsx` — `1gnYKetjpKkMsKKiiV2qg5g2oyoHJmZZY` (focused build: Body / Meals / Training history / Summary / PRs)
 
-Pending (next sessions):
-- `Tracker.xlsx` — `1gnYKetjpKkMsKKiiV2qg5g2oyoHJmZZY` (needs design pass)
+**All source files imported.** Remaining work is Stage 2: Supabase cross-device sync (so Darlene + Alison share Tracker data instead of each phone having its own).
 - `Test_Artifact.html` — `1BIUx778p5s5tbjCWT6HQRxo8VHJpDU0L` (skipping — looks like a test file)
 
 To read these, use MCP tool `mcp__1e6d9f2f-647a-418f-a823-df4b3d31400f__download_file_content` with the file ID.

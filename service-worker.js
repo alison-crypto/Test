@@ -1,11 +1,13 @@
-const CACHE = 'assistant-v3';
+const CACHE = 'assistant-v4';
 const ASSETS = [
   './',
   './index.html',
   './gym-alison.html',
   './gym-darlene.html',
+  './groceries.html',
   './styles.css',
   './gym.js',
+  './groceries.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',

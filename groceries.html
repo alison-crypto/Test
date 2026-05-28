@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a84ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Groceries</title>
+</head>
+<body class="groceries-body" data-default-week="a">
+
+<header class="workouts-header">
+  <a href="index.html" class="back-link">‹ Home</a>
+  <h1>🛒 Groceries</h1>
+  <div class="workouts-subtitle">4-week rotation · Auto-saves per week</div>
+
+  <div class="week-picker">
+    <div class="week-btn week-btn-a active" data-week="a">
+      <div class="week-btn-label">Week A</div>
+      <div class="week-btn-name">Original</div>
+    </div>
+    <div class="week-btn week-btn-b" data-week="b">
+      <div class="week-btn-label">Week B</div>
+      <div class="week-btn-name">Mediterranean</div>
+    </div>
+    <div class="week-btn week-btn-c" data-week="c">
+      <div class="week-btn-label">Week C</div>
+      <div class="week-btn-name">Moroccan / Indian</div>
+    </div>
+    <div class="week-btn week-btn-d" data-week="d">
+      <div class="week-btn-label">Week D</div>
+      <div class="week-btn-name">Latin / Cajun</div>
+    </div>
+  </div>
+
+  <div class="day-progress">
+    <div class="day-progress-bar"><div class="day-progress-fill" id="fill"></div></div>
+    <div class="day-progress-text" id="count">0 / 0</div>
+  </div>
+
+  <div class="day-controls">
+    <button class="ghost-btn" onclick="toggleAll(true)">Check All</button>
+    <button class="ghost-btn ghost-btn-danger" onclick="resetAll()">Reset</button>
+  </div>
+</header>
+
+<div class="grocery-legend">
+  <div class="legend-row"><span class="legend-swatch sw-meals"></span><b>Meals</b> — this week's lunches &amp; dinners</div>
+  <div class="legend-row"><span class="legend-swatch sw-fixed"></span><b>Fixed Weekly</b> — daily breakfast / snacks</div>
+  <div class="legend-row"><span class="legend-swatch sw-pantry"></span><b>Pantry</b> — check before buying</div>
+  <div class="legend-row"><span class="legend-swatch sw-swap"></span><b>Yellow bar</b> = budget swap</div>
+</div>
+
+<!-- ============================================ -->
+<!-- WEEK A — Original                              -->
+<!-- ============================================ -->
+<div class="week-page active" data-week="a" data-storage-key="rtc_grocery_week_a_v3">
+  <div class="grocery-section section-meals theme-a">
+    <h2>Week A — Meal Ingredients</h2>
+    <div class="section-hint">Slow-cooked chicken · turkey taco patties · beef cumin-lime · sheet-pan chicken thigh · Sat flank steak · Sun brunch</div>
+
+    <h3>Proteins</h3>
+    <div class="item" data-id="a_chicken_breast"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Chicken breast (lean)</div><div class="qty">1.0 kg raw</div><div class="note">Lunch 1, slow-cooked &amp; pulled</div></div></div>
+    <div class="item" data-id="a_ground_turkey"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Ground turkey lean (93/7 or extra-lean)</div><div class="qty">650 g raw</div><div class="note">Lunch 2 taco patties</div></div></div>
+    <div class="item swap" data-id="a_beef_chuck"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Beef chuck (instead of sirloin tip)</div><div class="qty">850 g raw, cubed</div><div class="note">Dinner 1 cumin-lime bowl. Slow-cooker tenderizes fat. ~$7 cheaper.</div></div></div>
+    <div class="item swap" data-id="a_chicken_thigh"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Chicken thigh — bone-in skin-on</div><div class="qty">900 g raw (with bones)</div><div class="note">Dinner 2 sheet pan. Cheaper, more flavor.</div></div></div>
+
+    <h3>Carbs</h3>
+    <div class="item" data-id="a_sweet_potato"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Sweet potatoes</div><div class="qty">700 g</div><div class="note">Dinner 2 only</div></div></div>
+
+    <h3>Fresh Vegetables</h3>
+    <div class="item" data-id="a_bell_peppers"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Bell peppers (mixed red/yellow)</div><div class="qty">1.0 kg</div><div class="note">Lunch 1 + Lunch 2</div></div></div>
+    <div class="item" data-id="a_broccoli"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Broccoli</div><div class="qty">1.2 kg</div><div class="note">Lunch 1 + Dinner 2</div></div></div>
+    <div class="item" data-id="a_zucchini"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Zucchini</div><div class="qty">500 g (~2 medium)</div><div class="note">Lunch 1 only</div></div></div>
+    <div class="item" data-id="a_red_onion"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Red onion</div><div class="qty">2 medium (~350 g)</div><div class="note">Dinner 1 + Lunch 2</div></div></div>
+    <div class="item" data-id="a_yellow_onion"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Yellow onion</div><div class="qty">1 medium (~200 g)</div><div class="note">Cooking base for beef + turkey</div></div></div>
+    <div class="item" data-id="a_carrots"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Carrots</div><div class="qty">400 g</div><div class="note">Dinner 2</div></div></div>
+    <div class="item" data-id="a_cherry_tomatoes"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Cherry tomatoes</div><div class="qty">400 g (1 clamshell)</div><div class="note">Dinner 1 fresh topping</div></div></div>
+    <div class="item" data-id="a_cucumber"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Cucumber</div><div class="qty">1 large (~350 g)</div><div class="note">Dinner 1 fresh topping</div></div></div>
+    <div class="item" data-id="a_mixed_greens"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Mixed greens (spinach + romaine)</div><div class="qty">1 bag (~400-500 g)</div><div class="note">Dinner 1 base</div></div></div>
+    <div class="item swap" data-id="a_avocado"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Avocados</div><div class="qty">2 medium (was 3)</div><div class="note">Cut from 3 to 2 — one always over-ripens.</div></div></div>
+    <div class="item" data-id="a_cilantro"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Fresh cilantro</div><div class="qty">1 small bunch</div><div class="note">Dinner 1 + Lunch 2 garnish</div></div></div>
+    <div class="item" data-id="a_limes"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Fresh limes</div><div class="qty">5 count</div><div class="note">D1 + L2 + cooking</div></div></div>
+
+    <h3>Frozen / Canned</h3>
+    <div class="item" data-id="a_corn"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Corn (frozen)</div><div class="qty">200 g</div><div class="note">Lunch 2 only</div></div></div>
+    <div class="item" data-id="a_black_beans"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Black beans (no-salt-added)</div><div class="qty">3 cans (400 g each)</div><div class="note">Dinner 1 + Lunch 2</div></div></div>
+
+    <h3>Dairy</h3>
+    <div class="item" data-id="a_feta"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Feta cheese (aged = naturally low-lactose)</div><div class="qty">200 g block</div><div class="note">Dinner 1 fresh topping</div></div></div>
+
+    <h3>Weekend Meals (Sat dinner + Sun brunch)</h3>
+    <div class="item swap" data-id="a_flank_steak"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Flank steak (instead of ribeye)</div><div class="qty">400 g</div><div class="note">Sat date night. Marinate 1h. ~half the cost.</div></div></div>
+    <div class="item" data-id="a_russet"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Russet/baking potatoes</div><div class="qty">600 g (2 large)</div><div class="note">Sat dinner</div></div></div>
+    <div class="item" data-id="a_asparagus"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Asparagus</div><div class="qty">1 bunch (~350 g)</div><div class="note">Sat dinner</div></div></div>
+    <div class="item swap" data-id="a_bacon"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Bacon (smaller pack)</div><div class="qty">~250-300 g</div><div class="note">Sun brunch only needs 100g.</div></div></div>
+  </div>
+
+  <div class="grocery-section section-fixed">
+    <h2>Fixed Weekly — Daily Meals</h2>
+    <div class="section-hint">Breakfasts, snacks, shakes. Perishables — buy every week.</div>
+
+    <h3>Breakfast core</h3>
+    <div class="item" data-id="a_eggs"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Eggs (large)</div><div class="qty">2 dozen (24)</div><div class="note">Him 6/day × 5 prep days + Her 1-2/day + Sun brunch 4-6</div></div></div>
+    <div class="item" data-id="a_bananas"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Bananas</div><div class="qty">10 count (~1.5 kg)</div><div class="note">Him breakfast + pre-workout + Sun pancakes</div></div></div>
+    <div class="item" data-id="a_sourdough"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Sourdough bread</div><div class="qty">1 small loaf (~400 g)</div><div class="note">Sun brunch + Her breakfast option B</div></div></div>
+
+    <h3>Dairy / Yogurt</h3>
+    <div class="item swap" data-id="a_yogurt"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Greek yogurt (regular, plain)</div><div class="qty">2 kg total</div><div class="note">TEST Darlene's tolerance first.</div></div></div>
+
+    <h3>Fresh Fruit</h3>
+    <div class="item" data-id="a_apples"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Apples</div><div class="qty">10 count (~1.5 kg)</div><div class="note">His pre-workout + Her snack daily</div></div></div>
+    <div class="item" data-id="a_lemons"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Lemons</div><div class="qty">4 count</div><div class="note">Lunch 1 marinade + cooking</div></div></div>
+    <div class="item" data-id="a_garlic"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Fresh garlic</div><div class="qty">1 head (~50 g)</div><div class="note">Most meals — replace if dry</div></div></div>
+  </div>
+
+  <div class="grocery-section section-pantry">
+    <h2>Pantry — Check Before Buying</h2>
+    <div class="section-hint">Long-shelf items. Open the cupboard first.</div>
+
+    <h3>Breakfast staples</h3>
+    <div class="item" data-id="a_oats"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Rolled oats</div><div class="qty">800 g (lasts ~2 weeks)</div><div class="note">Him breakfast + Her overnight oats</div></div></div>
+    <div class="item" data-id="a_chia"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Chia seeds</div><div class="qty">150 g (lasts ~2 weeks)</div><div class="note">Her overnight oats</div></div></div>
+    <div class="item" data-id="a_berries"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Frozen berries (mixed)</div><div class="qty">1 kg bag</div><div class="note">Her overnight oats + snack</div></div></div>
+    <div class="item" data-id="a_pb"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Peanut butter, natural</div><div class="qty">200 g jar</div></div></div>
+    <div class="item" data-id="a_honey"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Honey, raw</div><div class="qty">250 g jar</div></div></div>
+    <div class="item" data-id="a_maple"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Maple syrup (real)</div><div class="qty">250 ml</div><div class="note">Sun pancakes only</div></div></div>
+
+    <h3>Nuts</h3>
+    <div class="item" data-id="a_almonds"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Almonds, raw unsalted</div><div class="qty">350 g</div></div></div>
+    <div class="item" data-id="a_walnuts"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Walnuts</div><div class="qty">150 g</div></div></div>
+
+    <h3>Rice &amp; grains</h3>
+    <div class="item" data-id="a_jasmine"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Jasmine rice (uncooked)</div><div class="qty">600 g</div><div class="note">Buy if &lt;500g left</div></div></div>
+    <div class="item" data-id="a_brown_rice"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Brown rice (uncooked)</div><div class="qty">200 g</div><div class="note">Lunch 2 only</div></div></div>
+
+    <h3>Cooking essentials</h3>
+    <div class="item" data-id="a_olive_oil"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Olive oil, extra virgin</div><div class="qty">500 ml bottle</div></div></div>
+    <div class="item" data-id="a_butter"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Butter, unsalted</div><div class="qty">250 g</div></div></div>
+    <div class="item" data-id="a_spices"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Spices — check pantry</div><div class="qty">As needed</div><div class="note">Salt, pepper, paprika, oregano, cumin, chili powder, garlic powder, rosemary, basil, cinnamon, vanilla</div></div></div>
+
+    <h3>Drinks</h3>
+    <div class="item" data-id="a_coffee"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Coffee beans/grounds</div><div class="qty">250 g</div></div></div>
+    <div class="item" data-id="a_decaf"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Decaf coffee (her)</div><div class="qty">200 g</div></div></div>
+    <div class="item" data-id="a_cashew_milk"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Unsweetened cashew milk</div><div class="qty">1 L carton</div></div></div>
+
+    <h3>Supplements (monthly check)</h3>
+    <div class="item" data-id="a_whey"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Whey isolate, lactose-free</div><div class="qty">1 tub ~2 kg</div></div></div>
+    <div class="item" data-id="a_creatine"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Creatine monohydrate</div><div class="qty">500 g tub</div><div class="note">Him only, 5g/day</div></div></div>
+    <div class="item" data-id="a_vitamins"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Vit D3, fish oil, prenatal (her)</div><div class="qty">Check supply</div></div></div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- WEEK B — Mediterranean (Greek/Asian/Italian)  -->
+<!-- ============================================ -->
+<div class="week-page" data-week="b" data-storage-key="rtc_grocery_week_b_v3">
+  <div class="grocery-section section-meals theme-b">
+    <h2>Week B — Meal Ingredients</h2>
+    <div class="section-hint">Greek lemon chicken · Asian beef skewers · Italian meatballs · Pork tenderloin · Sat pasta night</div>
+
+    <h3>Proteins</h3>
+    <div class="item" data-id="b_chicken_breast"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Chicken breast (lean)</div><div class="qty">1.0 kg raw</div><div class="note">Lunch 1 grilled Greek lemon</div></div></div>
+    <div class="item" data-id="b_beef_sirloin"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Beef sirloin / strip loin (cubed)</div><div class="qty">600 g raw</div><div class="note">Lunch 2 Asian skewers</div></div></div>
+    <div class="item" data-id="b_ground_beef"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Lean ground beef 90/10</div><div class="qty">850 g raw</div><div class="note">Dinner 1 Italian meatballs</div></div></div>
+    <div class="item" data-id="b_pork_tenderloin"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Pork tenderloin</div><div class="qty">650 g raw</div><div class="note">Dinner 2 sheet pan</div></div></div>
+
+    <h3>Carbs</h3>
+    <div class="item" data-id="b_quinoa"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Quinoa (uncooked)</div><div class="qty">300 g</div><div class="note">Lunch 1 only</div></div></div>
+    <div class="item" data-id="b_polenta"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Polenta / cornmeal (dry)</div><div class="qty">350 g dry</div><div class="note">Dinner 1 base for meatballs</div></div></div>
+    <div class="item" data-id="b_yukon"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Yukon gold potatoes</div><div class="qty">1.0 kg</div><div class="note">Dinner 2 sheet pan</div></div></div>
+
+    <h3>Fresh Vegetables</h3>
+    <div class="item" data-id="b_cucumber"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Cucumber</div><div class="qty">2 large (~700 g)</div><div class="note">Lunch 1 fresh topping</div></div></div>
+    <div class="item" data-id="b_cherry_tom"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Cherry tomatoes</div><div class="qty">650 g</div><div class="note">Lunch 1 + Sun brunch</div></div></div>
+    <div class="item" data-id="b_red_onion"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Red onion</div><div class="qty">1 medium (~180 g)</div><div class="note">Lunch 1</div></div></div>
+    <div class="item" data-id="b_yellow_onion"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Yellow onion</div><div class="qty">2 medium (~400 g)</div><div class="note">Meatballs + general</div></div></div>
+    <div class="item" data-id="b_peppers"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Bell peppers</div><div class="qty">400 g</div><div class="note">Lunch 2 skewers</div></div></div>
+    <div class="item" data-id="b_snowpeas"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Snow peas</div><div class="qty">250 g</div><div class="note">Lunch 2 side</div></div></div>
+    <div class="item" data-id="b_broccoli"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Broccoli</div><div class="qty">500 g</div><div class="note">Lunch 2</div></div></div>
+    <div class="item" data-id="b_brussels"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Brussels sprouts</div><div class="qty">550 g</div><div class="note">Dinner 2 sheet pan</div></div></div>
+    <div class="item" data-id="b_carrots"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Carrots</div><div class="qty">400 g</div><div class="note">Dinner 2</div></div></div>
+    <div class="item" data-id="b_spinach"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Spinach (fresh)</div><div class="qty">600 g (2 bags)</div><div class="note">Dinner 1 stir-in</div></div></div>
+    <div class="item" data-id="b_avocado"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Avocados</div><div class="qty">2 medium</div><div class="note">Sun brunch</div></div></div>
+
+    <h3>Canned / Sauce</h3>
+    <div class="item" data-id="b_crushed_tom"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Crushed tomatoes (canned, plain)</div><div class="qty">2 cans (~800 g)</div><div class="note">Meatball sauce + Sat Bolognese</div></div></div>
+    <div class="item" data-id="b_tom_paste"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Tomato paste (small can)</div><div class="qty">1 can (~170 g)</div></div></div>
+    <div class="item" data-id="b_sdt"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Sun-dried tomatoes in oil</div><div class="qty">100 g jar</div><div class="note">Lunch 1 garnish</div></div></div>
+    <div class="item" data-id="b_basil"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Fresh basil</div><div class="qty">1 bunch</div><div class="note">Tomato sauce + Sat Bolognese</div></div></div>
+
+    <h3>Dairy</h3>
+    <div class="item" data-id="b_parm"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Parmigiano-Reggiano wedge</div><div class="qty">150 g</div><div class="note">Sat Bolognese + meatballs</div></div></div>
+
+    <h3>Sat Pasta Night</h3>
+    <div class="item" data-id="b_pasta"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Whole-wheat pasta</div><div class="qty">500 g box</div><div class="note">Sat pasta + leftover</div></div></div>
+    <div class="item" data-id="b_salad"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Mixed salad greens</div><div class="qty">200 g bag</div><div class="note">Sat side salad</div></div></div>
+  </div>
+
+  <div class="grocery-section section-fixed">
+    <h2>Fixed Weekly — Daily Meals</h2>
+    <div class="section-hint">Breakfasts, snacks, perishables — buy every week.</div>
+    <h3>Breakfast core</h3>
+    <div class="item" data-id="b_eggs"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Eggs (large)</div><div class="qty">2 dozen (24)</div></div></div>
+    <div class="item" data-id="b_bananas"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Bananas</div><div class="qty">10 count (~1.5 kg)</div></div></div>
+    <div class="item" data-id="b_sourdough"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Sourdough bread</div><div class="qty">1 small loaf (~400 g)</div></div></div>
+    <div class="item swap" data-id="b_bacon"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Bacon (smaller pack)</div><div class="qty">~250-300 g</div></div></div>
+    <h3>Dairy / Yogurt</h3>
+    <div class="item swap" data-id="b_yogurt"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Greek yogurt (regular, plain)</div><div class="qty">2 kg total</div></div></div>
+    <h3>Fresh Fruit</h3>
+    <div class="item" data-id="b_apples"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Apples</div><div class="qty">10 count (~1.5 kg)</div></div></div>
+    <div class="item" data-id="b_lemons"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Lemons</div><div class="qty">4 count</div></div></div>
+    <div class="item" data-id="b_garlic"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Fresh garlic</div><div class="qty">1 head</div></div></div>
+  </div>
+
+  <div class="grocery-section section-pantry">
+    <h2>Pantry — Check Before Buying</h2>
+    <div class="section-hint">Long-shelf items. Open the cupboard first.</div>
+    <h3>Breakfast staples</h3>
+    <div class="item" data-id="b_oats"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Rolled oats</div><div class="qty">800 g</div></div></div>
+    <div class="item" data-id="b_chia"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Chia seeds</div><div class="qty">150 g</div></div></div>
+    <div class="item" data-id="b_berries"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Frozen berries (mixed)</div><div class="qty">1 kg bag</div></div></div>
+    <div class="item" data-id="b_pb"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Peanut butter, natural</div><div class="qty">200 g jar</div></div></div>
+    <div class="item" data-id="b_honey"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Honey, raw</div><div class="qty">250 g jar</div></div></div>
+    <div class="item" data-id="b_maple"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Maple syrup (real)</div><div class="qty">250 ml</div></div></div>
+    <h3>Nuts</h3>
+    <div class="item" data-id="b_almonds"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Almonds, raw unsalted</div><div class="qty">350 g</div></div></div>
+    <div class="item" data-id="b_walnuts"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Walnuts</div><div class="qty">150 g</div></div></div>
+    <h3>Cooking essentials</h3>
+    <div class="item" data-id="b_olive_oil"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Olive oil, extra virgin</div><div class="qty">500 ml</div></div></div>
+    <div class="item" data-id="b_butter"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Butter, unsalted</div><div class="qty">250 g</div></div></div>
+    <div class="item" data-id="b_spices"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Spices — check pantry</div><div class="qty">As needed</div></div></div>
+    <h3>Drinks</h3>
+    <div class="item" data-id="b_coffee"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Coffee beans/grounds</div><div class="qty">250 g</div></div></div>
+    <div class="item" data-id="b_decaf"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Decaf coffee (her)</div><div class="qty">200 g</div></div></div>
+    <div class="item" data-id="b_cashew_milk"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Unsweetened cashew milk</div><div class="qty">1 L carton</div></div></div>
+    <h3>Supplements</h3>
+    <div class="item" data-id="b_whey"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Whey isolate, lactose-free</div><div class="qty">1 tub ~2 kg</div></div></div>
+    <div class="item" data-id="b_creatine"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Creatine monohydrate</div><div class="qty">500 g tub</div></div></div>
+    <div class="item" data-id="b_vitamins"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Vit D3, fish oil, prenatal</div><div class="qty">Check supply</div></div></div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- WEEK C — Moroccan / Indian                     -->
+<!-- ============================================ -->
+<div class="week-page" data-week="c" data-storage-key="rtc_grocery_week_c_v3">
+  <div class="grocery-section section-meals theme-c">
+    <h2>Week C — Meal Ingredients</h2>
+    <div class="section-hint">Moroccan chicken couscous · Tikka chicken · Beef tagine · Butter chicken</div>
+
+    <h3>Proteins</h3>
+    <div class="item" data-id="c_chicken_breast"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Chicken breast (lean)</div><div class="qty">650 g raw</div><div class="note">Lunch 2 tikka skewers</div></div></div>
+    <div class="item swap" data-id="c_chicken_thigh"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Chicken thigh — bone-in skin-on</div><div class="qty">1.7 kg raw (with bones)</div><div class="note">Lunch 1 Moroccan + Dinner 2 butter chicken.</div></div></div>
+    <div class="item swap" data-id="c_beef_chuck"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Beef chuck (cheap cut)</div><div class="qty">850 g raw, cubed</div><div class="note">Dinner 1 Moroccan tagine</div></div></div>
+
+    <h3>Carbs</h3>
+    <div class="item" data-id="c_couscous"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Couscous (uncooked)</div><div class="qty">200 g</div><div class="note">Lunch 1 only</div></div></div>
+    <div class="item" data-id="c_sweet_potato"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Sweet potatoes</div><div class="qty">1.3 kg</div><div class="note">Dinner 1 tagine</div></div></div>
+
+    <h3>Canned / Legumes</h3>
+    <div class="item" data-id="c_chickpeas"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Chickpeas (canned, plain)</div><div class="qty">2 cans (400 g each)</div><div class="note">Lunch 1 + Dinner 1</div></div></div>
+    <div class="item" data-id="c_passata"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Tomato passata or crushed tomatoes</div><div class="qty">~1 kg (1 large or 2 small)</div><div class="note">Dinner 1 + Dinner 2 sauce base</div></div></div>
+    <div class="item" data-id="c_coconut"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Canned coconut milk</div><div class="qty">400 ml can</div><div class="note">Dinner 2 butter chicken cream</div></div></div>
+
+    <h3>Fresh Vegetables</h3>
+    <div class="item" data-id="c_peppers"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Bell peppers (mixed)</div><div class="qty">1.0 kg</div><div class="note">Lunch 1 + Lunch 2</div></div></div>
+    <div class="item" data-id="c_carrots"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Carrots</div><div class="qty">500 g</div><div class="note">Lunch 1 tabbouleh-style</div></div></div>
+    <div class="item" data-id="c_cauliflower"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Cauliflower</div><div class="qty">1 small head (~300 g)</div><div class="note">Lunch 2 roasted</div></div></div>
+    <div class="item" data-id="c_yellow_onion"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Yellow onions</div><div class="qty">3 medium (~450 g)</div><div class="note">All meals — cooking base</div></div></div>
+    <div class="item" data-id="c_red_onion"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Red onion</div><div class="qty">1 medium (~180 g)</div><div class="note">Lunch 2 garnish</div></div></div>
+    <div class="item" data-id="c_spinach"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Spinach (fresh)</div><div class="qty">1 large bag (~400 g)</div><div class="note">Dinner 1 stir-in</div></div></div>
+    <div class="item" data-id="c_greenbeans"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Green beans (fresh or frozen)</div><div class="qty">500 g</div><div class="note">Dinner 2</div></div></div>
+    <div class="item" data-id="c_ginger"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Fresh ginger</div><div class="qty">100 g knob</div><div class="note">Most meals this week</div></div></div>
+    <div class="item" data-id="c_cilantro"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Fresh cilantro</div><div class="qty">1 bunch</div><div class="note">Lunch 2 + Dinner 2 garnish</div></div></div>
+
+    <h3>Extras</h3>
+    <div class="item" data-id="c_raisins"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Raisins or dried apricots</div><div class="qty">75 g (small bag)</div><div class="note">Lunch 1 couscous garnish</div></div></div>
+    <div class="item swap" data-id="c_yogurt_marinade"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Plain regular Greek yogurt (TEST tolerance)</div><div class="qty">200 g (small tub)</div><div class="note">Lunch 2 tikka marinade — split from main yogurt</div></div></div>
+  </div>
+
+  <div class="grocery-section section-fixed">
+    <h2>Fixed Weekly — Daily Meals</h2>
+    <h3>Breakfast core</h3>
+    <div class="item" data-id="c_eggs"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Eggs (large)</div><div class="qty">2 dozen (24)</div></div></div>
+    <div class="item" data-id="c_bananas"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Bananas</div><div class="qty">10 count (~1.5 kg)</div></div></div>
+    <div class="item" data-id="c_sourdough"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Sourdough bread</div><div class="qty">1 small loaf (~400 g)</div></div></div>
+    <div class="item swap" data-id="c_bacon"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Bacon (smaller pack)</div><div class="qty">~250-300 g</div></div></div>
+    <h3>Dairy / Yogurt</h3>
+    <div class="item swap" data-id="c_yogurt"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Greek yogurt (regular, plain)</div><div class="qty">2 kg total</div></div></div>
+    <h3>Fresh Fruit</h3>
+    <div class="item" data-id="c_apples"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Apples</div><div class="qty">10 count (~1.5 kg)</div></div></div>
+    <div class="item" data-id="c_lemons"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Lemons</div><div class="qty">4 count</div></div></div>
+    <div class="item" data-id="c_garlic"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Fresh garlic</div><div class="qty">1 head</div></div></div>
+  </div>
+
+  <div class="grocery-section section-pantry">
+    <h2>Pantry — Check Before Buying</h2>
+    <h3>Breakfast staples</h3>
+    <div class="item" data-id="c_oats"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Rolled oats</div><div class="qty">800 g</div></div></div>
+    <div class="item" data-id="c_chia"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Chia seeds</div><div class="qty">150 g</div></div></div>
+    <div class="item" data-id="c_berries"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Frozen berries (mixed)</div><div class="qty">1 kg bag</div></div></div>
+    <div class="item" data-id="c_pb"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Peanut butter, natural</div><div class="qty">200 g jar</div></div></div>
+    <div class="item" data-id="c_honey"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Honey, raw</div><div class="qty">250 g jar</div></div></div>
+    <div class="item" data-id="c_maple"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Maple syrup (real)</div><div class="qty">250 ml</div></div></div>
+    <h3>Nuts</h3>
+    <div class="item" data-id="c_almonds"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Almonds, raw unsalted</div><div class="qty">350 g</div></div></div>
+    <div class="item" data-id="c_walnuts"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Walnuts</div><div class="qty">150 g</div></div></div>
+    <h3>Cooking essentials</h3>
+    <div class="item" data-id="c_olive_oil"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Olive oil, extra virgin</div><div class="qty">500 ml</div></div></div>
+    <div class="item" data-id="c_butter"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Butter, unsalted</div><div class="qty">250 g</div></div></div>
+    <div class="item" data-id="c_spices"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Spices — check pantry</div><div class="qty">As needed</div></div></div>
+    <h3>Drinks</h3>
+    <div class="item" data-id="c_coffee"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Coffee beans/grounds</div><div class="qty">250 g</div></div></div>
+    <div class="item" data-id="c_decaf"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Decaf coffee (her)</div><div class="qty">200 g</div></div></div>
+    <div class="item" data-id="c_cashew_milk"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Unsweetened cashew milk</div><div class="qty">1 L carton</div></div></div>
+    <h3>Supplements</h3>
+    <div class="item" data-id="c_whey"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Whey isolate, lactose-free</div><div class="qty">1 tub ~2 kg</div></div></div>
+    <div class="item" data-id="c_creatine"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Creatine monohydrate</div><div class="qty">500 g tub</div></div></div>
+    <div class="item" data-id="c_vitamins"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Vit D3, fish oil, prenatal</div><div class="qty">Check supply</div></div></div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- WEEK D — Latin / Cajun                         -->
+<!-- ============================================ -->
+<div class="week-page" data-week="d" data-storage-key="rtc_grocery_week_d_v3">
+  <div class="grocery-section section-meals theme-d">
+    <h2>Week D — Meal Ingredients</h2>
+    <div class="section-hint">Cuban pork rice · Cajun chicken dirty rice · BBQ pulled chicken · Turkey chili</div>
+
+    <h3>Proteins</h3>
+    <div class="item swap" data-id="d_pork"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Pork tenderloin (instead of shoulder)</div><div class="qty">800 g raw</div><div class="note">Lunch 1 slow-cooker Cuban</div></div></div>
+    <div class="item" data-id="d_chicken_breast"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Chicken breast (lean)</div><div class="qty">650 g raw</div><div class="note">Lunch 2 grilled Cajun</div></div></div>
+    <div class="item swap" data-id="d_chicken_thigh"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Chicken thigh — bone-in skin-on</div><div class="qty">1.1 kg raw (with bones)</div><div class="note">Dinner 1 BBQ pulled.</div></div></div>
+    <div class="item" data-id="d_turkey"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Ground turkey 93/7 lean</div><div class="qty">650 g raw</div><div class="note">Dinner 2 chili</div></div></div>
+
+    <h3>Carbs</h3>
+    <div class="item" data-id="d_potatoes"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Russet potatoes</div><div class="qty">1.4 kg</div><div class="note">Dinner 1 wedges</div></div></div>
+    <div class="item" data-id="d_corn"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Corn on the cob (fresh)</div><div class="qty">1 ear</div><div class="note">Dinner 2 — ½ ear each</div></div></div>
+
+    <h3>Canned / Legumes</h3>
+    <div class="item" data-id="d_black_beans"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Black beans (canned, plain)</div><div class="qty">3 cans (400 g each)</div><div class="note">Lunch 1 + Dinner 2</div></div></div>
+    <div class="item" data-id="d_kidney"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Kidney beans (canned, plain)</div><div class="qty">2 cans</div><div class="note">Lunch 2 + Dinner 2 chili</div></div></div>
+    <div class="item" data-id="d_crushed_tom"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Crushed tomatoes (canned, plain)</div><div class="qty">1 can (~400 g)</div><div class="note">Dinner 2 chili base</div></div></div>
+    <div class="item" data-id="d_tom_paste"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Tomato paste (small can)</div><div class="qty">1 can (~170 g)</div><div class="note">Homemade BBQ sauce + Sat Bolognese</div></div></div>
+    <div class="item" data-id="d_acv"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Apple cider vinegar</div><div class="qty">1 small bottle</div><div class="note">BBQ sauce + slaw dressing</div></div></div>
+
+    <h3>Fresh Vegetables</h3>
+    <div class="item" data-id="d_peppers"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Bell peppers (mixed)</div><div class="qty">1.2 kg</div><div class="note">Lunch 1 + Lunch 2 + Dinner 2</div></div></div>
+    <div class="item" data-id="d_yellow_onion"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Yellow onions</div><div class="qty">3 medium (~450 g)</div><div class="note">All meals cooking base</div></div></div>
+    <div class="item" data-id="d_red_onion"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Red onion</div><div class="qty">1 medium (~180 g)</div><div class="note">Lunch 1 Cuban</div></div></div>
+    <div class="item" data-id="d_celery"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Celery</div><div class="qty">1 small bunch (~250 g)</div><div class="note">Lunch 2 dirty rice 'holy trinity'</div></div></div>
+    <div class="item" data-id="d_cabbage"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Green cabbage (shred for slaw)</div><div class="qty">1 small head (~600 g)</div><div class="note">Dinner 1 slaw</div></div></div>
+    <div class="item" data-id="d_carrots"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Carrots (for slaw + general)</div><div class="qty">300 g</div></div></div>
+    <div class="item" data-id="d_avocado"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Avocados</div><div class="qty">2 medium</div><div class="note">Sun brunch + occasional</div></div></div>
+    <div class="item" data-id="d_limes"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Limes</div><div class="qty">4 count</div><div class="note">Lunch 1 mojo + general</div></div></div>
+
+    <h3>Sat Pasta Night</h3>
+    <div class="item" data-id="d_ground_beef"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Lean ground beef 90/10</div><div class="qty">350 g raw</div><div class="note">Sat Bolognese</div></div></div>
+    <div class="item" data-id="d_pasta"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Whole-wheat pasta</div><div class="qty">500 g box</div><div class="note">Sat pasta + leftover</div></div></div>
+    <div class="item" data-id="d_crushed_tom2"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Crushed tomatoes (additional can for Bolognese)</div><div class="qty">1 can (~400 g)</div></div></div>
+    <div class="item" data-id="d_basil"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Fresh basil</div><div class="qty">1 bunch</div></div></div>
+    <div class="item" data-id="d_parm"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Parmigiano-Reggiano wedge</div><div class="qty">150 g</div></div></div>
+    <div class="item" data-id="d_salad"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Mixed salad greens</div><div class="qty">200 g bag</div></div></div>
+    <div class="item" data-id="d_cherry_tom"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Cherry tomatoes</div><div class="qty">250 g</div><div class="note">Sat salad + Sun brunch</div></div></div>
+  </div>
+
+  <div class="grocery-section section-fixed">
+    <h2>Fixed Weekly — Daily Meals</h2>
+    <h3>Breakfast core</h3>
+    <div class="item" data-id="d_eggs"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Eggs (large)</div><div class="qty">2 dozen (24)</div></div></div>
+    <div class="item" data-id="d_bananas"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Bananas</div><div class="qty">10 count (~1.5 kg)</div></div></div>
+    <div class="item" data-id="d_sourdough"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Sourdough bread</div><div class="qty">1 small loaf (~400 g)</div></div></div>
+    <div class="item swap" data-id="d_bacon"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Bacon (smaller pack)</div><div class="qty">~250-300 g</div></div></div>
+    <h3>Dairy / Yogurt</h3>
+    <div class="item swap" data-id="d_yogurt"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name"><span class="swap-tag">SWAP</span>Greek yogurt (regular, plain)</div><div class="qty">2 kg total</div></div></div>
+    <h3>Fresh Fruit</h3>
+    <div class="item" data-id="d_apples"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Apples</div><div class="qty">10 count (~1.5 kg)</div></div></div>
+    <div class="item" data-id="d_lemons"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Lemons</div><div class="qty">4 count</div></div></div>
+    <div class="item" data-id="d_garlic"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Fresh garlic</div><div class="qty">1 head</div></div></div>
+  </div>
+
+  <div class="grocery-section section-pantry">
+    <h2>Pantry — Check Before Buying</h2>
+    <h3>Breakfast staples</h3>
+    <div class="item" data-id="d_oats"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Rolled oats</div><div class="qty">800 g</div></div></div>
+    <div class="item" data-id="d_chia"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Chia seeds</div><div class="qty">150 g</div></div></div>
+    <div class="item" data-id="d_berries"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Frozen berries (mixed)</div><div class="qty">1 kg bag</div></div></div>
+    <div class="item" data-id="d_pb"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Peanut butter, natural</div><div class="qty">200 g jar</div></div></div>
+    <div class="item" data-id="d_honey"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Honey, raw</div><div class="qty">250 g jar</div></div></div>
+    <div class="item" data-id="d_maple"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Maple syrup (real)</div><div class="qty">250 ml</div></div></div>
+    <h3>Nuts</h3>
+    <div class="item" data-id="d_almonds"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Almonds, raw unsalted</div><div class="qty">350 g</div></div></div>
+    <div class="item" data-id="d_walnuts"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Walnuts</div><div class="qty">150 g</div></div></div>
+    <h3>Cooking essentials</h3>
+    <div class="item" data-id="d_olive_oil"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Olive oil, extra virgin</div><div class="qty">500 ml</div></div></div>
+    <div class="item" data-id="d_butter"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Butter, unsalted</div><div class="qty">250 g</div></div></div>
+    <div class="item" data-id="d_spices"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Spices — check pantry</div><div class="qty">As needed</div></div></div>
+    <h3>Drinks</h3>
+    <div class="item" data-id="d_coffee"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Coffee beans/grounds</div><div class="qty">250 g</div></div></div>
+    <div class="item" data-id="d_decaf"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Decaf coffee (her)</div><div class="qty">200 g</div></div></div>
+    <div class="item" data-id="d_cashew_milk"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Unsweetened cashew milk</div><div class="qty">1 L carton</div></div></div>
+    <h3>Supplements</h3>
+    <div class="item" data-id="d_whey"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Whey isolate, lactose-free</div><div class="qty">1 tub ~2 kg</div></div></div>
+    <div class="item" data-id="d_creatine"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Creatine monohydrate</div><div class="qty">500 g tub</div></div></div>
+    <div class="item" data-id="d_vitamins"><div class="checkbox"><span class="checkmark">✓</span></div><div class="text"><div class="name">Vit D3, fish oil, prenatal</div><div class="qty">Check supply</div></div></div>
+  </div>
+</div>
+
+<footer class="workouts-footer">
+  4-week rotation · v14 plan · Auto-saves per week<br />
+  <strong style="color:#fbbf24;">Yellow bar</strong> = budget swap from original plan
+</footer>
+
+<script src="groceries.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

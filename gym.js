@@ -1,14 +1,134 @@
 const cfg = document.body.dataset;
 const STORAGE_KEY = cfg.storageKey;
 const PREV_KEY = cfg.prevKey;
+const SWAPS_KEY = STORAGE_KEY + '_swaps';
+const NOTES_KEY = STORAGE_KEY + '_notes';
+const TRAINING_HISTORY_KEY = 'rtc_tracker_training_v1';
 const EXPORT_LABEL = cfg.exportLabel || 'Gym session';
+const IS_HER = (EXPORT_LABEL || '').toLowerCase().startsWith('darlene');
 let currentDay = cfg.defaultDay;
 
+function ytSearchUrl(name) {
+  return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(name + ' proper form');
+}
+
+function loadJSON(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+  catch (e) { return fallback; }
+}
+function saveJSON(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+}
+
+// ============================================================
+// Compute PRs from cross-module training history
+// ============================================================
+function computePRs() {
+  const trains = loadJSON(TRAINING_HISTORY_KEY, []);
+  const person = IS_HER ? 'her' : 'him';
+  const prs = {}; // exId -> { weight, reps, date }
+
+  trains.forEach((t) => {
+    if (t.person !== person) return;
+    (t.exercises || []).forEach((ex) => {
+      if (!ex.exId) return;
+      (ex.sets || []).forEach((s) => {
+        const w = Number(s.w), r = Number(s.r);
+        if (!w || !r) return;
+        const existing = prs[ex.exId];
+        if (!existing || w > existing.weight) {
+          prs[ex.exId] = { weight: w, reps: r, date: t.date };
+        }
+      });
+    });
+  });
+  return prs;
+}
+
+// ============================================================
+// Build set rows + last-week display + swap UI + notes + PR badge
+// ============================================================
+const swaps = loadJSON(SWAPS_KEY, {});
+const notes = loadJSON(NOTES_KEY, {});
+const prs = computePRs();
+
 document.querySelectorAll('.exercise').forEach((ex) => {
+  const exId = ex.dataset.ex;
   const numSets = parseInt(ex.dataset.sets) || 3;
+
+  // Cache the original exercise name + YouTube link so we can revert
+  const nameEl = ex.querySelector('.ex-name');
+  const linkEl = ex.querySelector('.ex-demo');
+  ex.dataset.origName = nameEl.textContent;
+  if (linkEl) ex.dataset.origHref = linkEl.getAttribute('href');
+
+  // Apply saved swap, if any
+  if (swaps[exId] != null && Array.isArray(SUBSTITUTES[exId])) {
+    const sub = SUBSTITUTES[exId][swaps[exId]];
+    if (sub) {
+      nameEl.textContent = sub.name;
+      if (linkEl) linkEl.setAttribute('href', ytSearchUrl(sub.name));
+    }
+  }
+
+  // PR badge (only if we have history for this exercise)
+  const info = ex.querySelector('.ex-info');
+  if (info && prs[exId]) {
+    const badge = document.createElement('div');
+    badge.className = 'ex-pr';
+    badge.textContent = `🏆 PR ${prs[exId].weight}×${prs[exId].reps}`;
+    badge.title = `Best logged set, ${prs[exId].date}`;
+    info.appendChild(badge);
+  }
+
+  // Swap button in the header (before the YouTube link)
+  const header = ex.querySelector('.ex-header');
+  if (header && Array.isArray(SUBSTITUTES[exId])) {
+    const swapBtn = document.createElement('button');
+    swapBtn.type = 'button';
+    swapBtn.className = 'ex-swap';
+    swapBtn.setAttribute('aria-label', 'Swap exercise');
+    swapBtn.textContent = '⇄';
+    swapBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const panel = ex.querySelector('.ex-swap-panel');
+      if (panel) panel.classList.toggle('open');
+    });
+    // Insert before YouTube link if present, else append
+    if (linkEl) header.insertBefore(swapBtn, linkEl);
+    else header.appendChild(swapBtn);
+  }
+
+  // Swap panel
+  if (Array.isArray(SUBSTITUTES[exId])) {
+    const panel = document.createElement('div');
+    panel.className = 'ex-swap-panel';
+    const isSwapped = swaps[exId] != null;
+    panel.innerHTML = `
+      <div class="ex-swap-title">Swap if needed${IS_HER ? ' — pregnancy-safe alternates only, confirm load with OB' : ''}:</div>
+      ${SUBSTITUTES[exId].map((sub, i) => `
+        <button type="button" class="ex-swap-opt ${swaps[exId] === i ? 'active' : ''}" data-idx="${i}">
+          <span class="opt-name">${sub.name}</span>
+          <span class="opt-reason">${sub.reason}</span>
+        </button>
+      `).join('')}
+      ${isSwapped ? '<button type="button" class="ex-swap-revert">↶ Back to original</button>' : ''}
+    `;
+    panel.querySelectorAll('.ex-swap-opt').forEach((b) => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = Number(b.dataset.idx);
+        applySwap(exId, idx);
+      });
+    });
+    const revertBtn = panel.querySelector('.ex-swap-revert');
+    if (revertBtn) revertBtn.addEventListener('click', (e) => { e.stopPropagation(); applySwap(exId, null); });
+    ex.appendChild(panel);
+  }
+
+  // Set rows
   const setsContainer = document.createElement('div');
   setsContainer.className = 'ex-sets';
-
   for (let i = 1; i <= numSets; i++) {
     const row = document.createElement('div');
     row.className = 'set-row';
@@ -22,15 +142,79 @@ document.querySelectorAll('.exercise').forEach((ex) => {
   }
   const lastWeek = document.createElement('div');
   lastWeek.className = 'last-week';
-  lastWeek.dataset.exId = ex.dataset.ex;
+  lastWeek.dataset.exId = exId;
   setsContainer.appendChild(lastWeek);
-
   ex.appendChild(setsContainer);
+
+  // Notes
+  const notesWrap = document.createElement('div');
+  notesWrap.className = 'ex-notes-wrap';
+  const ta = document.createElement('textarea');
+  ta.className = 'ex-notes-input';
+  ta.placeholder = 'Notes — form cues, pain, progressions…';
+  ta.dataset.exId = exId;
+  ta.value = notes[exId] || '';
+  notesWrap.appendChild(ta);
+  ex.appendChild(notesWrap);
 });
 
+function applySwap(exId, idx) {
+  const ex = document.querySelector(`.exercise[data-ex="${exId}"]`);
+  if (!ex) return;
+  const nameEl = ex.querySelector('.ex-name');
+  const linkEl = ex.querySelector('.ex-demo');
+  if (idx == null) {
+    nameEl.textContent = ex.dataset.origName;
+    if (linkEl) linkEl.setAttribute('href', ex.dataset.origHref);
+    delete swaps[exId];
+  } else {
+    const sub = SUBSTITUTES[exId][idx];
+    nameEl.textContent = sub.name;
+    if (linkEl) linkEl.setAttribute('href', ytSearchUrl(sub.name));
+    swaps[exId] = idx;
+  }
+  saveJSON(SWAPS_KEY, swaps);
+  // Rebuild the swap panel to reflect new state
+  const panel = ex.querySelector('.ex-swap-panel');
+  if (panel) {
+    panel.querySelectorAll('.ex-swap-opt').forEach((b) => {
+      b.classList.toggle('active', Number(b.dataset.idx) === idx);
+    });
+    const existingRevert = panel.querySelector('.ex-swap-revert');
+    if (idx != null && !existingRevert) {
+      const r = document.createElement('button');
+      r.type = 'button';
+      r.className = 'ex-swap-revert';
+      r.textContent = '↶ Back to original';
+      r.addEventListener('click', (e) => { e.stopPropagation(); applySwap(exId, null); });
+      panel.appendChild(r);
+    } else if (idx == null && existingRevert) {
+      existingRevert.remove();
+    }
+    panel.classList.remove('open');
+  }
+}
+
+// Stop click propagation on inputs so checking the exercise doesn't fire
 document.querySelectorAll('.set-input').forEach((input) => {
   input.addEventListener('click', (e) => e.stopPropagation());
   input.addEventListener('input', save);
+});
+
+// Notes textareas — save on input (debounced) + stop click bubbling
+let notesTimer;
+document.querySelectorAll('.ex-notes-input').forEach((ta) => {
+  ta.addEventListener('click', (e) => e.stopPropagation());
+  ta.addEventListener('input', (e) => {
+    notes[ta.dataset.exId] = ta.value;
+    clearTimeout(notesTimer);
+    notesTimer = setTimeout(() => saveJSON(NOTES_KEY, notes), 300);
+  });
+});
+
+// Prevent the swap panel from collapsing the parent exercise when tapped inside
+document.querySelectorAll('.ex-swap-panel').forEach((p) => {
+  p.addEventListener('click', (e) => e.stopPropagation());
 });
 
 function save() {

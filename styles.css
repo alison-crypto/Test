@@ -399,6 +399,148 @@ body {
   align-self: center;
   border: 1px solid var(--border);
 }
+
+/* Swap button (sits next to the YouTube icon in each exercise header) */
+.ex-swap {
+  flex-shrink: 0;
+  font-size: 12px;
+  background: var(--card-2);
+  color: var(--gym-accent);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  align-self: center;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 700;
+  margin-right: 4px;
+}
+.ex-swap:active { background: var(--input-bg); }
+
+/* PR badge — gold pill under the target line */
+.ex-pr {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #b8870b;
+  background: #fff3c4;
+  padding: 2px 7px;
+  border-radius: 3px;
+  border: 1px solid rgba(184, 135, 11, 0.25);
+}
+@media (prefers-color-scheme: dark) {
+  .ex-pr {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.10);
+    border-color: rgba(251, 191, 36, 0.30);
+  }
+}
+
+/* Swap panel — appears below the header when the swap button is tapped */
+.ex-swap-panel {
+  display: none;
+  padding: 10px 14px;
+  background: var(--card-2);
+  border-top: 1px solid var(--border-2);
+}
+.ex-swap-panel.open { display: block; }
+
+.ex-swap-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.ex-swap-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin-bottom: 6px;
+  padding: 9px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text);
+}
+.ex-swap-opt:active { background: var(--input-bg); }
+
+.ex-swap-opt.active {
+  background: var(--gym-accent);
+  border-color: var(--gym-accent);
+  color: #fff;
+}
+.ex-swap-opt.active .opt-reason { color: rgba(255, 255, 255, 0.85); }
+
+.ex-swap-opt .opt-name {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+}
+.ex-swap-opt .opt-reason {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  font-style: italic;
+}
+
+.ex-swap-revert {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px;
+  background: transparent;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  font-size: 11.5px;
+  color: var(--muted-strong);
+  cursor: pointer;
+  font-family: inherit;
+}
+.ex-swap-revert:active { background: var(--input-bg); }
+
+/* Per-exercise notes */
+.ex-notes-wrap {
+  padding: 0 14px 12px;
+  margin-top: -4px;
+}
+.ex-notes-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 9px;
+  font-size: 12px;
+  color: var(--text);
+  font-family: inherit;
+  line-height: 1.4;
+  resize: vertical;
+  min-height: 32px;
+}
+.ex-notes-input:focus {
+  outline: none;
+  border-color: var(--gym-accent);
+}
+.ex-notes-input::placeholder {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Improve the "Last:" line so it's more prominent (survives Reset Day) */
+.last-week.has-data {
+  background: var(--input-bg);
+  padding: 5px 10px 5px 38px;
+  border-radius: 5px;
+  margin-top: 6px;
+  color: var(--muted-strong);
+}
 .ex-demo:active { opacity: 0.7; }
 
 /* Set logging */

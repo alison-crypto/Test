@@ -38,6 +38,17 @@ Already imported:
 - `Tracker.xlsx` — `1gnYKetjpKkMsKKiiV2qg5g2oyoHJmZZY` (focused build: Body / Meals / Training history / Summary / PRs)
 
 **All source files imported.** Remaining work is Stage 2: Supabase cross-device sync (so Darlene + Alison share Tracker data instead of each phone having its own).
+
+## Iteration backlog (post-import improvements)
+
+Per-tile improvements landing iteratively:
+
+- ✅ Gym: per-exercise swap (3 alternatives + auto-updated YouTube link), per-exercise notes, PR badge auto-pulled from Tracker training history
+- ⏳ Chores / Schedule / Fridge Cards: make them interactive (checkable + notes) like Groceries already is
+- ⏳ Recipes: user-added custom recipes, quantity on the Log-to-Tracker button
+- ⏳ Schedule: "Add to Apple Calendar" via .ics export
+- ⏳ Tracker: photo attachments on body-log entries (switch to IndexedDB to handle the size)
+- ⏳ Stage 2 backend (Supabase): cross-device sync + AI macro estimation for custom recipes
 - `Test_Artifact.html` — `1BIUx778p5s5tbjCWT6HQRxo8VHJpDU0L` (skipping — looks like a test file)
 
 To read these, use MCP tool `mcp__1e6d9f2f-647a-418f-a823-df4b3d31400f__download_file_content` with the file ID.

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a84ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Assistant" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Alison's Assistant</title>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Alison's Assistant</h1>
+    <p class="subtitle">Your personal command center</p>
+  </header>
+
+  <main class="home-grid">
+    <a href="workouts.html" class="tile tile-workouts">
+      <span class="tile-icon">🏋️</span>
+      <span class="tile-label">Workouts</span>
+    </a>
+    <div class="tile tile-disabled">
+      <span class="tile-icon">🍳</span>
+      <span class="tile-label">Meals</span>
+      <span class="tile-soon">Coming soon</span>
+    </div>
+    <div class="tile tile-disabled">
+      <span class="tile-icon">📋</span>
+      <span class="tile-label">Meal Prep</span>
+      <span class="tile-soon">Coming soon</span>
+    </div>
+    <div class="tile tile-disabled">
+      <span class="tile-icon">💰</span>
+      <span class="tile-label">Budget</span>
+      <span class="tile-soon">Coming soon</span>
+    </div>
+    <div class="tile tile-disabled">
+      <span class="tile-icon">📊</span>
+      <span class="tile-label">Trackers</span>
+      <span class="tile-soon">Coming soon</span>
+    </div>
+    <div class="tile tile-disabled">
+      <span class="tile-icon">📝</span>
+      <span class="tile-label">Notes</span>
+      <span class="tile-soon">Coming soon</span>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <small>v0.1 · data stored on this device</small>
+  </footer>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

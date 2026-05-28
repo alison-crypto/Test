@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ec4899" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Gym — Darlene</title>
+</head>
+<body class="workouts-body theme-darlene"
+      data-storage-key="rtc_gym_darlene_v1"
+      data-prev-key="rtc_gym_darlene_prev_v1"
+      data-default-day="upperMon"
+      data-export-label="Darlene gym session">
+
+<header class="workouts-header">
+  <a href="index.html" class="back-link">‹ Home</a>
+  <h1>💖 Gym — Darlene</h1>
+  <div class="workouts-subtitle">Pregnancy T3 modified · RPE 6-7 max · Tap to mark done</div>
+
+  <div class="safety-banner">
+    <b>⚠️ STOP if:</b> dizzy · contractions · fluid leak · bleeding · headache · calf swelling.
+    <b>Rules:</b> no supine after T2 · no Valsalva · no fall-risk · RPE 6-7 (talk-test) · 2-3 reps in tank.
+  </div>
+
+  <div class="day-picker">
+    <div class="day-btn active" data-day="upperMon" onclick="switchDay('upperMon')">
+      <div class="day-btn-label">Tue</div>
+      <div class="day-btn-name">Upper</div>
+    </div>
+    <div class="day-btn" data-day="lowerTue" onclick="switchDay('lowerTue')">
+      <div class="day-btn-label">Wed</div>
+      <div class="day-btn-name">Lower</div>
+    </div>
+    <div class="day-btn" data-day="upperThu" onclick="switchDay('upperThu')">
+      <div class="day-btn-label">Fri</div>
+      <div class="day-btn-name">Upper</div>
+    </div>
+    <div class="day-btn" data-day="lowerFri" onclick="switchDay('lowerFri')">
+      <div class="day-btn-label">Sat</div>
+      <div class="day-btn-name">Lower+Cardio</div>
+    </div>
+  </div>
+
+  <div class="day-progress">
+    <div class="day-progress-bar"><div class="day-progress-fill" id="fill"></div></div>
+    <div class="day-progress-text" id="count">0 / 0</div>
+  </div>
+
+  <div class="day-controls">
+    <button class="ghost-btn ghost-btn-danger" onclick="resetCurrentDay()">Reset Day</button>
+    <button class="ghost-btn" onclick="exportData()">Export to Claude</button>
+  </div>
+</header>
+
+<div class="day-page active" id="day-upperMon">
+  <div class="day-header">
+    <div class="day-title">Day 1 — Upper (Tue)</div>
+    <div class="day-meta">RPE 6-7 · Rest 60-90 sec · Light weights, perfect form</div>
+    <div class="day-note">⚠️ All bench work at 45° incline — never flat. No supine after T2.</div>
+  </div>
+
+  <div class="exercise" data-ex="her_u1_shoulder" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Seated DB Shoulder Press</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=seated+dumbbell+shoulder+press+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u1_row" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Seated Cable Row</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=seated+cable+row+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u1_incdb" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Incline DB Press (45°)</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+        <div class="ex-note">Bench at 45°, NOT flat. Restricted after T2.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=incline+dumbbell+press+45+degree+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u1_pull" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Lat Pulldown</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=lat+pulldown+proper+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u1_curl" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">DB Bicep Curl</div>
+        <div class="ex-target">2 × 12 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=dumbbell+bicep+curl+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u1_tri" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Tricep Pushdown</div>
+        <div class="ex-target">2 × 12 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=cable+tricep+pushdown+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u1_pallof" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Standing Pallof Press</div>
+        <div class="ex-target">2 × 10/side · rest 60 sec</div>
+        <div class="ex-note">Anti-rotation core — safe alternative to crunches.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=standing+pallof+press+pregnancy" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+</div>
+
+<div class="day-page" id="day-lowerTue">
+  <div class="day-header">
+    <div class="day-title">Day 2 — Lower (Wed)</div>
+    <div class="day-meta">RPE 6-7 · Box squats only · Belly clear of bar</div>
+  </div>
+
+  <div class="exercise" data-ex="her_l1_goblet" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Goblet Squat to Box</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+        <div class="ex-note">Box prevents going too deep — easier on pelvic floor.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=goblet+squat+to+box+pregnancy" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_l1_rdl" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">DB Romanian Deadlift</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+        <div class="ex-note">Light weight, perfect form. STOP if back rounds.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_l1_press" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Leg Press</div>
+        <div class="ex-target">2 × 12 · rest 60-90 sec</div>
+        <div class="ex-note">Adjust seat back as belly grows; never trap belly.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=leg+press+pregnancy+modification" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_l1_curl" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Seated Leg Curl</div>
+        <div class="ex-target">2 × 12 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=seated+leg+curl+machine+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_l1_calf" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Standing Calf Raise</div>
+        <div class="ex-target">2 × 15 · rest 45 sec</div>
+        <div class="ex-note">Hold rack for balance.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=standing+calf+raise+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_l1_birddog" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Bird-Dog</div>
+        <div class="ex-target">2 × 8/side · rest 45 sec</div>
+        <div class="ex-note">Slow &amp; controlled. Pregnancy-safe core.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=bird+dog+exercise+pregnancy" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_l1_clam" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Side-Lying Clamshells</div>
+        <div class="ex-target">2 × 15/side · rest 45 sec</div>
+        <div class="ex-note">Glute med for pelvic stability.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=side+lying+clamshell+exercise" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+</div>
+
+<div class="day-page" id="day-upperThu">
+  <div class="day-header">
+    <div class="day-title">Day 3 — Upper variation (Fri)</div>
+    <div class="day-meta">Pull-focused · Rest 60-90 sec</div>
+  </div>
+
+  <div class="exercise" data-ex="her_u2_row" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Chest-Supported Row</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=chest+supported+dumbbell+row+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u2_chest" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Machine Chest Press</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=machine+chest+press+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u2_lat" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Lat Pulldown</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=lat+pulldown+proper+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u2_face" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Face Pull</div>
+        <div class="ex-target">2 × 12 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=cable+face+pull+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u2_hammer" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Hammer Curl</div>
+        <div class="ex-target">2 × 12 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=dumbbell+hammer+curl+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u2_tri" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Tricep Pushdown</div>
+        <div class="ex-target">2 × 12 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=cable+tricep+pushdown+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_u2_pallof" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Standing Pallof Press</div>
+        <div class="ex-target">2 × 10/side · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=standing+pallof+press+pregnancy" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+</div>
+
+<div class="day-page" id="day-lowerFri">
+  <div class="day-header">
+    <div class="day-title">Day 4 — Lower + Cardio (Sat)</div>
+    <div class="day-meta">Lighter day · Glutes + incline walking finish</div>
+  </div>
+
+  <div class="exercise" data-ex="her_l2_goblet" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Goblet Squat to Box</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=goblet+squat+to+box+pregnancy" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_l2_hip" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Hip Thrust (Supported)</div>
+        <div class="ex-target">2 × 10 · rest 60-90 sec</div>
+        <div class="ex-note">Light DB on hips; head/shoulders on bench — not fully supine.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=hip+thrust+pregnancy+modification" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_l2_legext" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Leg Extension</div>
+        <div class="ex-target">2 × 12 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=leg+extension+machine+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_l2_bridge" data-sets="2">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Glute Bridge</div>
+        <div class="ex-target">2 × 12 · rest 60 sec</div>
+        <div class="ex-note">Brief holds only — minimize supine time, exit between sets.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=glute+bridge+bodyweight+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="her_l2_walk" data-sets="1">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Incline Treadmill Walk</div>
+        <div class="ex-target">20 min @ 3.0 mph, 5-8% incline</div>
+        <div class="ex-note">Excellent low-impact cardio.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=incline+treadmill+walk+pregnancy+workout" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+</div>
+
+<footer class="workouts-footer">
+  Gym sheet · v14 plan · T3 pregnancy modified · Auto-saves<br />
+  ⚠️ Confirm strength training cleared at next OB visit before adding load
+</footer>
+
+<script src="gym.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

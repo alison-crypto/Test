@@ -1,8 +1,9 @@
-const STORAGE_KEY = 'rtc_gym_alison_v1';
-const PREV_KEY = 'rtc_gym_alison_prev_v1';
-let currentDay = 'upperA';
+const cfg = document.body.dataset;
+const STORAGE_KEY = cfg.storageKey;
+const PREV_KEY = cfg.prevKey;
+const EXPORT_LABEL = cfg.exportLabel || 'Gym session';
+let currentDay = cfg.defaultDay;
 
-// Build set rows dynamically based on data-sets attribute
 document.querySelectorAll('.exercise').forEach((ex) => {
   const numSets = parseInt(ex.dataset.sets) || 3;
   const setsContainer = document.createElement('div');
@@ -27,7 +28,6 @@ document.querySelectorAll('.exercise').forEach((ex) => {
   ex.appendChild(setsContainer);
 });
 
-// Stop click propagation on inputs so checking the exercise doesn't fire
 document.querySelectorAll('.set-input').forEach((input) => {
   input.addEventListener('click', (e) => e.stopPropagation());
   input.addEventListener('input', save);
@@ -119,7 +119,7 @@ function updateProgress() {
 }
 
 function resetCurrentDay() {
-  if (!confirm(`Reset ${currentDay}? This saves current values as "last week" first.`)) return;
+  if (!confirm(`Reset ${currentDay}? Current values save as "last week" first.`)) return;
 
   try {
     let prev = {};
@@ -147,7 +147,7 @@ function resetCurrentDay() {
 }
 
 function exportData() {
-  let txt = `Gym session — ${currentDay} — ${new Date().toLocaleDateString()}\n\n`;
+  let txt = `${EXPORT_LABEL} — ${currentDay} — ${new Date().toLocaleDateString()}\n\n`;
   document.querySelectorAll('.day-page.active .exercise').forEach((ex) => {
     const name = ex.querySelector('.ex-name').textContent;
     const done = ex.classList.contains('done');

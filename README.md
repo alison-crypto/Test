@@ -7,9 +7,15 @@ Current modules:
 - **Alison's Gym** — 4-day Upper/Lower split (Upper A / Lower A / Upper B / Lower B)
 - **Darlene's Gym** — T3 pregnancy-modified plan with safety banner, RPE 6-7 cap, 45° incline only
 - **Groceries** — 4-week rotation (Original / Mediterranean / Moroccan-Indian / Latin-Cajun), each with Meals + Fixed Weekly + Pantry sections, tap-to-check, separate state per week
+- **Schedule** — daily timeline with day picker, defaults to today; Alison/Darlene/Together info cards
+- **Chores & SOPs** — daily / weekly / monthly / as-needed chore master list with who-chips, plus SOPs (Sunday setup, gym morning, meal prep, cat care), pregnancy ramp, and time accounting
+- **Recipes** — 21 recipes with search + cuisine/type filter pills, expandable cards showing ingredients/method/macros (him + her), per-person 5-star ratings, and a "just cooked this" log
+- **Fridge Cards** — 4-week menu rotation card view (A → B → C → D → A) with daily fixed bar (breakfast/snacks/pre-post), Mon–Sun lunch+dinner grid, and Sunday-prep + don't-forget reminders per week
+- **Tracker** — Body Log (weekly weight/measurements), Meal Log (today's macros auto-totalled), Training history, Weekly Summary roll-up, and auto-computed PRs
 
-Other tiles are placeholders for upcoming modules (Schedule, Recipes,
-Fridge Cards, Tracker).
+**Cross-module integration**: Gym pages have a "Save to Tracker" button that writes the day's logged sets into the Tracker's training history (which then drives PRs and Weekly Summary). Recipe cards have a "Log to Tracker" button that pushes a meal entry with the recipe's macros.
+
+All source files imported. Next phase: Supabase cross-device sync so Alison + Darlene share Tracker data.
 
 ## Run it locally
 

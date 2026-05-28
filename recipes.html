@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f59e0b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Recipe Book</title>
+</head>
+<body class="recipes-body">
+
+<header class="workouts-header">
+  <a href="index.html" class="back-link">‹ Home</a>
+  <h1>📖 Recipe Book</h1>
+  <div class="workouts-subtitle">21 recipes · tap to expand · rate &amp; track locally</div>
+
+  <input type="text" class="rec-search" id="search" placeholder="Search recipes, ingredients, cuisines…" />
+
+  <div class="rec-filters" id="filters">
+    <div class="rec-pill active" data-filter="all">All</div>
+    <div class="rec-pill" data-filter="Quick Weeknight">Quick</div>
+    <div class="rec-pill" data-filter="Sunday Prep">Sunday Prep</div>
+    <div class="rec-pill" data-filter="Breakfast">Breakfast</div>
+    <div class="rec-pill" data-filter="Weekend">Weekend</div>
+    <div class="rec-pill" data-filter="Mediterranean">Mediterranean</div>
+    <div class="rec-pill" data-filter="Asian">Asian</div>
+    <div class="rec-pill" data-filter="Mexican">Mexican</div>
+    <div class="rec-pill" data-filter="Indian">Indian</div>
+    <div class="rec-pill" data-filter="Italian">Italian</div>
+    <div class="rec-pill" data-filter="Moroccan">Moroccan</div>
+    <div class="rec-pill" data-filter="Latin">Latin</div>
+  </div>
+
+  <div class="rec-stats" id="stats">21 / 21 recipes</div>
+</header>
+
+<div id="recipes"></div>
+
+<footer class="workouts-footer">
+  Recipe Book · v1 · 21 recipes seeded<br />
+  Ratings save on this device. Master Sheet in Drive is the live source.
+</footer>
+
+<script src="recipes.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

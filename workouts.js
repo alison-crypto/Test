@@ -1,119 +1,177 @@
-const KEY = 'workouts:v1';
+const STORAGE_KEY = 'rtc_gym_alison_v1';
+const PREV_KEY = 'rtc_gym_alison_prev_v1';
+let currentDay = 'upperA';
 
-const form = document.getElementById('workout-form');
-const list = document.getElementById('entries');
-const empty = document.getElementById('empty-state');
-const exportBtn = document.getElementById('export-btn');
+// Build set rows dynamically based on data-sets attribute
+document.querySelectorAll('.exercise').forEach((ex) => {
+  const numSets = parseInt(ex.dataset.sets) || 3;
+  const setsContainer = document.createElement('div');
+  setsContainer.className = 'ex-sets';
 
-const fDate = document.getElementById('f-date');
-const fExercise = document.getElementById('f-exercise');
-const fSets = document.getElementById('f-sets');
-const fReps = document.getElementById('f-reps');
-const fWeight = document.getElementById('f-weight');
-const fNotes = document.getElementById('f-notes');
+  for (let i = 1; i <= numSets; i++) {
+    const row = document.createElement('div');
+    row.className = 'set-row';
+    row.innerHTML = `
+      <span class="set-label">Set ${i}</span>
+      <input class="set-input" type="text" inputmode="decimal" placeholder="weight" data-field="w${i}" />
+      <span class="set-unit">×</span>
+      <input class="set-input" type="text" inputmode="numeric" placeholder="reps" data-field="r${i}" />
+    `;
+    setsContainer.appendChild(row);
+  }
+  const lastWeek = document.createElement('div');
+  lastWeek.className = 'last-week';
+  lastWeek.dataset.exId = ex.dataset.ex;
+  setsContainer.appendChild(lastWeek);
 
-fDate.value = todayISO();
+  ex.appendChild(setsContainer);
+});
+
+// Stop click propagation on inputs so checking the exercise doesn't fire
+document.querySelectorAll('.set-input').forEach((input) => {
+  input.addEventListener('click', (e) => e.stopPropagation());
+  input.addEventListener('input', save);
+});
+
+function save() {
+  const state = { day: currentDay, exercises: {} };
+  document.querySelectorAll('.exercise').forEach((ex) => {
+    const exId = ex.dataset.ex;
+    state.exercises[exId] = {
+      done: ex.classList.contains('done'),
+      sets: {},
+    };
+    ex.querySelectorAll('.set-input').forEach((input) => {
+      state.exercises[exId].sets[input.dataset.field] = input.value;
+    });
+  });
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {}
+}
 
 function load() {
-  return Store.read(KEY, []);
-}
-
-function save(entries) {
-  Store.write(KEY, entries);
-}
-
-function render() {
-  const entries = load().sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
-
-  list.innerHTML = '';
-  empty.classList.toggle('hidden', entries.length > 0);
-
-  for (const e of entries) {
-    const li = document.createElement('li');
-    li.className = 'entry';
-
-    const main = document.createElement('div');
-    main.className = 'entry-main';
-
-    const title = document.createElement('div');
-    title.className = 'entry-title';
-    title.textContent = e.exercise;
-    main.appendChild(title);
-
-    const meta = document.createElement('div');
-    meta.className = 'entry-meta';
-    const weight = e.weight ? ` @ ${e.weight}` : '';
-    meta.textContent = `${formatDate(e.date)} · ${e.sets}×${e.reps}${weight}`;
-    main.appendChild(meta);
-
-    if (e.notes) {
-      const notes = document.createElement('div');
-      notes.className = 'entry-notes';
-      notes.textContent = e.notes;
-      main.appendChild(notes);
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const state = JSON.parse(raw);
+    if (state.day) {
+      currentDay = state.day;
+      switchDay(currentDay, false);
     }
+    Object.keys(state.exercises || {}).forEach((exId) => {
+      const ex = document.querySelector(`.exercise[data-ex="${exId}"]`);
+      if (!ex) return;
+      if (state.exercises[exId].done) ex.classList.add('done');
+      Object.keys(state.exercises[exId].sets || {}).forEach((field) => {
+        const input = ex.querySelector(`.set-input[data-field="${field}"]`);
+        if (input) input.value = state.exercises[exId].sets[field];
+      });
+    });
+  } catch (e) {}
+}
 
-    const del = document.createElement('button');
-    del.className = 'entry-delete';
-    del.type = 'button';
-    del.setAttribute('aria-label', 'Delete entry');
-    del.textContent = '✕';
-    del.addEventListener('click', () => {
-      if (confirm('Delete this entry?')) {
-        save(load().filter((x) => x.id !== e.id));
-        render();
+function loadPrev() {
+  try {
+    const raw = localStorage.getItem(PREV_KEY);
+    if (!raw) return;
+    const prev = JSON.parse(raw);
+    document.querySelectorAll('.last-week').forEach((lw) => {
+      const exId = lw.dataset.exId;
+      if (!prev[exId] || !prev[exId].sets) return;
+      const sets = prev[exId].sets;
+      const parts = [];
+      for (let i = 1; i <= 5; i++) {
+        const w = sets['w' + i], r = sets['r' + i];
+        if (w && r) parts.push(`${w}×${r}`);
+      }
+      if (parts.length > 0) {
+        lw.innerHTML = `<b>Last:</b> ${parts.join(' · ')}`;
+        lw.classList.add('has-data');
       }
     });
-
-    li.appendChild(main);
-    li.appendChild(del);
-    list.appendChild(li);
-  }
-
-  renderStats(entries);
+  } catch (e) {}
 }
 
-function renderStats(entries) {
-  const weekStart = startOfWeek(new Date());
-  const inWeek = entries.filter((e) => new Date(e.date + 'T00:00:00') >= weekStart);
-  const volume = inWeek.reduce(
-    (sum, e) => sum + (Number(e.sets) || 0) * (Number(e.reps) || 0) * (Number(e.weight) || 0),
-    0
+function toggleEx(headerEl) {
+  headerEl.parentElement.classList.toggle('done');
+  save();
+  updateProgress();
+}
+
+function switchDay(day, doSave = true) {
+  currentDay = day;
+  document.querySelectorAll('.day-page').forEach((p) => p.classList.remove('active'));
+  document.getElementById('day-' + day).classList.add('active');
+  document.querySelectorAll('.day-btn').forEach((b) =>
+    b.classList.toggle('active', b.dataset.day === day)
   );
-
-  document.getElementById('stat-total').textContent = entries.length;
-  document.getElementById('stat-week').textContent = inWeek.length;
-  document.getElementById('stat-volume').textContent = Math.round(volume).toLocaleString();
+  if (doSave) save();
+  updateProgress();
 }
 
-form.addEventListener('submit', (ev) => {
-  ev.preventDefault();
-  const entry = {
-    id: uid(),
-    createdAt: Date.now(),
-    date: fDate.value,
-    exercise: fExercise.value.trim(),
-    sets: Number(fSets.value),
-    reps: Number(fReps.value),
-    weight: fWeight.value ? Number(fWeight.value) : null,
-    notes: fNotes.value.trim(),
-  };
-  if (!entry.exercise) return;
-  save([...load(), entry]);
+function updateProgress() {
+  const visibleEx = document.querySelectorAll('.day-page.active .exercise');
+  const done = document.querySelectorAll('.day-page.active .exercise.done').length;
+  const total = visibleEx.length;
+  document.getElementById('count').textContent = `${done} / ${total}`;
+  document.getElementById('fill').style.width = total ? (done / total) * 100 + '%' : '0%';
+}
 
-  fExercise.value = '';
-  fNotes.value = '';
-  fExercise.focus();
-  render();
-});
+function resetCurrentDay() {
+  if (!confirm(`Reset ${currentDay}? This saves current values as "last week" first.`)) return;
 
-exportBtn.addEventListener('click', () => {
-  const entries = load();
-  if (!entries.length) {
-    alert('Nothing to export yet.');
-    return;
+  try {
+    let prev = {};
+    try {
+      prev = JSON.parse(localStorage.getItem(PREV_KEY) || '{}');
+    } catch (e) {}
+    document.querySelectorAll('.day-page.active .exercise').forEach((ex) => {
+      const exId = ex.dataset.ex;
+      const sets = {};
+      ex.querySelectorAll('.set-input').forEach((input) => {
+        sets[input.dataset.field] = input.value;
+      });
+      prev[exId] = { sets };
+    });
+    localStorage.setItem(PREV_KEY, JSON.stringify(prev));
+  } catch (e) {}
+
+  document.querySelectorAll('.day-page.active .exercise').forEach((ex) => {
+    ex.classList.remove('done');
+    ex.querySelectorAll('.set-input').forEach((input) => (input.value = ''));
+  });
+  save();
+  loadPrev();
+  updateProgress();
+}
+
+function exportData() {
+  let txt = `Gym session — ${currentDay} — ${new Date().toLocaleDateString()}\n\n`;
+  document.querySelectorAll('.day-page.active .exercise').forEach((ex) => {
+    const name = ex.querySelector('.ex-name').textContent;
+    const done = ex.classList.contains('done');
+    const sets = [];
+    ex.querySelectorAll('.set-row').forEach((row) => {
+      const w = row.querySelector('[data-field^="w"]').value;
+      const r = row.querySelector('[data-field^="r"]').value;
+      if (w || r) sets.push(`${w || '?'}×${r || '?'}`);
+    });
+    txt += `${done ? '✓' : '○'} ${name}: ${sets.length ? sets.join(', ') : '(no data)'}\n`;
+  });
+  try {
+    navigator.clipboard.writeText(txt);
+    alert('Copied to clipboard! Paste in Claude chat.');
+  } catch (e) {
+    prompt('Copy this text:', txt);
   }
-  download(`workouts-${todayISO()}.json`, JSON.stringify(entries, null, 2));
-});
+}
 
-render();
+window.toggleEx = toggleEx;
+window.switchDay = switchDay;
+window.resetCurrentDay = resetCurrentDay;
+window.exportData = exportData;
+
+load();
+loadPrev();
+updateProgress();

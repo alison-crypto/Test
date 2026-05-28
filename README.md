@@ -1,7 +1,9 @@
 # Alison's Assistant
 
 A personal Progressive Web App (PWA) for tracking workouts, meals, budget, and more.
-Stage 1 ships with the **Workouts** module; other tiles are placeholders.
+Stage 1 ships with the **Workouts** module (Alison's 4-day Upper/Lower split with
+tap-to-complete checkboxes, weight/rep logging, and last-week reference numbers).
+Other tiles are placeholders for upcoming modules.
 
 ## Run it locally
 

@@ -7,9 +7,10 @@ Current modules:
 - **Alison's Gym** — 4-day Upper/Lower split (Upper A / Lower A / Upper B / Lower B)
 - **Darlene's Gym** — T3 pregnancy-modified plan with safety banner, RPE 6-7 cap, 45° incline only
 - **Groceries** — 4-week rotation (Original / Mediterranean / Moroccan-Indian / Latin-Cajun), each with Meals + Fixed Weekly + Pantry sections, tap-to-check, separate state per week
+- **Schedule** — daily timeline with day picker, defaults to today; Alison/Darlene/Together info cards
+- **Chores & SOPs** — daily / weekly / monthly / as-needed chore master list with who-chips, plus SOPs (Sunday setup, gym morning, meal prep, cat care), pregnancy ramp, and time accounting
 
-Other tiles are placeholders for upcoming modules (Schedule, Recipes,
-Fridge Cards, Tracker).
+Other tiles are placeholders for upcoming modules (Recipes, Fridge Cards, Tracker).
 
 ## Run it locally
 

@@ -1,6 +1,6 @@
 # Session Handoff Notes
 
-Last updated: 2026-05-28
+Last updated: 2026-05-28 (session 2)
 
 ## Status
 
@@ -11,8 +11,9 @@ Last updated: 2026-05-28
 | Alison's Gym | ✅ Done | `gym-alison.html` + `gym.js` |
 | Darlene's Gym (T3 pregnancy modified) | ✅ Done | `gym-darlene.html` + `gym.js` |
 | Groceries (4-week rotation) | ✅ Done | `groceries.html` + `groceries.js` |
-| Weekly Schedule | ⏳ Next | — |
-| Recipes | ⏳ | — |
+| Schedule (daily timeline) | ✅ Done | `schedule.html` + `schedule.js` |
+| Chores & SOPs | ✅ Done | `chores.html` |
+| Recipes | ⏳ Next | — |
 | Fridge Cards | ⏳ | — |
 | Tracker | ⏳ (Excel — needs design discussion) | — |
 | Supabase sync (Stage 2) | ⏳ After modules | — |
@@ -29,9 +30,9 @@ Already imported:
 - `Grocery_Week_B.html` — `1geM1SSQwZba9OJU44fflygVvAJ5pQwPv`
 - `Grocery_Week_C.html` — `1iSuSpzAAQaPhcPQOSHCEs9FGkFJQ7qiS`
 - `Grocery_Week_D.html` — `1UAP2ExZt7uEgKtMxv6-uk7ZpXfmPcynY`
+- `Weekly_Schedule.html` — `1p7y6aDF2Q6nYIYQog2Lm1xTNsaBU6Tuc` (split into Schedule + Chores & SOPs)
 
 Pending (next sessions):
-- `Weekly_Schedule.html` — `1p7y6aDF2Q6nYIYQog2Lm1xTNsaBU6Tuc`
 - `Recipe_Book.html` — `1a2HARaLZ0kr5Mww8Hx5HLoMddouvUNt2`
 - `Fridge_Cards.html` — `1M8_Q0cHrW5EfL8saxBMee_5Wk2AU9FmJ`
 - `Tracker.xlsx` — `1gnYKetjpKkMsKKiiV2qg5g2oyoHJmZZY` (needs design pass)

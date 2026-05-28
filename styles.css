@@ -476,3 +476,245 @@ body {
 }
 
 .workouts-main { /* container for day pages */ }
+
+/* ===================================================================== */
+/* Groceries page                                                         */
+/* ===================================================================== */
+
+.groceries-body {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 10px 12px 80px;
+  --week-accent: #4ade80;
+}
+
+.groceries-body[data-active-week="b"] { --week-accent: #f472b6; }
+.groceries-body[data-active-week="c"] { --week-accent: #2dd4bf; }
+.groceries-body[data-active-week="d"] { --week-accent: #fbbf24; }
+
+.week-picker {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin: 10px 0 4px;
+}
+
+.week-btn {
+  padding: 10px 4px;
+  background: var(--card);
+  color: var(--muted-strong);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
+}
+
+.week-btn-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.week-btn-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 2px;
+  line-height: 1.2;
+}
+
+.week-btn.active {
+  border-color: var(--week-accent);
+}
+.week-btn-a.active { background: #4ade80; }
+.week-btn-b.active { background: #f472b6; }
+.week-btn-c.active { background: #2dd4bf; }
+.week-btn-d.active { background: #fbbf24; }
+.week-btn.active .week-btn-label,
+.week-btn.active .week-btn-name { color: #0b0b0e; }
+
+.week-btn:active { transform: scale(0.97); }
+
+.week-page { display: none; }
+.week-page.active { display: block; }
+
+.grocery-legend {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 14px 0;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.legend-row { display: flex; align-items: center; gap: 8px; }
+.legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.sw-meals { background: var(--week-accent); }
+.sw-fixed { background: #60a5fa; }
+.sw-pantry { background: #fb923c; }
+.sw-swap { background: #fbbf24; }
+
+.grocery-section {
+  border-left: 3px solid var(--border);
+  padding-left: 10px;
+  margin-top: 16px;
+}
+
+.section-meals { border-left-color: var(--week-accent); }
+.section-fixed { border-left-color: #60a5fa; }
+.section-pantry { border-left-color: #fb923c; }
+
+.theme-a.section-meals { border-left-color: #4ade80; }
+.theme-b.section-meals { border-left-color: #f472b6; }
+.theme-c.section-meals { border-left-color: #2dd4bf; }
+.theme-d.section-meals { border-left-color: #fbbf24; }
+
+.grocery-section h2 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted-strong);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 8px 0 4px;
+  padding-bottom: 4px;
+}
+
+.section-fixed h2 { color: #60a5fa; }
+.section-pantry h2 { color: #fb923c; }
+.theme-a.section-meals h2 { color: #4ade80; }
+.theme-b.section-meals h2 { color: #ec4899; }
+.theme-c.section-meals h2 { color: #14b8a6; }
+.theme-d.section-meals h2 { color: #d97706; }
+
+.section-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  font-style: italic;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.grocery-section h3 {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 14px 0 6px;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.item:active { background: var(--card-2); }
+
+.item.checked {
+  opacity: 0.55;
+}
+.item.checked .name { text-decoration: line-through; color: var(--muted); }
+.item.checked .qty { color: var(--muted); }
+
+.item.swap { border-left: 2px solid #fbbf24; }
+
+.item .checkbox {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  background: var(--card-2);
+  transition: all 0.15s;
+}
+
+.item.checked .checkbox {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.item .checkmark {
+  color: #fff;
+  font-weight: 900;
+  font-size: 18px;
+  display: none;
+  line-height: 1;
+}
+
+.item.checked .checkmark { display: block; }
+
+.item .text { flex: 1; min-width: 0; }
+
+.item .name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.item .qty {
+  font-size: 13px;
+  color: var(--muted-strong);
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+.item .note {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+.swap-tag {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  color: #b8870b;
+  background: #fff3c4;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-right: 4px;
+  vertical-align: middle;
+  letter-spacing: 0.5px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .swap-tag {
+    color: #fbbf24;
+    background: #3a2e10;
+  }
+}
+
+/* Home-tile color for Groceries (rainbow-ish gradient) */
+.tile-groceries {
+  background: linear-gradient(135deg, #4ade80 0%, #2dd4bf 50%, #fbbf24 100%);
+  color: #0b0b0e;
+}
+.tile-groceries .tile-label { color: #0b0b0e; }

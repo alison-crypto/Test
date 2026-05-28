@@ -6,8 +6,9 @@ budget, and more, with per-person separation where it matters.
 Current modules:
 - **Alison's Gym** — 4-day Upper/Lower split (Upper A / Lower A / Upper B / Lower B)
 - **Darlene's Gym** — T3 pregnancy-modified plan with safety banner, RPE 6-7 cap, 45° incline only
+- **Groceries** — 4-week rotation (Original / Mediterranean / Moroccan-Indian / Latin-Cajun), each with Meals + Fixed Weekly + Pantry sections, tap-to-check, separate state per week
 
-Other tiles are placeholders for upcoming modules (Groceries, Schedule, Recipes,
+Other tiles are placeholders for upcoming modules (Schedule, Recipes,
 Fridge Cards, Tracker).
 
 ## Run it locally

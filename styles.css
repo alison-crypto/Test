@@ -913,6 +913,299 @@ body {
 }
 .tile-recipes .tile-label { color: #fff; }
 
+/* Home-tile color for Fridge Cards */
+.tile-fridge {
+  background: linear-gradient(135deg, #1F4E79 0%, #2C7A7B 33%, #8B4A6B 66%, #B7651B 100%);
+  color: #fff;
+}
+.tile-fridge .tile-label { color: #fff; }
+
+/* ===================================================================== */
+/* Fridge Cards page                                                      */
+/* ===================================================================== */
+
+.fridge-body {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 10px 12px 80px;
+  --fridge-accent: #1F4E79;
+}
+
+.fridge-body[data-active-week="b"] { --fridge-accent: #8B4A6B; }
+.fridge-body[data-active-week="c"] { --fridge-accent: #2C7A7B; }
+.fridge-body[data-active-week="d"] { --fridge-accent: #B7651B; }
+
+.fridge-week-btn.active.fridge-week-a { background: #1F4E79; border-color: #1F4E79; }
+.fridge-week-btn.active.fridge-week-b { background: #8B4A6B; border-color: #8B4A6B; }
+.fridge-week-btn.active.fridge-week-c { background: #2C7A7B; border-color: #2C7A7B; }
+.fridge-week-btn.active.fridge-week-d { background: #B7651B; border-color: #B7651B; }
+.fridge-week-btn.active .week-btn-label,
+.fridge-week-btn.active .week-btn-name { color: #fff; }
+
+.fridge-week-page { display: none; }
+.fridge-week-page.active { display: block; }
+
+.fridge-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 14px;
+  overflow: hidden;
+}
+
+.fridge-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 3px solid var(--fridge-accent);
+}
+
+.fridge-week-label {
+  font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.fridge-week-title {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.5px;
+  color: var(--text);
+}
+
+.fridge-week-sub {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.fridge-badge {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  color: #fff;
+  background: var(--fridge-accent);
+  flex-shrink: 0;
+}
+
+/* Fixed every-day bar */
+.fixed-bar {
+  display: flex;
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 8px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+  .fixed-bar {
+    background: var(--card-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+}
+
+.fixed-bar-rail {
+  font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  padding: 8px 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+@media (prefers-color-scheme: light) {
+  .fixed-bar-rail { background: rgba(0, 0, 0, 0.15); }
+}
+
+.fixed-bar-cells {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 10px 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.fixed-cell {
+  font-size: 11px;
+  line-height: 1.3;
+  min-width: 0;
+}
+
+.fixed-cell-name {
+  font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 3px;
+}
+
+.fixed-cell-body {
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
+.fixed-cell-body strong { font-weight: 700; }
+
+/* Day grid */
+.day-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.day-row {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+  min-height: 56px;
+}
+
+.day-cell-label {
+  width: 56px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: var(--fridge-accent);
+  border-radius: 6px;
+  padding: 6px 4px;
+  line-height: 1;
+}
+
+.day-cell-label.rest-label { background: var(--muted); }
+
+.day-row.weekend .day-cell-label { opacity: 0.65; }
+
+.day-cell-label .dow {
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.day-cell-label .rest {
+  font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+  font-size: 8px;
+  letter-spacing: 1px;
+  margin-top: 3px;
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+
+.meal-cell {
+  flex: 1;
+  background: var(--card-2);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.2;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.day-row.weekend .meal-cell {
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+}
+
+@media (prefers-color-scheme: dark) {
+  .day-row.weekend .meal-cell {
+    background: var(--card-2);
+    color: var(--text);
+    border-color: var(--border);
+    opacity: 0.85;
+  }
+}
+
+.meal-tag {
+  font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+  font-size: 8.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 2px;
+}
+
+.meal-name {
+  font-weight: 700;
+  font-size: 11.5px;
+  line-height: 1.25;
+}
+
+.meal-method {
+  font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 3px;
+  font-weight: 700;
+  color: var(--fridge-accent);
+}
+
+.day-row.weekend .meal-method { color: var(--bg); opacity: 0.75; }
+@media (prefers-color-scheme: dark) {
+  .day-row.weekend .meal-method { color: var(--muted-strong); }
+}
+
+/* Card footer (Sunday prep + Don't forget) */
+.fridge-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+  margin-top: 12px;
+  border-top: 1.5px solid var(--border);
+}
+
+.ff-block {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+.ff-label {
+  font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 3px;
+  color: var(--fridge-accent);
+}
+
 /* ===================================================================== */
 /* Recipes page                                                           */
 /* ===================================================================== */

@@ -10,8 +10,9 @@ Current modules:
 - **Schedule** — daily timeline with day picker, defaults to today; Alison/Darlene/Together info cards
 - **Chores & SOPs** — daily / weekly / monthly / as-needed chore master list with who-chips, plus SOPs (Sunday setup, gym morning, meal prep, cat care), pregnancy ramp, and time accounting
 - **Recipes** — 21 recipes with search + cuisine/type filter pills, expandable cards showing ingredients/method/macros (him + her), per-person 5-star ratings, and a "just cooked this" log
+- **Fridge Cards** — 4-week menu rotation card view (A → B → C → D → A) with daily fixed bar (breakfast/snacks/pre-post), Mon–Sun lunch+dinner grid, and Sunday-prep + don't-forget reminders per week
 
-Other tiles are placeholders for upcoming modules (Fridge Cards, Tracker).
+One placeholder remaining: Tracker (Excel — needs a design discussion).
 
 ## Run it locally
 

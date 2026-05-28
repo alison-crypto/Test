@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a84ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Fridge Cards</title>
+</head>
+<body class="fridge-body" data-active-week="a">
+
+<header class="workouts-header">
+  <a href="index.html" class="back-link">‹ Home</a>
+  <h1>❄️ Fridge Cards</h1>
+  <div class="workouts-subtitle">4-week menu rotation · A → B → C → D → A</div>
+
+  <div class="week-picker">
+    <div class="week-btn fridge-week-btn fridge-week-a active" data-week="a">
+      <div class="week-btn-label">Week A</div>
+      <div class="week-btn-name">Mediterranean + Tex-Mex</div>
+    </div>
+    <div class="week-btn fridge-week-btn fridge-week-b" data-week="b">
+      <div class="week-btn-label">Week B</div>
+      <div class="week-btn-name">Greek + Asian + Italian</div>
+    </div>
+    <div class="week-btn fridge-week-btn fridge-week-c" data-week="c">
+      <div class="week-btn-label">Week C</div>
+      <div class="week-btn-name">Moroccan + Indian</div>
+    </div>
+    <div class="week-btn fridge-week-btn fridge-week-d" data-week="d">
+      <div class="week-btn-label">Week D</div>
+      <div class="week-btn-name">Latin + Cajun + Comfort</div>
+    </div>
+  </div>
+</header>
+
+<div class="week-page fridge-week-page active" data-week="a">
+  <div class="fridge-card fridge-card-a">
+    <div class="fridge-card-header">
+      <div>
+        <div class="fridge-week-label">Week 1 of 4 · Mediterranean + Tex-Mex</div>
+        <div class="fridge-week-title">WEEK A</div>
+        <div class="fridge-week-sub">Slow cooker · Grill · Sheet pan</div>
+      </div>
+      <div class="fridge-badge">A</div>
+    </div>
+    <div class="fixed-bar">
+      <div class="fixed-bar-rail">EVERY DAY</div>
+      <div class="fixed-bar-cells">
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Breakfast</div>
+          <div class="fixed-cell-body"><strong>Him:</strong> Eggs 3+3w, oats 80g, banana, PB<br /><strong>Her:</strong> Overnight oats + berries</div>
+        </div>
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Snacks (Her)</div>
+          <div class="fixed-cell-body">10:30 — egg + apple + nuts<br />3:00 — yogurt + berries + honey</div>
+        </div>
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Pre / Post (Him)</div>
+          <div class="fixed-cell-body">4pm — whey + banana shake<br />9:30pm — yogurt or whey + almonds</div>
+        </div>
+      </div>
+    </div>
+    <div class="day-grid">
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">MON</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Med. Pulled Chicken &amp; Rice</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Cumin-Lime Beef Bowl</div>
+          <div class="meal-method">↻ Slow cooker + fresh</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">TUE</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Turkey Patty Taco Bowl</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Sheet-Pan Chicken Thighs</div>
+          <div class="meal-method">○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label rest-label">
+          <div class="dow">WED</div>
+          <div class="rest">Rest</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Med. Pulled Chicken &amp; Rice</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Cumin-Lime Beef Bowl</div>
+          <div class="meal-method">↻ Slow cooker + fresh</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">THU</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Turkey Patty Taco Bowl</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Sheet-Pan Chicken Thighs</div>
+          <div class="meal-method">○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">FRI</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Med. Pulled Chicken &amp; Rice</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Cumin-Lime Beef Bowl</div>
+          <div class="meal-method">↻ Slow cooker + fresh</div>
+        </div>
+      </div>
+      <div class="day-row weekend">
+        <div class="day-cell-label rest-label">
+          <div class="dow">SAT</div>
+          <div class="rest">Rest</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Quick scramble or chicken salad</div>
+          <div class="meal-method">5-min, no prep</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Grilled Ribeye &amp; Baked Potato</div>
+          <div class="meal-method">♨ Grill + ○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row weekend">
+        <div class="day-cell-label rest-label">
+          <div class="dow">SUN</div>
+          <div class="rest">Prep</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Eggs, Bacon, Avocado Toast</div>
+          <div class="meal-method">Stove + Oven</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Sat dinner leftover or Mon prep</div>
+          <div class="meal-method">Reheat</div>
+        </div>
+      </div>
+    </div>
+    <div class="fridge-footer">
+      <div class="ff-block">
+        <div class="ff-label">⏰ Sunday Prep — Key Items</div>
+        Slow cooker: pulled chicken (4h LOW) + cumin-lime beef (6-8h LOW, shredded) · Grill: turkey patties · Oven: roasted veg + chicken thighs · 7 overnight oats jars
+      </div>
+      <div class="ff-block">
+        <div class="ff-label">🛒 Don't forget</div>
+        Avocado, lime, cherry tomatoes &amp; spinach added day-of · Eggs hard-boiled Sun
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week-page fridge-week-page" data-week="b">
+  <div class="fridge-card fridge-card-b">
+    <div class="fridge-card-header">
+      <div>
+        <div class="fridge-week-label">Week 2 of 4 · Greek + Asian + Italian</div>
+        <div class="fridge-week-title">WEEK B</div>
+        <div class="fridge-week-sub">Grill · Slow cooker · Sheet pan</div>
+      </div>
+      <div class="fridge-badge">B</div>
+    </div>
+    <div class="fixed-bar">
+      <div class="fixed-bar-rail">EVERY DAY</div>
+      <div class="fixed-bar-cells">
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Breakfast</div>
+          <div class="fixed-cell-body"><strong>Him:</strong> Eggs 3+3w, oats 80g, banana, PB<br /><strong>Her:</strong> Overnight oats + berries</div>
+        </div>
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Snacks (Her)</div>
+          <div class="fixed-cell-body">10:30 — egg + apple + nuts<br />3:00 — yogurt + berries + honey</div>
+        </div>
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Pre / Post (Him)</div>
+          <div class="fixed-cell-body">4pm — whey + banana shake<br />9:30pm — yogurt or whey + almonds</div>
+        </div>
+      </div>
+    </div>
+    <div class="day-grid">
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">MON</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Grilled Greek Lemon Chicken &amp; Quinoa</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Slow-Cooker Italian Meatballs &amp; Polenta</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">TUE</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Asian Beef Skewers &amp; Rice</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Sheet-Pan Pork Tenderloin &amp; Roots</div>
+          <div class="meal-method">○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label rest-label">
+          <div class="dow">WED</div>
+          <div class="rest">Rest</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Grilled Greek Lemon Chicken &amp; Quinoa</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Slow-Cooker Italian Meatballs &amp; Polenta</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">THU</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Asian Beef Skewers &amp; Rice</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Sheet-Pan Pork Tenderloin &amp; Roots</div>
+          <div class="meal-method">○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">FRI</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Grilled Greek Lemon Chicken &amp; Quinoa</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Slow-Cooker Italian Meatballs &amp; Polenta</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+      </div>
+      <div class="day-row weekend">
+        <div class="day-cell-label rest-label">
+          <div class="dow">SAT</div>
+          <div class="rest">Rest</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Quick scramble or chicken salad</div>
+          <div class="meal-method">5-min, no prep</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Slow-Cooker Bolognese &amp; Pasta</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+      </div>
+      <div class="day-row weekend">
+        <div class="day-cell-label rest-label">
+          <div class="dow">SUN</div>
+          <div class="rest">Prep</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Oat Pancakes &amp; Berry Compote</div>
+          <div class="meal-method">Stove</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Sat Bolognese leftovers</div>
+          <div class="meal-method">Reheat</div>
+        </div>
+      </div>
+    </div>
+    <div class="fridge-footer">
+      <div class="ff-block">
+        <div class="ff-label">⏰ Sunday Prep — Key Items</div>
+        Slow cooker: homemade tomato sauce + meatballs (4h LOW) · Grill: Greek chicken &amp; beef skewers · Oven: pork tenderloin + roots · Stove: polenta + quinoa
+      </div>
+      <div class="ff-block">
+        <div class="ff-label">🛒 Don't forget</div>
+        Cucumber, cherry tomatoes day-of · Marinate proteins min 30 min before grilling
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week-page fridge-week-page" data-week="c">
+  <div class="fridge-card fridge-card-c">
+    <div class="fridge-card-header">
+      <div>
+        <div class="fridge-week-label">Week 3 of 4 · Moroccan + Indian</div>
+        <div class="fridge-week-title">WEEK C</div>
+        <div class="fridge-week-sub">Slow cooker · Grill · Sheet pan</div>
+      </div>
+      <div class="fridge-badge">C</div>
+    </div>
+    <div class="fixed-bar">
+      <div class="fixed-bar-rail">EVERY DAY</div>
+      <div class="fixed-bar-cells">
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Breakfast</div>
+          <div class="fixed-cell-body"><strong>Him:</strong> Eggs 3+3w, oats 80g, banana, PB<br /><strong>Her:</strong> Overnight oats + berries</div>
+        </div>
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Snacks (Her)</div>
+          <div class="fixed-cell-body">10:30 — egg + apple + nuts<br />3:00 — yogurt + berries + honey</div>
+        </div>
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Pre / Post (Him)</div>
+          <div class="fixed-cell-body">4pm — whey + banana shake<br />9:30pm — yogurt or whey + almonds</div>
+        </div>
+      </div>
+    </div>
+    <div class="day-grid">
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">MON</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Moroccan Pulled Chicken &amp; Couscous</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Moroccan Beef Tagine &amp; Sweet Potato</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">TUE</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Grilled Tikka Chicken &amp; Basmati</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Sheet-Pan Butter Chicken &amp; Basmati</div>
+          <div class="meal-method">○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label rest-label">
+          <div class="dow">WED</div>
+          <div class="rest">Rest</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Moroccan Pulled Chicken &amp; Couscous</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Moroccan Beef Tagine &amp; Sweet Potato</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">THU</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Grilled Tikka Chicken &amp; Basmati</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Sheet-Pan Butter Chicken &amp; Basmati</div>
+          <div class="meal-method">○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">FRI</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Moroccan Pulled Chicken &amp; Couscous</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Moroccan Beef Tagine &amp; Sweet Potato</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+      </div>
+      <div class="day-row weekend">
+        <div class="day-cell-label rest-label">
+          <div class="dow">SAT</div>
+          <div class="rest">Rest</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Quick scramble or chicken salad</div>
+          <div class="meal-method">5-min, no prep</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Grilled Ribeye &amp; Baked Potato</div>
+          <div class="meal-method">♨ Grill + ○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row weekend">
+        <div class="day-cell-label rest-label">
+          <div class="dow">SUN</div>
+          <div class="rest">Prep</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Eggs, Bacon, Avocado Toast</div>
+          <div class="meal-method">Stove + Oven</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Sat dinner leftover or Mon prep</div>
+          <div class="meal-method">Reheat</div>
+        </div>
+      </div>
+    </div>
+    <div class="fridge-footer">
+      <div class="ff-block">
+        <div class="ff-label">⏰ Sunday Prep — Key Items</div>
+        Slow cooker: Moroccan chicken (4h) + beef tagine (6h) · Grill: tikka skewers · Oven: cauliflower + butter chicken thighs · Stove: butter chicken sauce + couscous + basmati
+      </div>
+      <div class="ff-block">
+        <div class="ff-label">🛒 Don't forget</div>
+        Raisins, spinach, cilantro day-of · Marinate tikka chicken ≥1h before grill
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="week-page fridge-week-page" data-week="d">
+  <div class="fridge-card fridge-card-d">
+    <div class="fridge-card-header">
+      <div>
+        <div class="fridge-week-label">Week 4 of 4 · Latin + Cajun + Comfort</div>
+        <div class="fridge-week-title">WEEK D</div>
+        <div class="fridge-week-sub">Slow cooker · Grill · Sheet pan</div>
+      </div>
+      <div class="fridge-badge">D</div>
+    </div>
+    <div class="fixed-bar">
+      <div class="fixed-bar-rail">EVERY DAY</div>
+      <div class="fixed-bar-cells">
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Breakfast</div>
+          <div class="fixed-cell-body"><strong>Him:</strong> Eggs 3+3w, oats 80g, banana, PB<br /><strong>Her:</strong> Overnight oats + berries</div>
+        </div>
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Snacks (Her)</div>
+          <div class="fixed-cell-body">10:30 — egg + apple + nuts<br />3:00 — yogurt + berries + honey</div>
+        </div>
+        <div class="fixed-cell">
+          <div class="fixed-cell-name">Pre / Post (Him)</div>
+          <div class="fixed-cell-body">4pm — whey + banana shake<br />9:30pm — yogurt or whey + almonds</div>
+        </div>
+      </div>
+    </div>
+    <div class="day-grid">
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">MON</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Cuban Pulled Pork &amp; Rice</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">BBQ Pulled Chicken &amp; Roasted Potatoes</div>
+          <div class="meal-method">↻ Slow cooker + ○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">TUE</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Grilled Cajun Chicken &amp; Dirty Rice</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Slow-Cooker Turkey Chili &amp; Corn</div>
+          <div class="meal-method">↻ Slow cooker + ○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label rest-label">
+          <div class="dow">WED</div>
+          <div class="rest">Rest</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Cuban Pulled Pork &amp; Rice</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">BBQ Pulled Chicken &amp; Roasted Potatoes</div>
+          <div class="meal-method">↻ Slow cooker + ○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">THU</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Grilled Cajun Chicken &amp; Dirty Rice</div>
+          <div class="meal-method">♨ Grill</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Slow-Cooker Turkey Chili &amp; Corn</div>
+          <div class="meal-method">↻ Slow cooker + ○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-cell-label">
+          <div class="dow">FRI</div>
+          <div class="rest">Gym</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Cuban Pulled Pork &amp; Rice</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">BBQ Pulled Chicken &amp; Roasted Potatoes</div>
+          <div class="meal-method">↻ Slow cooker + ○ Oven</div>
+        </div>
+      </div>
+      <div class="day-row weekend">
+        <div class="day-cell-label rest-label">
+          <div class="dow">SAT</div>
+          <div class="rest">Rest</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Quick scramble or chicken salad</div>
+          <div class="meal-method">5-min, no prep</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Slow-Cooker Bolognese &amp; Pasta</div>
+          <div class="meal-method">↻ Slow cooker</div>
+        </div>
+      </div>
+      <div class="day-row weekend">
+        <div class="day-cell-label rest-label">
+          <div class="dow">SUN</div>
+          <div class="rest">Prep</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Lunch</div>
+          <div class="meal-name">Eggs, Bacon, Avocado Toast</div>
+          <div class="meal-method">Stove + Oven</div>
+        </div>
+        <div class="meal-cell">
+          <div class="meal-tag">Dinner</div>
+          <div class="meal-name">Sat Bolognese leftovers</div>
+          <div class="meal-method">Reheat</div>
+        </div>
+      </div>
+    </div>
+    <div class="fridge-footer">
+      <div class="ff-block">
+        <div class="ff-label">⏰ Sunday Prep — Key Items</div>
+        Slow cooker: Cuban pork (6h LOW) + BBQ chicken (4h) + turkey chili (2h) · Grill: Cajun chicken · Oven: potato wedges + corn on cob · Mix homemade BBQ sauce + Cajun blend
+      </div>
+      <div class="ff-block">
+        <div class="ff-label">🛒 Don't forget</div>
+        Avocado, lime day-of · Slaw dressed Sun, stored separately to stay crunchy
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="workouts-footer">
+  4-week rotation · Cycle: A → B → C → D → A<br />
+  Tap a week tab to switch cards · pairs with Groceries module
+</footer>
+
+<script src="fridge.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

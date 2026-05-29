@@ -47,7 +47,7 @@ Per-tile improvements landing iteratively:
 - ✅ Chores: checkable items with auto-reset cycles (daily/weekly/monthly), per-section progress + manual reset, per-item notes
 - ✅ Schedule: "Add to Calendar" .ics export per day (one-off events, next occurrence, sleep + free filtered, consecutive same-activity rows merged)
 - ⏳ Fridge Cards: make meals checkable ("made this one") + notes
-- ⏳ Recipes: user-added custom recipes, quantity on the Log-to-Tracker button
+- ✅ Recipes: user-added custom recipes (full add/edit/delete modal) + quantity prompt on Log-to-Tracker
 - ⏳ Tracker: photo attachments on body-log entries (switch to IndexedDB to handle size)
 - ⏳ Stage 2 backend (Supabase): cross-device sync + AI macro estimation for custom recipes
 - `Test_Artifact.html` — `1BIUx778p5s5tbjCWT6HQRxo8VHJpDU0L` (skipping — looks like a test file)

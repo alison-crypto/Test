@@ -880,6 +880,40 @@ body {
   margin: 12px 0 6px;
 }
 
+/* "Add to Calendar" — bottom of each day-page */
+.sched-export {
+  margin: 18px 0 8px;
+  padding: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: center;
+}
+.sched-export-btn {
+  display: inline-block;
+  width: 100%;
+  padding: 10px 14px;
+  background: #2A5A2A;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+@media (prefers-color-scheme: dark) {
+  .sched-export-btn { background: #4ade80; color: #0d1117; }
+}
+.sched-export-btn:active { opacity: 0.8; }
+.sched-export-hint {
+  margin-top: 6px;
+  font-size: 10.5px;
+  color: var(--muted);
+  line-height: 1.4;
+  font-style: italic;
+}
+
 .sched-legend {
   display: flex;
   flex-wrap: wrap;

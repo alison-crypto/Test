@@ -1752,7 +1752,149 @@ body {
   line-height: 1.2;
   overflow: hidden;
   min-width: 0;
+  position: relative;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
+.meal-cell:active { transform: scale(0.98); }
+
+.meal-cell.made {
+  opacity: 0.55;
+}
+.meal-cell.made .meal-name,
+.meal-cell.made .fixed-cell-body {
+  text-decoration: line-through;
+}
+.meal-cell.made::before {
+  content: '✓';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  background: #2A5A2A;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+@media (prefers-color-scheme: dark) {
+  .meal-cell.made::before { background: #4ade80; color: #0d1117; }
+}
+
+.fixed-cell {
+  position: relative;
+  cursor: pointer;
+}
+.fixed-cell.made {
+  opacity: 0.5;
+}
+.fixed-cell.made::before {
+  content: '✓';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  background: #2A5A2A;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+@media (prefers-color-scheme: dark) {
+  .fixed-cell.made::before { background: #4ade80; color: #0d1117; }
+}
+
+/* Tiny "+" / "📝" notes button in the top-right of each cell */
+.fridge-note-toggle {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--muted-strong);
+  cursor: pointer;
+  font-family: inherit;
+  z-index: 2;
+}
+@media (prefers-color-scheme: dark) {
+  .fridge-note-toggle { background: rgba(13, 17, 23, 0.85); }
+}
+
+.fridge-note-wrap {
+  margin-top: 6px;
+  width: 100%;
+}
+.fridge-note-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 5px 7px;
+  font-size: 11px;
+  color: var(--text);
+  font-family: inherit;
+  line-height: 1.35;
+  resize: vertical;
+  min-height: 28px;
+}
+.fridge-note-input:focus { outline: none; border-color: #0a84ff; }
+.fridge-note-input::placeholder { color: var(--muted); font-style: italic; }
+
+/* Progress counter + reset button injected into each week's card header */
+.fridge-card-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 12px;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.fridge-progress {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 3px 8px;
+  border-radius: 10px;
+  color: #333;
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+@media (prefers-color-scheme: dark) {
+  .fridge-progress { background: rgba(13, 17, 23, 0.7); color: var(--text); }
+}
+.fridge-reset-btn {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 9.5px;
+  color: #444;
+  cursor: pointer;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+@media (prefers-color-scheme: dark) {
+  .fridge-reset-btn { background: rgba(13, 17, 23, 0.7); color: var(--text); border-color: var(--border); }
+}
+.fridge-reset-btn:active { opacity: 0.7; }
 
 .day-row.weekend .meal-cell {
   background: var(--text);

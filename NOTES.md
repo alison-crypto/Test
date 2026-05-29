@@ -46,7 +46,7 @@ Per-tile improvements landing iteratively:
 - ✅ Gym: per-exercise swap (3 alternatives + auto-updated YouTube link), per-exercise notes, PR badge auto-pulled from Tracker training history
 - ✅ Chores: checkable items with auto-reset cycles (daily/weekly/monthly), per-section progress + manual reset, per-item notes
 - ✅ Schedule: "Add to Calendar" .ics export per day (one-off events, next occurrence, sleep + free filtered, consecutive same-activity rows merged)
-- ⏳ Fridge Cards: make meals checkable ("made this one") + notes
+- ✅ Fridge Cards: meals checkable ("made this one") + per-cell notes, auto-reset on ISO-week change, per-week progress counter
 - ✅ Recipes: user-added custom recipes (full add/edit/delete modal) + quantity prompt on Log-to-Tracker
 - ⏳ Tracker: photo attachments on body-log entries (switch to IndexedDB to handle size)
 - ⏳ Stage 2 backend (Supabase): cross-device sync + AI macro estimation for custom recipes

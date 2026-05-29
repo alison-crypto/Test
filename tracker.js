@@ -94,6 +94,91 @@ function esc(s) {
 }
 
 // ============================================================
+// Photo storage — IndexedDB so we don't blow the localStorage cap
+// ============================================================
+const PHOTO_DB = 'rtc_tracker_db';
+const PHOTO_STORE = 'photos';
+let dbPromise = null;
+
+function openPhotoDB() {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open(PHOTO_DB, 1);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(PHOTO_STORE)) {
+        const store = db.createObjectStore(PHOTO_STORE, { keyPath: 'id' });
+        store.createIndex('entryId', 'entryId', { unique: false });
+      }
+    };
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror = (e) => reject(e.target.error);
+  });
+  return dbPromise;
+}
+
+async function dbSavePhoto(id, blob, entryId) {
+  const db = await openPhotoDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(PHOTO_STORE, 'readwrite');
+    tx.objectStore(PHOTO_STORE).put({ id, blob, entryId, createdAt: Date.now() });
+    tx.oncomplete = () => res();
+    tx.onerror = () => rej(tx.error);
+  });
+}
+
+async function dbGetPhoto(id) {
+  const db = await openPhotoDB();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(PHOTO_STORE, 'readonly');
+    const req = tx.objectStore(PHOTO_STORE).get(id);
+    req.onsuccess = () => res(req.result ? req.result.blob : null);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+async function dbDeletePhotosForEntry(entryId) {
+  const db = await openPhotoDB();
+  return new Promise((res) => {
+    const tx = db.transaction(PHOTO_STORE, 'readwrite');
+    const store = tx.objectStore(PHOTO_STORE);
+    const idx = store.index('entryId');
+    const req = idx.openCursor(IDBKeyRange.only(entryId));
+    req.onsuccess = (e) => {
+      const cur = e.target.result;
+      if (cur) { cur.delete(); cur.continue(); }
+      else res();
+    };
+    req.onerror = () => res();
+  });
+}
+
+async function compressImage(file, maxDim = 1280, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      let { width, height } = img;
+      const scale = Math.min(1, maxDim / Math.max(width, height));
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob((blob) => {
+        URL.revokeObjectURL(url);
+        if (blob) resolve(blob);
+        else reject(new Error('Compression failed'));
+      }, 'image/jpeg', quality);
+    };
+    img.onerror = (e) => { URL.revokeObjectURL(url); reject(e); };
+    img.src = url;
+  });
+}
+
+// ============================================================
 // Tab switching
 // ============================================================
 const TAB_KEY = 'rtc_tracker_tab_v1';
@@ -117,46 +202,146 @@ document.querySelectorAll('.t-tab-btn').forEach((b) => {
 // ============================================================
 // Body Log
 // ============================================================
-const bodyForm   = document.getElementById('body-form');
-const bodyList   = document.getElementById('body-entries');
-const bodyDate   = document.getElementById('body-date');
-const bodyPerson = document.getElementById('body-person');
+const bodyForm    = document.getElementById('body-form');
+const bodyList    = document.getElementById('body-entries');
+const bodyDate    = document.getElementById('body-date');
+const bodyPerson  = document.getElementById('body-person');
+const photoBtn    = document.getElementById('body-photo-btn');
+const photoInput  = document.getElementById('body-photo-input');
+const photoPreview= document.getElementById('body-photo-preview');
 
 bodyDate.value = todayISO();
 
-function renderBody() {
+// Pending photo blobs for the current draft (compressed, ready to save)
+let pendingPhotos = []; // [{ id, blob, previewUrl }]
+
+function renderPhotoPreview() {
+  photoPreview.innerHTML = '';
+  pendingPhotos.forEach((p) => {
+    const wrap = document.createElement('div');
+    wrap.className = 't-photo-thumb';
+    const img = document.createElement('img');
+    img.src = p.previewUrl;
+    const rm = document.createElement('button');
+    rm.type = 'button';
+    rm.className = 't-photo-rm';
+    rm.textContent = '×';
+    rm.addEventListener('click', () => {
+      URL.revokeObjectURL(p.previewUrl);
+      pendingPhotos = pendingPhotos.filter((x) => x.id !== p.id);
+      renderPhotoPreview();
+    });
+    wrap.appendChild(img);
+    wrap.appendChild(rm);
+    photoPreview.appendChild(wrap);
+  });
+}
+
+photoBtn.addEventListener('click', () => photoInput.click());
+
+photoInput.addEventListener('change', async () => {
+  const files = Array.from(photoInput.files || []);
+  if (!files.length) return;
+  photoBtn.disabled = true;
+  photoBtn.textContent = 'Compressing…';
+  for (const file of files) {
+    if (!file.type.startsWith('image/')) continue;
+    try {
+      const blob = await compressImage(file);
+      pendingPhotos.push({
+        id: uid(),
+        blob,
+        previewUrl: URL.createObjectURL(blob),
+      });
+    } catch (e) {
+      console.warn('compress failed', e);
+    }
+  }
+  photoBtn.disabled = false;
+  photoBtn.textContent = '＋ Add photos';
+  photoInput.value = '';
+  renderPhotoPreview();
+});
+
+async function renderEntryPhotos(entry) {
+  if (!entry.photoIds || !entry.photoIds.length) {
+    if (entry.photos) return '<div class="t-entry-photos">📸 4-angle photos taken</div>';
+    return '';
+  }
+  const cells = entry.photoIds.map((pid) =>
+    `<div class="t-photo-cell" data-photo-id="${esc(pid)}" data-entry-id="${esc(entry.id)}"><div class="t-photo-loading">…</div></div>`
+  ).join('');
+  return `<div class="t-entry-photos-grid">${cells}</div>`;
+}
+
+async function hydratePhotoCells(container) {
+  const cells = container.querySelectorAll('.t-photo-cell[data-photo-id]');
+  for (const cell of cells) {
+    const pid = cell.dataset.photoId;
+    try {
+      const blob = await dbGetPhoto(pid);
+      if (!blob) { cell.innerHTML = '<div class="t-photo-missing">missing</div>'; continue; }
+      const url = URL.createObjectURL(blob);
+      cell.innerHTML = `<img src="${url}" loading="lazy" />`;
+      cell.querySelector('img').addEventListener('click', () => openPhotoLightbox(url));
+    } catch (e) {
+      cell.innerHTML = '<div class="t-photo-missing">err</div>';
+    }
+  }
+}
+
+function openPhotoLightbox(url) {
+  let box = document.getElementById('t-lightbox');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 't-lightbox';
+    box.className = 't-lightbox';
+    box.innerHTML = '<img /><button type="button" class="t-lightbox-close" aria-label="Close">×</button>';
+    box.addEventListener('click', () => { box.hidden = true; });
+    document.body.appendChild(box);
+  }
+  box.querySelector('img').src = url;
+  box.hidden = false;
+}
+
+async function renderBody() {
   const entries = loadArr(BODY_KEY).sort((a, b) => b.date.localeCompare(a.date));
   if (!entries.length) {
     bodyList.innerHTML = '<p class="t-empty">No body entries yet. Log your first measurement above.</p>';
     return;
   }
-  bodyList.innerHTML = entries.map((e) => `
-    <div class="t-entry t-entry-${e.person}">
-      <div class="t-entry-head">
-        <div>
-          <span class="t-chip t-chip-${e.person}">${e.person === 'him' ? 'ALI' : 'DAR'}</span>
-          <strong>${esc(formatDate(e.date))}</strong>
-          <span class="t-entry-weight">${esc(e.weight)} kg</span>
+  const blocks = await Promise.all(entries.map(async (e) => {
+    const photosHTML = await renderEntryPhotos(e);
+    return `
+      <div class="t-entry t-entry-${e.person}">
+        <div class="t-entry-head">
+          <div>
+            <span class="t-chip t-chip-${e.person}">${e.person === 'him' ? 'ALI' : 'DAR'}</span>
+            <strong>${esc(formatDate(e.date))}</strong>
+            <span class="t-entry-weight">${esc(e.weight)} kg</span>
+          </div>
+          <button class="t-del" data-id="${esc(e.id)}" data-kind="body" aria-label="Delete">✕</button>
         </div>
-        <button class="t-del" data-id="${esc(e.id)}" data-kind="body" aria-label="Delete">✕</button>
+        <div class="t-entry-grid">
+          ${e.waist  ? `<div><span>Waist</span><b>${esc(e.waist)}</b></div>` : ''}
+          ${e.chest  ? `<div><span>Chest</span><b>${esc(e.chest)}</b></div>` : ''}
+          ${e.hips   ? `<div><span>Hips</span><b>${esc(e.hips)}</b></div>` : ''}
+          ${e.bicepL ? `<div><span>Bicep L</span><b>${esc(e.bicepL)}</b></div>` : ''}
+          ${e.bicepR ? `<div><span>Bicep R</span><b>${esc(e.bicepR)}</b></div>` : ''}
+          ${e.thighL ? `<div><span>Thigh L</span><b>${esc(e.thighL)}</b></div>` : ''}
+          ${e.thighR ? `<div><span>Thigh R</span><b>${esc(e.thighR)}</b></div>` : ''}
+          ${e.rhr    ? `<div><span>RHR</span><b>${esc(e.rhr)}</b></div>` : ''}
+        </div>
+        ${e.notes ? `<div class="t-entry-notes">${esc(e.notes)}</div>` : ''}
+        ${photosHTML}
       </div>
-      <div class="t-entry-grid">
-        ${e.waist  ? `<div><span>Waist</span><b>${esc(e.waist)}</b></div>` : ''}
-        ${e.chest  ? `<div><span>Chest</span><b>${esc(e.chest)}</b></div>` : ''}
-        ${e.hips   ? `<div><span>Hips</span><b>${esc(e.hips)}</b></div>` : ''}
-        ${e.bicepL ? `<div><span>Bicep L</span><b>${esc(e.bicepL)}</b></div>` : ''}
-        ${e.bicepR ? `<div><span>Bicep R</span><b>${esc(e.bicepR)}</b></div>` : ''}
-        ${e.thighL ? `<div><span>Thigh L</span><b>${esc(e.thighL)}</b></div>` : ''}
-        ${e.thighR ? `<div><span>Thigh R</span><b>${esc(e.thighR)}</b></div>` : ''}
-        ${e.rhr    ? `<div><span>RHR</span><b>${esc(e.rhr)}</b></div>` : ''}
-      </div>
-      ${e.notes ? `<div class="t-entry-notes">${esc(e.notes)}</div>` : ''}
-      ${e.photos ? '<div class="t-entry-photos">📸 4-angle photos taken</div>' : ''}
-    </div>
-  `).join('');
+    `;
+  }));
+  bodyList.innerHTML = blocks.join('');
+  hydratePhotoCells(bodyList);
 }
 
-bodyForm.addEventListener('submit', (ev) => {
+bodyForm.addEventListener('submit', async (ev) => {
   ev.preventDefault();
   const f = new FormData(bodyForm);
   const num = (k) => {
@@ -177,12 +362,23 @@ bodyForm.addEventListener('submit', (ev) => {
     thighR: num('thighR'),
     rhr:    num('rhr'),
     photos: f.get('photos') === 'on',
+    photoIds: pendingPhotos.map((p) => p.id),
     notes:  (f.get('notes') || '').toString().trim(),
   };
   if (!entry.date || !entry.weight) {
     alert('Date and weight are required.');
     return;
   }
+
+  // Persist photo blobs to IndexedDB first
+  for (const p of pendingPhotos) {
+    try { await dbSavePhoto(p.id, p.blob, entry.id); }
+    catch (e) { console.warn('photo save failed', e); }
+    URL.revokeObjectURL(p.previewUrl);
+  }
+  pendingPhotos = [];
+  renderPhotoPreview();
+
   append(BODY_KEY, entry);
   bodyForm.reset();
   bodyDate.value = todayISO();
@@ -491,13 +687,16 @@ function renderPRs() {
 // ============================================================
 // Delete handler (delegated)
 // ============================================================
-document.addEventListener('click', (ev) => {
+document.addEventListener('click', async (ev) => {
   const btn = ev.target.closest('.t-del');
   if (!btn) return;
   if (!confirm('Delete this entry?')) return;
   const id = btn.dataset.id;
   const kind = btn.dataset.kind;
   const key = kind === 'body' ? BODY_KEY : kind === 'meal' ? MEAL_KEY : TRAINING_KEY;
+  if (kind === 'body') {
+    try { await dbDeletePhotosForEntry(id); } catch (e) {}
+  }
   removeById(key, id);
   renderAll();
 });

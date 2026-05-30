@@ -10,6 +10,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="styles.css" />
   <title>Tracker</title>
+  <script type="module" src="auth-gate.js"></script>
 </head>
 <body class="tracker-body">
 
@@ -66,6 +67,13 @@
     <label class="t-checkbox">
       <input type="checkbox" name="photos" /> 4-angle photos taken today
     </label>
+
+    <div class="t-photo-section">
+      <div class="t-photo-label">📸 Photos (optional · stored locally on this device)</div>
+      <input type="file" id="body-photo-input" accept="image/*" multiple capture="environment" hidden />
+      <button type="button" id="body-photo-btn" class="t-photo-btn">＋ Add photos</button>
+      <div id="body-photo-preview" class="t-photo-preview"></div>
+    </div>
 
     <label>Notes<textarea name="notes" rows="2" placeholder="How the week felt, observations…"></textarea></label>
 

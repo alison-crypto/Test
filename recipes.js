@@ -676,7 +676,7 @@ function renderRecipe(r) {
     <div class="recipe" data-id="${r.id}" data-cuisine="${r.cuisine}" data-type="${r.mealType}" data-tags="${r.tags.join(' ')}">
       <div class="rec-header" onclick="toggleRecipe('${r.id}')">
         <div class="rec-title-row">
-          <div class="rec-name">${r.name}</div>
+          <div class="rec-name">${r.isCustom ? '<span class="rec-custom-badge">✏️</span> ' : ''}${r.name}</div>
           <div class="rec-time">${r.totalTime}m</div>
         </div>
         <div class="rec-meta">
@@ -728,10 +728,11 @@ function renderRecipe(r) {
           <div class="rec-btn-row">
             <button class="cook-btn" onclick="logCook('${r.id}')">📝 Just cooked this</button>
             <button class="cook-btn rec-log-tracker-btn" onclick="logRecipeToTracker('${r.id}')">📊 Log to Tracker</button>
+            ${r.isCustom ? `<button class="cook-btn rec-edit-btn" onclick="editRecipe('${r.id}')">✏️ Edit</button>` : ''}
           </div>
         </div>
 
-        <div class="source">${r.source}</div>
+        <div class="source">${r.source || (r.isCustom ? 'Custom recipe' : '')}</div>
       </div>
     </div>
   `;
@@ -765,26 +766,37 @@ function logCook(id) {
 
 // Push a meal log entry to the Tracker using this recipe's own macros.
 function logRecipeToTracker(id) {
-  const r = RECIPES.find((x) => x.id === id);
+  const r = allRecipes().find((x) => x.id === id);
   if (!r) return;
   const slot = prompt('Which meal slot? (Breakfast / Lunch / Dinner / Snack / Pre-workout / Pre-bed)', 'Lunch');
   if (slot === null) return;
   const slotClean = (slot || '').trim() || 'Lunch';
 
+  const qtyRaw = prompt('Quantity / servings? (e.g. 1, 0.5, 2)', '1');
+  if (qtyRaw === null) return;
+  const qty = Math.max(0, parseFloat(qtyRaw)) || 1;
+  const r1 = (n) => Math.round((n + Number.EPSILON) * 10) / 10;
+
   const today = new Date();
   const tz = today.getTimezoneOffset() * 60000;
   const dateISO = new Date(today - tz).toISOString().slice(0, 10);
+
+  const himBase = r.macros && r.macros.him ? r.macros.him : [0, 0, 0, 0];
+  const herBase = r.macros && r.macros.her ? r.macros.her : [0, 0, 0, 0];
+
+  const displayName = (qty === 1 ? r.name : `${r.name} (${qty}×)`).replace(/&amp;/g, '&');
 
   const entry = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
     date: dateISO,
     slot: slotClean,
     mealKey: 'custom:' + r.id,
-    customName: r.name.replace(/&amp;/g, '&'),
-    himKcal: (r.macros.him && r.macros.him[0]) || 0,
-    himP:    (r.macros.him && r.macros.him[1]) || 0,
-    herKcal: (r.macros.her && r.macros.her[0]) || 0,
-    herP:    (r.macros.her && r.macros.her[1]) || 0,
+    customName: displayName,
+    himKcal: Math.round(himBase[0] * qty),
+    himP:    r1(himBase[1] * qty),
+    herKcal: Math.round(herBase[0] * qty),
+    herP:    r1(herBase[1] * qty),
+    qty:     qty,
     notes: '',
   };
   try {
@@ -827,13 +839,14 @@ function applyFilters() {
       el.classList.add('hidden');
     }
   });
-  document.getElementById('stats').textContent = `${visible} / ${RECIPES.length} recipes`;
+  const total = allRecipes().length;
+  document.getElementById('stats').textContent = `${visible} / ${total} recipes`;
 }
 
 function renderAll() {
   // Save expanded state
   const expandedIds = Array.from(document.querySelectorAll('.recipe.expanded')).map(el => el.dataset.id);
-  document.getElementById('recipes').innerHTML = RECIPES.map(renderRecipe).join('');
+  document.getElementById('recipes').innerHTML = allRecipes().map(renderRecipe).join('');
   // Restore expanded state
   expandedIds.forEach(id => {
     const el = document.querySelector(`.recipe[data-id="${id}"]`);
@@ -858,5 +871,256 @@ document.getElementById('search').addEventListener('input', e => {
   applyFilters();
 });
 
-// Initial render
+// ============================================================
+// Custom recipes — user-added entries stored separately
+// ============================================================
+const CUSTOM_KEY = 'rtc_recipes_custom_v1';
+
+function loadCustom() {
+  try { return JSON.parse(localStorage.getItem(CUSTOM_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+function saveCustom() {
+  try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(customRecipes)); } catch (e) {}
+}
+
+let customRecipes = loadCustom();
+
+function allRecipes() {
+  return [...customRecipes, ...RECIPES];
+}
+
+function slugify(s) {
+  return s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 40) || 'recipe';
+}
+
+function newCustomId(name) {
+  return 'custom_' + slugify(name) + '_' + Date.now().toString(36);
+}
+
+function findCustom(id) {
+  return customRecipes.find((r) => r.id === id);
+}
+
+function isCustom(id) {
+  return id && id.startsWith('custom_');
+}
+
+// Build modal HTML once and inject into the page
+const modalEl = document.createElement('div');
+modalEl.id = 'rec-modal';
+modalEl.className = 'rec-modal';
+modalEl.hidden = true;
+modalEl.innerHTML = `
+  <div class="rec-modal-overlay"></div>
+  <div class="rec-modal-card">
+    <div class="rec-modal-head">
+      <h2 id="rec-modal-title">Add Recipe</h2>
+      <button class="rec-modal-close" type="button" aria-label="Close">×</button>
+    </div>
+    <form id="rec-form" class="rec-form" novalidate>
+      <input name="id" type="hidden" />
+      <label class="rec-field">
+        <span>Name *</span>
+        <input name="name" type="text" required maxlength="80" autocomplete="off" />
+      </label>
+      <div class="rec-row-2">
+        <label class="rec-field">
+          <span>Meal type</span>
+          <select name="mealType">
+            <option>Breakfast</option>
+            <option>Lunch</option>
+            <option>Dinner</option>
+            <option>Snack</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label class="rec-field">
+          <span>Cuisine</span>
+          <input name="cuisine" type="text" value="Custom" maxlength="30" autocomplete="off" />
+        </label>
+      </div>
+      <div class="rec-row-2">
+        <label class="rec-field">
+          <span>Time (min)</span>
+          <input name="totalTime" type="number" min="0" max="999" inputmode="numeric" />
+        </label>
+        <label class="rec-field">
+          <span>Servings</span>
+          <input name="servings" type="text" value="1 serving" maxlength="40" autocomplete="off" />
+        </label>
+      </div>
+
+      <fieldset class="rec-fieldset">
+        <legend>Him macros (per serving)</legend>
+        <div class="rec-row-4">
+          <label class="rec-field-sm"><span>kcal</span><input name="himKcal" type="number" min="0" inputmode="numeric" /></label>
+          <label class="rec-field-sm"><span>P (g)</span><input name="himP" type="number" min="0" step="0.5" inputmode="decimal" /></label>
+          <label class="rec-field-sm"><span>C (g)</span><input name="himC" type="number" min="0" step="0.5" inputmode="decimal" /></label>
+          <label class="rec-field-sm"><span>F (g)</span><input name="himF" type="number" min="0" step="0.5" inputmode="decimal" /></label>
+        </div>
+      </fieldset>
+
+      <fieldset class="rec-fieldset">
+        <legend>Her macros (per serving)</legend>
+        <div class="rec-row-4">
+          <label class="rec-field-sm"><span>kcal</span><input name="herKcal" type="number" min="0" inputmode="numeric" /></label>
+          <label class="rec-field-sm"><span>P (g)</span><input name="herP" type="number" min="0" step="0.5" inputmode="decimal" /></label>
+          <label class="rec-field-sm"><span>C (g)</span><input name="herC" type="number" min="0" step="0.5" inputmode="decimal" /></label>
+          <label class="rec-field-sm"><span>F (g)</span><input name="herF" type="number" min="0" step="0.5" inputmode="decimal" /></label>
+        </div>
+      </fieldset>
+
+      <label class="rec-field">
+        <span>Ingredients (one per line)</span>
+        <textarea name="ingredients" rows="4" placeholder="2 chicken breasts&#10;1 cup rice&#10;…"></textarea>
+      </label>
+
+      <label class="rec-field">
+        <span>Method (one step per line)</span>
+        <textarea name="method" rows="4" placeholder="Heat pan to medium&#10;Sear chicken 6 min/side&#10;…"></textarea>
+      </label>
+
+      <label class="rec-field">
+        <span>Tags (comma-separated)</span>
+        <input name="tags" type="text" placeholder="quick, high-protein, vegetarian" autocomplete="off" />
+      </label>
+
+      <label class="rec-field">
+        <span>Notes</span>
+        <input name="notes" type="text" maxlength="200" autocomplete="off" />
+      </label>
+
+      <div class="rec-form-actions">
+        <button type="submit" class="rec-save-btn">Save Recipe</button>
+        <button type="button" class="rec-del-btn" id="rec-delete-btn" hidden>Delete</button>
+      </div>
+    </form>
+  </div>
+`;
+document.body.appendChild(modalEl);
+
+// Inject the "+ Add Recipe" button into the header (above the filter pills)
+const addBtn = document.createElement('button');
+addBtn.type = 'button';
+addBtn.id = 'rec-add-btn';
+addBtn.className = 'rec-add-btn';
+addBtn.textContent = '＋ Add Recipe';
+document.querySelector('.workouts-header').insertBefore(
+  addBtn,
+  document.getElementById('filters')
+);
+
+const form = modalEl.querySelector('#rec-form');
+const modalTitle = modalEl.querySelector('#rec-modal-title');
+const deleteBtn = modalEl.querySelector('#rec-delete-btn');
+
+function openModal(recipe) {
+  form.reset();
+  if (recipe) {
+    modalTitle.textContent = 'Edit Recipe';
+    deleteBtn.hidden = false;
+    form.elements.id.value = recipe.id;
+    form.elements.name.value = recipe.name || '';
+    form.elements.mealType.value = recipe.mealType || 'Lunch';
+    form.elements.cuisine.value = recipe.cuisine || 'Custom';
+    form.elements.totalTime.value = recipe.totalTime || '';
+    form.elements.servings.value = recipe.servings || '1 serving';
+    const him = (recipe.macros && recipe.macros.him) || [];
+    const her = (recipe.macros && recipe.macros.her) || [];
+    form.elements.himKcal.value = him[0] || '';
+    form.elements.himP.value    = him[1] || '';
+    form.elements.himC.value    = him[2] || '';
+    form.elements.himF.value    = him[3] || '';
+    form.elements.herKcal.value = her[0] || '';
+    form.elements.herP.value    = her[1] || '';
+    form.elements.herC.value    = her[2] || '';
+    form.elements.herF.value    = her[3] || '';
+    form.elements.ingredients.value = (recipe.ingredients || []).join('\n');
+    form.elements.method.value      = (recipe.method || []).join('\n');
+    form.elements.tags.value        = (recipe.tags || []).join(', ');
+    form.elements.notes.value       = recipe.notes || '';
+  } else {
+    modalTitle.textContent = 'Add Recipe';
+    deleteBtn.hidden = true;
+    form.elements.id.value = '';
+  }
+  modalEl.hidden = false;
+  document.body.classList.add('modal-open');
+  setTimeout(() => form.elements.name.focus(), 50);
+}
+
+function closeModal() {
+  modalEl.hidden = true;
+  document.body.classList.remove('modal-open');
+}
+
+function readForm() {
+  const d = Object.fromEntries(new FormData(form).entries());
+  const name = (d.name || '').trim();
+  if (!name) {
+    alert('Recipe needs a name.');
+    return null;
+  }
+  const num = (v) => {
+    const n = parseFloat(v);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  };
+  const him = [num(d.himKcal), num(d.himP), num(d.himC), num(d.himF)];
+  const her = [num(d.herKcal), num(d.herP), num(d.herC), num(d.herF)];
+  const ingredients = (d.ingredients || '').split('\n').map(s => s.trim()).filter(Boolean);
+  const method      = (d.method      || '').split('\n').map(s => s.trim()).filter(Boolean);
+  const tags        = (d.tags        || '').split(',').map(s => s.trim()).filter(Boolean);
+
+  return {
+    id: d.id || newCustomId(name),
+    name,
+    mealType: d.mealType || 'Other',
+    cuisine: (d.cuisine || 'Custom').trim() || 'Custom',
+    totalTime: parseInt(d.totalTime, 10) || 0,
+    servings: (d.servings || '1 serving').trim(),
+    macros: {
+      ...(him.some(x => x > 0) ? { him } : {}),
+      ...(her.some(x => x > 0) ? { her } : {}),
+    },
+    ingredients,
+    method,
+    tags,
+    notes: (d.notes || '').trim(),
+    isCustom: true,
+  };
+}
+
+addBtn.addEventListener('click', () => openModal(null));
+modalEl.querySelector('.rec-modal-close').addEventListener('click', closeModal);
+modalEl.querySelector('.rec-modal-overlay').addEventListener('click', closeModal);
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const recipe = readForm();
+  if (!recipe) return;
+  const existingIdx = customRecipes.findIndex(r => r.id === recipe.id);
+  if (existingIdx >= 0) customRecipes[existingIdx] = recipe;
+  else customRecipes.unshift(recipe);
+  saveCustom();
+  closeModal();
+  renderAll();
+});
+
+deleteBtn.addEventListener('click', () => {
+  const id = form.elements.id.value;
+  if (!id) return;
+  if (!confirm('Delete this recipe? This cannot be undone.')) return;
+  customRecipes = customRecipes.filter(r => r.id !== id);
+  saveCustom();
+  closeModal();
+  renderAll();
+});
+
+function editRecipe(id) {
+  const r = findCustom(id);
+  if (r) openModal(r);
+}
+
+// Re-render so custom recipes appear on initial load
 renderAll();

@@ -44,10 +44,11 @@ Already imported:
 Per-tile improvements landing iteratively:
 
 - ✅ Gym: per-exercise swap (3 alternatives + auto-updated YouTube link), per-exercise notes, PR badge auto-pulled from Tracker training history
-- ⏳ Chores / Schedule / Fridge Cards: make them interactive (checkable + notes) like Groceries already is
-- ⏳ Recipes: user-added custom recipes, quantity on the Log-to-Tracker button
-- ⏳ Schedule: "Add to Apple Calendar" via .ics export
-- ⏳ Tracker: photo attachments on body-log entries (switch to IndexedDB to handle the size)
+- ✅ Chores: checkable items with auto-reset cycles (daily/weekly/monthly), per-section progress + manual reset, per-item notes
+- ✅ Schedule: "Add to Calendar" .ics export per day (one-off events, next occurrence, sleep + free filtered, consecutive same-activity rows merged)
+- ✅ Fridge Cards: meals checkable ("made this one") + per-cell notes, auto-reset on ISO-week change, per-week progress counter
+- ✅ Recipes: user-added custom recipes (full add/edit/delete modal) + quantity prompt on Log-to-Tracker
+- ✅ Tracker: photo attachments on body-log entries (IndexedDB blob store, in-page JPEG compression to max 1280px @ 0.82q, thumbnails + tap-to-zoom lightbox, photos auto-purge when entry deleted)
 - ⏳ Stage 2 backend (Supabase): cross-device sync + AI macro estimation for custom recipes
 - `Test_Artifact.html` — `1BIUx778p5s5tbjCWT6HQRxo8VHJpDU0L` (skipping — looks like a test file)
 

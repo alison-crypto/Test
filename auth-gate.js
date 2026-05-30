@@ -1,4 +1,5 @@
 import { supabase, getSession } from './supabase-client.js';
+import { initSync } from './sync.js';
 
 const AUTH_PAGE = 'auth.html';
 
@@ -36,6 +37,11 @@ function mountSignOutButton(email) {
   window.RTC_AUTH = { user: session.user, supabase };
   if (document.body) mountSignOutButton(session.user.email);
   else document.addEventListener('DOMContentLoaded', () => mountSignOutButton(session.user.email));
+
+  // Kick off sync in the background so page rendering isn't blocked.
+  // The first pull will land slightly after the page renders; pages re-read
+  // localStorage on user interaction, so newer data will surface naturally.
+  initSync(session.user.id).catch((e) => console.warn('[sync] init failed', e?.message || e));
 
   supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_OUT' && !currentPageIsAuth()) location.replace(AUTH_PAGE);

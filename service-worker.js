@@ -1,4 +1,4 @@
-const CACHE = 'assistant-v16';
+const CACHE = 'assistant-v17';
 const ASSETS = [
   './',
   './index.html',
@@ -22,6 +22,7 @@ const ASSETS = [
   './chores.js',
   './auth.js',
   './auth-gate.js',
+  './sync.js',
   './supabase-client.js',
   './supabase-config.js',
   './manifest.json',

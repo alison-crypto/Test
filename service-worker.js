@@ -1,7 +1,8 @@
-const CACHE = 'assistant-v15';
+const CACHE = 'assistant-v16';
 const ASSETS = [
   './',
   './index.html',
+  './auth.html',
   './gym-alison.html',
   './gym-darlene.html',
   './groceries.html',
@@ -19,6 +20,10 @@ const ASSETS = [
   './fridge.js',
   './tracker.js',
   './chores.js',
+  './auth.js',
+  './auth-gate.js',
+  './supabase-client.js',
+  './supabase-config.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -40,6 +45,10 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  // Supabase API/auth/storage must always hit the network — never cache responses
+  // (stale auth tokens or stale data would break sync).
+  if (url.hostname.endsWith('.supabase.co')) return;
   event.respondWith(
     caches.match(event.request).then((cached) =>
       cached ||

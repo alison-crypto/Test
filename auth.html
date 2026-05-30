@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a84ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Assistant" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Sign in · Alison &amp; Darlene</title>
+</head>
+<body class="auth-page">
+  <main class="auth-card">
+    <header class="auth-header">
+      <h1>Alison &amp; Darlene</h1>
+      <p class="auth-subtitle">Sign in to sync across devices</p>
+    </header>
+
+    <form id="auth-form" class="auth-form" autocomplete="on">
+      <label class="auth-field">
+        <span>Email</span>
+        <input type="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" />
+      </label>
+      <label class="auth-field">
+        <span>Password</span>
+        <input type="password" name="password" required minlength="8" autocomplete="current-password" />
+      </label>
+      <p id="auth-message" class="auth-message" role="status" aria-live="polite"></p>
+      <button type="submit" id="auth-submit" class="auth-submit">Sign in</button>
+      <button type="button" id="auth-toggle" class="auth-toggle">New here? Create an account</button>
+    </form>
+
+    <p class="auth-footnote">Your data is private to your household. Email confirmation is required for new accounts.</p>
+  </main>
+
+  <script type="module" src="auth.js"></script>
+</body>
+</html>

@@ -222,6 +222,20 @@ function parseRestSeconds(targetText) {
 
 let timerEl = null;
 let timerState = null;
+let wakeLock = null;
+
+async function requestWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+    wakeLock.addEventListener('release', () => { wakeLock = null; });
+  } catch (e) { /* user denied or system refused; non-fatal */ }
+}
+function releaseWakeLock() {
+  if (!wakeLock) return;
+  try { wakeLock.release(); } catch {}
+  wakeLock = null;
+}
 
 function ensureTimerEl() {
   if (timerEl) return timerEl;
@@ -264,7 +278,15 @@ function openTimerFor(exName, recommendedSec) {
   ensureTimerEl();
   const start = recommendedSec && recommendedSec > 0 ? recommendedSec : TIMER_DEFAULT_SEC;
   if (timerState && timerState.intervalId) clearInterval(timerState.intervalId);
-  timerState = { exName, remaining: start, running: false, intervalId: null };
+  releaseWakeLock();
+  timerState = {
+    exName,
+    remaining: start,
+    running: false,
+    intervalId: null,
+    endTime: null,    // absolute Date.now() when the countdown should hit 0
+    fired: false,     // whether the alarm has already fired this run
+  };
   timerEl.classList.remove('done');
   timerEl.classList.add('open');
   renderTimer();
@@ -272,6 +294,9 @@ function openTimerFor(exName, recommendedSec) {
 function adjustTimer(delta) {
   if (!timerState) return;
   timerState.remaining = Math.max(0, timerState.remaining + delta);
+  if (timerState.running && timerState.endTime) {
+    timerState.endTime += delta * 1000;
+  }
   timerEl.classList.remove('done');
   renderTimer();
 }
@@ -283,34 +308,55 @@ function startTimer() {
   if (!timerState) return;
   if (timerState.remaining <= 0) timerState.remaining = TIMER_DEFAULT_SEC;
   timerState.running = true;
+  timerState.fired = false;
+  timerState.endTime = Date.now() + timerState.remaining * 1000;
   timerEl.classList.remove('done');
   requestNotifPermission();
   ensureBeepReady();
-  timerState.intervalId = setInterval(() => {
-    if (!timerState || !timerState.running) return;
-    timerState.remaining -= 1;
-    renderTimer();
-    if (timerState.remaining <= 0) {
-      timerState.running = false;
-      clearInterval(timerState.intervalId);
-      timerState.intervalId = null;
-      onTimerComplete();
-    }
-  }, 1000);
+  requestWakeLock();
+  timerState.intervalId = setInterval(tickTimer, 250);
   renderTimer();
+}
+function tickTimer() {
+  if (!timerState || !timerState.running || !timerState.endTime) return;
+  const remaining = Math.max(0, Math.ceil((timerState.endTime - Date.now()) / 1000));
+  timerState.remaining = remaining;
+  renderTimer();
+  if (remaining <= 0 && !timerState.fired) {
+    timerState.fired = true;
+    timerState.running = false;
+    clearInterval(timerState.intervalId);
+    timerState.intervalId = null;
+    releaseWakeLock();
+    onTimerComplete();
+  }
 }
 function pauseTimer() {
   if (!timerState) return;
   timerState.running = false;
   if (timerState.intervalId) clearInterval(timerState.intervalId);
   timerState.intervalId = null;
+  timerState.endTime = null;
+  releaseWakeLock();
   renderTimer();
 }
 function cancelTimer() {
   if (timerState && timerState.intervalId) clearInterval(timerState.intervalId);
+  releaseWakeLock();
   timerState = null;
   if (timerEl) timerEl.classList.remove('open', 'done');
 }
+
+// When the page becomes visible again after being backgrounded, the
+// setInterval above may have been throttled or paused by iOS. Recompute
+// from the absolute endTime so the displayed value is correct and fire
+// the alarm if the timer expired while we were away.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  if (!timerState || !timerState.running) return;
+  if (!wakeLock) requestWakeLock();
+  tickTimer();
+});
 function onTimerComplete() {
   if (timerEl) timerEl.classList.add('done');
   try { navigator.vibrate && navigator.vibrate([200, 100, 200, 100, 400]); } catch {}

@@ -208,6 +208,18 @@ function closeChooser() {
 // ============================================================
 const TIMER_DEFAULT_SEC = 90;
 
+// Extract the recommended rest from a target line like "3 × 6-8 · rest 2-3 min".
+// Uses the upper end of any range. Returns null if no rest can be parsed.
+function parseRestSeconds(targetText) {
+  if (!targetText) return null;
+  const m = /rest\s+(\d+)(?:\s*[-–]\s*(\d+))?\s*(min|sec|s|m)\b/i.exec(targetText);
+  if (!m) return null;
+  const high = m[2] ? parseInt(m[2], 10) : parseInt(m[1], 10);
+  const unit = m[3].toLowerCase();
+  const mult = (unit === 'min' || unit === 'm') ? 60 : 1;
+  return high * mult;
+}
+
 let timerEl = null;
 let timerState = null;
 
@@ -248,13 +260,11 @@ function renderTimer() {
   timerEl.querySelector('#rtc-timer-go').textContent = timerState.running ? 'Pause' : 'Start';
 }
 
-function openTimerFor(exName) {
+function openTimerFor(exName, recommendedSec) {
   ensureTimerEl();
-  if (!timerState) {
-    timerState = { exName, remaining: TIMER_DEFAULT_SEC, running: false, intervalId: null };
-  } else {
-    timerState.exName = exName;
-  }
+  const start = recommendedSec && recommendedSec > 0 ? recommendedSec : TIMER_DEFAULT_SEC;
+  if (timerState && timerState.intervalId) clearInterval(timerState.intervalId);
+  timerState = { exName, remaining: start, running: false, intervalId: null };
   timerEl.classList.remove('done');
   timerEl.classList.add('open');
   renderTimer();
@@ -380,7 +390,8 @@ function playBeep() {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const name = ex.querySelector('.ex-name')?.textContent || 'Rest';
-      openTimerFor(name);
+      const target = ex.querySelector('.ex-target')?.textContent || '';
+      openTimerFor(name, parseRestSeconds(target));
     });
     const linkEl = header.querySelector('.ex-demo');
     if (linkEl && linkEl.nextSibling) header.insertBefore(btn, linkEl.nextSibling);

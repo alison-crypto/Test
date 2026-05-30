@@ -3216,3 +3216,228 @@ body.auth-page {
 @media (prefers-color-scheme: dark) {
   .rtc-auth-pill { box-shadow: 0 4px 14px rgba(0,0,0,0.4); }
 }
+
+/* ===================================================================== */
+/* gym-extras.js — exercise image slot + rest timer + chooser modal      */
+/* ===================================================================== */
+.ex-image-slot {
+  flex-shrink: 0;
+  width: 56px; height: 56px;
+  border-radius: 8px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font: inherit;
+}
+.ex-image-slot img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ex-image-placeholder {
+  font-size: 22px;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.ex-timer-btn {
+  flex-shrink: 0;
+  align-self: center;
+  font: inherit;
+  font-size: 14px;
+  background: var(--card-2);
+  color: var(--gym-accent);
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+}
+.ex-timer-btn:active { background: var(--input-bg, var(--card-2)); }
+
+/* Floating rest-timer panel */
+.rtc-timer {
+  position: fixed;
+  left: 50%;
+  bottom: -200px;
+  transform: translateX(-50%);
+  width: min(360px, calc(100vw - 24px));
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px 16px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+  transition: bottom 0.25s ease;
+  z-index: 9998;
+}
+.rtc-timer.open {
+  bottom: max(16px, env(safe-area-inset-bottom, 16px));
+}
+.rtc-timer.done {
+  background: #ff3b30;
+  color: #fff;
+  animation: rtc-flash 0.6s ease 2;
+}
+@keyframes rtc-flash {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50%      { transform: translateX(-50%) scale(1.05); }
+}
+.rtc-timer-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.rtc-timer-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.rtc-timer.done .rtc-timer-name { color: rgba(255,255,255,0.85); }
+.rtc-timer-close {
+  font: inherit;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.rtc-timer.done .rtc-timer-close { color: #fff; }
+.rtc-timer-countdown {
+  font-size: 52px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  margin: 4px 0 10px;
+  letter-spacing: -1px;
+}
+.rtc-timer.done .rtc-timer-countdown { color: #fff; }
+.rtc-timer-controls {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  gap: 8px;
+}
+.rtc-timer-adj, .rtc-timer-go {
+  font: inherit;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-2);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.rtc-timer-go {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.rtc-timer.done .rtc-timer-adj,
+.rtc-timer.done .rtc-timer-go {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* Image chooser modal */
+.rtc-img-chooser-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 9999;
+}
+.rtc-img-chooser {
+  width: min(440px, 100%);
+  max-height: 88vh;
+  background: var(--card);
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.rtc-img-chooser-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.rtc-img-chooser-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rtc-img-chooser-close {
+  font: inherit;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  line-height: 1;
+  padding: 4px 8px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.rtc-img-chooser-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 12px;
+  overflow-y: auto;
+}
+.rtc-img-chooser-opt {
+  font: inherit;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.rtc-img-chooser-opt img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+.rtc-img-chooser-opt span {
+  font-size: 11px;
+  color: var(--text);
+  padding: 6px 8px;
+  text-align: left;
+  line-height: 1.25;
+}
+.rtc-img-chooser-empty {
+  grid-column: 1 / -1;
+  padding: 30px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+.rtc-img-chooser-footer {
+  padding: 10px 14px 14px;
+  border-top: 1px solid var(--border);
+}
+.rtc-img-chooser-clear {
+  font: inherit;
+  background: transparent;
+  color: #ff3b30;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  font-size: 13.5px;
+}
+

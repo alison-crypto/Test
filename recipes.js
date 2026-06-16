@@ -1,4 +1,473 @@
 const RECIPES = [
+  // ==========================================================
+  // Dar's Nutritionist Plan (prescribed 2026-06-10, Nayanna Percy Costa CRN11:2259)
+  // Pregnancy week 28+. Target for Dar: 1942 kcal, 149.6g P, 189.9g C, 77.5g F, 44.7g fiber.
+  // Simplified to "2 plates a week":
+  //   - Mon–Wed: chicken-based lunch + dinner
+  //   - Thu–Sun: lean-beef-based lunch + dinner
+  // Breakfast / afternoon shake / evening yogurt stay the same every day.
+  // Alison (188 cm, 100 kg, training) eats the same dishes with portions
+  // scaled up — target ~2900–3000 kcal, ~200g P daily.
+  // ==========================================================
+  {
+    id: 'dar_breakfast',
+    name: 'Egg &amp; Cottage Cheese Toast + Pear + Chia',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Breakfast (daily)',
+    prepTime: 8, totalTime: 12,
+    servings: '1 portion each',
+    macros: { him: [767, 44, 79, 31], her: [562, 35, 56, 23] },
+    ingredients: [
+      'Eggs (boiled): him 3 medium / her 2 medium',
+      'Cottage cheese: him 100g regular / her 75g lactose-free low-fat',
+      'Whole wheat bread: him 3 slices (75g) / her 2 slices (50g)',
+      'Pear: her 1 medium (110g) / him 1 medium banana (120g)',
+      'Chia seeds: 30g each',
+      'Salt, black pepper, fresh herbs (parsley or chives)'
+    ],
+    method: [
+      'Boil eggs 9 min (yolk just set). Peel and mash with a fork',
+      'Mix mashed eggs with cottage cheese, salt, pepper, and chopped herbs to form a spread',
+      'Toast the bread slices, spread the egg-cottage mixture on top',
+      'Stir chia seeds into water or yogurt and let sit 5 min (or sprinkle on top)',
+      'Serve with the pear (Dar) or banana (Alison) on the side'
+    ],
+    notes: 'Substitutions per nutritionist — for cottage cheese: 1 tbsp lactose-free cream cheese OR 3 tbsp lactose-free light ricotta. For pear: 1 small banana OR 10 strawberries. For bread: 3 whole-grain toasts (30g).',
+    tags: ['dar-plan', 'pregnancy-friendly', 'no-cook', 'lactose-free-option'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_snack_smoothie',
+    name: 'Banana Protein Smoothie (Afternoon)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Afternoon Snack (daily)',
+    prepTime: 3, totalTime: 3,
+    servings: '1 smoothie each',
+    macros: { him: [227, 31, 27, 3], her: [227, 31, 27, 3] },
+    ingredients: [
+      'Banana: 1 medium (~40g for her, fine to use a larger one for him)',
+      'Oat bran: 30g (3 tbsp)',
+      'Whey isolate protein: 30g (1 scoop)',
+      'Cold water: 250–300mL',
+      'Ice: optional'
+    ],
+    method: [
+      'Add water, banana, oat bran, whey, and ice to blender',
+      'Blend until smooth, ~30 seconds',
+      'Drink immediately for best texture'
+    ],
+    notes: 'Substitutions per nutritionist — for banana: 0.7 small apple OR 7 large strawberries.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'quick', '5-min'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_evening_snack',
+    name: 'Greek Yogurt with Ground Flaxseed (Evening)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Evening Snack (daily)',
+    prepTime: 2, totalTime: 2,
+    servings: '1 bowl each',
+    macros: { him: [307, 22, 14, 18], her: [207, 13, 10, 13] },
+    ingredients: [
+      'Plain full-fat Greek yogurt: him 200g / her 100g',
+      'Ground flaxseed: 20g each (2 dessert spoons)'
+    ],
+    method: [
+      'Spoon yogurt into a bowl',
+      'Stir in ground flaxseed',
+      'Eat 30–60 min before bed'
+    ],
+    notes: 'Lactose-free Greek yogurt is fine for Dar if regular doesn\'t agree with her.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'no-cook', 'bedtime'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_lunch_chicken',
+    name: 'Chicken &amp; Rice Plate with Lentils (Mon–Wed Lunch)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Lunch (Mon–Wed)',
+    prepTime: 15, totalTime: 35,
+    servings: 'Cook for 3 days at once — 3 portions him + 3 portions her',
+    macros: { him: [879, 76, 78, 30], her: [630, 57, 55, 21] },
+    ingredients: [
+      'Chicken breast (raw): him 220g / her 165g per portion (≈150g cooked her, 200g cooked him)',
+      'Brown rice (cooked): him 150g / her 100g',
+      'Lentils (cooked): him 80g / her 54g',
+      'Mixed steamed veggies (broccoli, zucchini, carrot): 110g each',
+      'Raw salad (lettuce, tomato, onion): 70g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Orange: him 1 medium / her 1 small (90g)',
+      'Garlic, lemon, oregano, salt, pepper'
+    ],
+    method: [
+      'Cook a big batch of brown rice (~400g raw → ~1.1kg cooked across 6 portions)',
+      'Simmer lentils with a bay leaf and a clove of garlic until tender (~25 min); drain',
+      'Marinate chicken with crushed garlic, lemon juice, oregano, salt, pepper for 15 min',
+      'Grill or pan-sear chicken over medium-high heat, 4–5 min per side until 75°C internal',
+      'Steam the mixed veggies 6–8 min',
+      'Portion: rice base + lentils + chicken + steamed veg + fresh salad. Drizzle olive oil over salad. Orange on the side',
+      'Refrigerate up to 3 days'
+    ],
+    notes: 'Substitutions per nutritionist — for chicken breast: 75g sautéed lean ground beef OR 120g shredded chicken. For brown rice: 112g whole-wheat pasta OR 160g mashed potatoes OR 100g sweet potato. For lentils: 68g pinto/black beans OR 45g chickpeas.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'meal-prep', 'high-fiber'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_dinner_chicken',
+    name: 'Shredded Chicken Wrap &amp; Veg (Mon–Wed Dinner)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Dinner (Mon–Wed)',
+    prepTime: 10, totalTime: 20,
+    servings: '3 portions him + 3 portions her',
+    macros: { him: [660, 60, 39, 29], her: [478, 43, 32, 19] },
+    ingredients: [
+      'Shredded chicken (cooked, lean): him 170g / her 120g',
+      'Whole-wheat wraps: him 1.5 wraps (45g) / her 1 wrap (30g)',
+      'Mixed steamed veggies (zucchini, bell pepper, carrot): 110g each',
+      'Iceberg lettuce: 48g each (2 large leaves)',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Pineapple: 1 medium slice (75g) each',
+      'Lime juice, smoked paprika, salt, pepper'
+    ],
+    method: [
+      'Use leftover chicken from Mon–Wed lunch prep, OR poach an extra 350g chicken and shred',
+      'Toss the shredded chicken with smoked paprika, lime juice, salt, pepper',
+      'Warm the wrap in a dry pan 20 seconds per side',
+      'Steam the veggies (or microwave 3 min covered with a splash of water)',
+      'Build: wrap on plate, lettuce as base, chicken + warm veggies on top, drizzle olive oil',
+      'Pineapple on the side'
+    ],
+    notes: 'Substitutions per nutritionist — for chicken: 100g grilled/baked fish fillet OR 2 boiled eggs OR 62.5g lean ground beef. For wrap: 120g mashed potatoes OR 80g brown rice.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'meal-prep', 'leftover-friendly'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_lunch_beef',
+    name: 'Lean Ground Beef &amp; Rice Plate with Black Beans (Thu–Sun Lunch)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Lunch (Thu–Sun)',
+    prepTime: 15, totalTime: 30,
+    servings: 'Cook for 4 days at once — 4 portions him + 4 portions her',
+    macros: { him: [920, 58, 90, 39], her: [574, 33, 62, 24] },
+    ingredients: [
+      'Lean ground beef (90/10 or 93/7): him 150g / her 75g per portion',
+      'Brown rice (cooked): him 150g / her 100g',
+      'Black beans (cooked, drained): him 130g / her 68g',
+      'Mixed steamed veggies (broccoli, zucchini, carrot): 110g each',
+      'Raw salad (lettuce, tomato, onion): 70g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Orange: him 1 medium / her 1 small (90g)',
+      'Yellow onion, garlic, cumin, smoked paprika, oregano, salt, pepper'
+    ],
+    method: [
+      'Cook brown rice in big batch (~500g raw → ~1.4kg cooked across 8 portions)',
+      'Simmer black beans with onion, garlic, bay leaf until tender (or use canned, drained and rinsed)',
+      'Sauté ground beef in a hot dry pan, break it up with a wooden spoon, drain any excess fat',
+      'Add diced onion, garlic, cumin, smoked paprika, oregano, salt to the beef. Cook 5 more min',
+      'Steam the mixed veggies 6–8 min',
+      'Portion: rice + beans + beef + steamed veg + fresh salad. Olive oil drizzle. Orange on the side',
+      'Refrigerate up to 4 days'
+    ],
+    notes: 'Substitutions per nutritionist — for ground beef: 150g chicken breast OR 120g shredded chicken. For brown rice: 112g whole-wheat pasta OR 100g sweet potato. For black beans: 68g pinto beans OR 45g chickpeas OR 54g lentils.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'meal-prep', 'iron-rich'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_dinner_beef',
+    name: 'Lean Beef Wrap &amp; Veg (Thu–Sun Dinner)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Dinner (Thu–Sun)',
+    prepTime: 10, totalTime: 18,
+    servings: '4 portions him + 4 portions her',
+    macros: { him: [640, 42, 39, 36], her: [418, 23, 32, 22] },
+    ingredients: [
+      'Lean ground beef (90/10 or 93/7): him 125g / her 62.5g (≈2½ heaping tbsp her)',
+      'Whole-wheat wraps: him 1.5 wraps (45g) / her 1 wrap (30g)',
+      'Mixed steamed veggies (zucchini, bell pepper, carrot): 110g each',
+      'Iceberg lettuce: 48g each (2 large leaves)',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Pineapple: 1 medium slice (75g) each',
+      'Garlic, cumin, smoked paprika, salt, pepper, lime juice'
+    ],
+    method: [
+      'Use leftover seasoned beef from the lunch batch, OR sauté fresh: brown beef in dry pan, add garlic, cumin, paprika, salt',
+      'Warm the wrap in a dry pan 20 seconds per side',
+      'Steam veggies 5 min',
+      'Build the wrap: lettuce base, beef + warm veg, fold or roll. Drizzle olive oil. Squeeze lime',
+      'Serve pineapple slice on the side'
+    ],
+    notes: 'Substitutions per nutritionist — for beef: 100g grilled/baked fish fillet OR 120g shredded chicken OR 2 boiled eggs. For wrap: 120g mashed potatoes OR 80g brown rice.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'meal-prep', 'leftover-friendly'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+
+  // ----- Variations using the nutritionist's substitution rules -----
+  {
+    id: 'dar_lunch_fish_sweetpotato',
+    name: 'Baked White Fish &amp; Sweet Potato w/ Black Beans (variation)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Lunch variation',
+    prepTime: 15, totalTime: 35,
+    servings: 'Cook for 2 days — 2 portions each',
+    macros: { him: [766, 56, 89, 24], her: [483, 33, 54, 16] },
+    ingredients: [
+      'Lean white fish fillet (cod, tilapia, hake — low mercury): him 180g / her 100g',
+      'Sweet potato (cooked): him 150g / her 100g',
+      'Black beans (cooked, drained): him 130g / her 68g',
+      'Mixed steamed veggies: 110g each',
+      'Raw salad: 70g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Orange: him 1 medium / her 1 small',
+      'Lemon, garlic, parsley, salt, pepper, smoked paprika'
+    ],
+    method: [
+      'Heat oven to 200°C. Season fish with salt, pepper, smoked paprika, lemon juice, garlic',
+      'Bake fish 12–15 min until flaky (75°C internal). Don\'t overcook — it dries out fast',
+      'Roast sweet potato cubes 25 min at 200°C, tossed in olive oil + salt',
+      'Warm black beans with garlic and cumin',
+      'Steam veggies 6 min',
+      'Plate: sweet potato + beans + fish on top, veggies and fresh salad on the side, olive oil drizzle, orange on the side'
+    ],
+    notes: 'Uses the nutritionist\'s subs: fish (100g) for chicken/beef, sweet potato (100g) for brown rice, black beans (68g) for lentils. Lean white fish is pregnancy-safe and low-mercury — avoid swordfish, king mackerel, shark.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'variation', 'low-mercury'],
+    source: 'Nutritionist plan 2026-06-10 — variation'
+  },
+  {
+    id: 'dar_lunch_chicken_pasta',
+    name: 'Lemon-Garlic Chicken &amp; Whole-Wheat Pasta w/ Chickpeas (variation)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Lunch variation',
+    prepTime: 12, totalTime: 25,
+    servings: '2 portions each',
+    macros: { him: [892, 84, 96, 31], her: [635, 58, 63, 22] },
+    ingredients: [
+      'Chicken breast (cooked): him 220g / her 150g',
+      'Whole-wheat pasta (cooked): him 170g / her 112g',
+      'Chickpeas (cooked, drained): him 80g / her 45g',
+      'Mixed steamed veggies: 110g each',
+      'Raw salad: 70g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Orange: him 1 medium / her 1 small',
+      'Lemon juice, garlic, oregano, salt, pepper'
+    ],
+    method: [
+      'Cook the pasta al dente in salted water; drain',
+      'Marinate chicken with lemon juice, crushed garlic, oregano, salt, pepper for 10 min',
+      'Pan-sear chicken over medium-high, 4–5 min per side until 75°C internal. Slice',
+      'Warm chickpeas with a pinch of cumin and olive oil',
+      'Steam veggies 6 min',
+      'Combine pasta + chickpeas in a bowl, sliced chicken on top, salad and steamed veg on the side. Olive oil drizzle, orange on the side'
+    ],
+    notes: 'Uses the nutritionist\'s subs: whole-wheat pasta (112g) for brown rice, chickpeas (45g) for lentils. Keep pasta al dente — lower glycemic index, better blood sugar for pregnancy.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'variation'],
+    source: 'Nutritionist plan 2026-06-10 — variation'
+  },
+  {
+    id: 'dar_dinner_fish_wrap',
+    name: 'Baked Fish Wrap (dinner variation)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Dinner variation',
+    prepTime: 10, totalTime: 22,
+    servings: '2 portions each',
+    macros: { him: [580, 46, 38, 31], her: [388, 28, 32, 20] },
+    ingredients: [
+      'Lean white fish fillet (cod, tilapia — low mercury): him 180g / her 100g',
+      'Whole-wheat wrap: him 1.5 wraps (45g) / her 1 wrap (30g)',
+      'Mixed steamed veggies: 110g each',
+      'Iceberg lettuce: 48g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Pineapple: 1 slice (75g) each',
+      'Lemon, garlic, dill or parsley, salt, pepper'
+    ],
+    method: [
+      'Heat oven to 200°C. Season fish with lemon juice, garlic, salt, pepper, herbs',
+      'Bake 12–15 min until flaky (75°C internal)',
+      'Warm wrap briefly in a dry pan',
+      'Steam veggies 5 min',
+      'Build the wrap: lettuce base, fish broken into chunks, warm veg, olive oil drizzle. Roll',
+      'Serve pineapple slice on the side'
+    ],
+    notes: 'Uses the nutritionist\'s sub: 100g fish for ground beef. Lighter than the beef wrap by ~30 kcal for Dar.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'variation', 'low-mercury'],
+    source: 'Nutritionist plan 2026-06-10 — variation'
+  },
+
+  // ----- More options per protein (added so each block has 3+ choices) -----
+  {
+    id: 'dar_lunch_chicken_potato',
+    name: 'Chicken &amp; Mashed Potatoes w/ Lentils',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Lunch (chicken)',
+    prepTime: 15, totalTime: 35,
+    servings: '2 portions each',
+    macros: { him: [992, 81, 99, 33], her: [658, 57, 57, 22] },
+    ingredients: [
+      'Chicken breast (cooked): him 220g / her 150g',
+      'Mashed potatoes: him 250g / her 160g (2 serving spoons her)',
+      'Lentils (cooked): him 80g / her 54g',
+      'Mixed steamed veggies: 110g each',
+      'Raw salad: 70g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Orange: him 1 medium / her 1 small',
+      'Garlic, lemon, oregano, salt, pepper, butter (for potatoes)'
+    ],
+    method: [
+      'Boil peeled potatoes in salted water until fork-tender (~18 min)',
+      'Mash with a splash of milk + a knob of butter + salt + pepper',
+      'Simmer lentils with bay leaf + garlic until tender (~25 min); drain',
+      'Marinate chicken in lemon + garlic + oregano + salt for 10 min, grill 4–5 min per side',
+      'Steam veggies 6–8 min',
+      'Plate: mashed potatoes base + lentils + sliced chicken + veggies + salad. Olive oil drizzle, orange on side'
+    ],
+    notes: 'Uses the nutritionist\'s sub: 160g mashed potatoes for brown rice. Heavier carb plate; pairs well with low-intensity afternoon.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'meal-prep'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_lunch_chicken_pumpkin',
+    name: 'Chicken &amp; Pumpkin Purée w/ Chickpeas',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Lunch (chicken)',
+    prepTime: 15, totalTime: 35,
+    servings: '2 portions each',
+    macros: { him: [840, 80, 86, 33], her: [575, 57, 53, 22] },
+    ingredients: [
+      'Chicken breast (cooked): him 220g / her 150g',
+      'Pumpkin purée (cooked, no cream): him 300g / her 200g (2½ serving spoons her)',
+      'Chickpeas (cooked, drained): him 70g / her 45g',
+      'Mixed steamed veggies: 110g each',
+      'Raw salad: 70g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Orange: him 1 medium / her 1 small',
+      'Garlic, cumin, nutmeg, salt, pepper'
+    ],
+    method: [
+      'Roast pumpkin cubes 25 min at 200°C with a pinch of nutmeg + salt. Mash to a purée',
+      'Warm chickpeas with garlic and cumin',
+      'Grill chicken (marinated in garlic + lemon + salt) 4–5 min per side',
+      'Steam veggies 6 min',
+      'Plate: pumpkin purée + chickpeas + sliced chicken + veggies + salad. Olive oil drizzle, orange on side'
+    ],
+    notes: 'Uses the nutritionist\'s subs: 200g pumpkin purée for brown rice, 45g chickpeas for lentils. Lower-carb lunch — good for the days before strength workouts.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'low-carb-ish'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_dinner_chicken_rice',
+    name: 'Greek Chicken Bowl with Brown Rice',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Dinner (chicken)',
+    prepTime: 10, totalTime: 20,
+    servings: '2 portions each',
+    macros: { him: [695, 60, 67, 29], her: [512, 43, 50, 18] },
+    ingredients: [
+      'Shredded chicken (cooked): him 170g / her 120g',
+      'Brown rice (cooked): him 120g / her 80g (4 heaping tbsp her)',
+      'Mixed steamed veggies: 110g each',
+      'Iceberg lettuce: 48g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Pineapple: 1 slice (75g) each',
+      'Lemon juice, oregano, garlic, salt, pepper'
+    ],
+    method: [
+      'Use leftover poached chicken; toss with lemon, garlic, oregano, salt',
+      'Reheat rice with a splash of water in a covered pan or microwave',
+      'Steam veggies 5 min',
+      'Bowl: rice base, lettuce + warm veg, shredded chicken on top, olive oil drizzle, pineapple on side'
+    ],
+    notes: 'Uses the nutritionist\'s sub: 80g brown rice for the whole-wheat wrap. Same protein as the wrap version, slightly higher carb.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'leftover-friendly'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_lunch_beef_sweetpotato',
+    name: 'Beef &amp; Sweet Potato w/ Pinto Beans',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Lunch (beef)',
+    prepTime: 15, totalTime: 35,
+    servings: '2 portions each',
+    macros: { him: [910, 58, 100, 39], her: [560, 32, 67, 24] },
+    ingredients: [
+      'Lean ground beef (93/7): him 150g / her 75g',
+      'Sweet potato (cooked): him 150g / her 100g (2½ small slices her)',
+      'Pinto beans (cooked, drained): him 130g / her 68g',
+      'Mixed steamed veggies: 110g each',
+      'Raw salad: 70g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Orange: him 1 medium / her 1 small',
+      'Garlic, cumin, smoked paprika, salt'
+    ],
+    method: [
+      'Roast sweet potato slices 25 min at 200°C with olive oil + salt',
+      'Warm pinto beans with onion, garlic, cumin',
+      'Sauté ground beef in dry pan, drain fat, add cumin + paprika + salt',
+      'Steam veggies 6 min',
+      'Plate: sweet potato + beans + beef + steamed veg + fresh salad. Olive oil drizzle, orange on side'
+    ],
+    notes: 'Uses the nutritionist\'s subs: 100g sweet potato for brown rice, 68g pinto beans for lentils. Iron-rich (beef + beans + vit C from orange).',
+    tags: ['dar-plan', 'pregnancy-friendly', 'iron-rich', 'meal-prep'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_lunch_beef_pasta',
+    name: 'Beef &amp; Whole-Wheat Pasta w/ Chickpeas',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Lunch (beef)',
+    prepTime: 12, totalTime: 25,
+    servings: '2 portions each',
+    macros: { him: [915, 58, 102, 39], her: [585, 33, 67, 25] },
+    ingredients: [
+      'Lean ground beef (93/7): him 150g / her 75g',
+      'Whole-wheat pasta (cooked): him 170g / her 112g',
+      'Chickpeas (cooked, drained): him 70g / her 45g',
+      'Mixed steamed veggies: 110g each',
+      'Raw salad: 70g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Orange: him 1 medium / her 1 small',
+      'Tomato paste, garlic, oregano, salt, pepper'
+    ],
+    method: [
+      'Cook pasta al dente in salted water; drain',
+      'Sauté beef in dry pan; drain fat. Add garlic, tomato paste, oregano, salt',
+      'Toss pasta with chickpeas, fold in beef sauce',
+      'Steam veggies 6 min',
+      'Plate: pasta + beef bowl + steamed veg + salad. Olive oil drizzle, orange on side'
+    ],
+    notes: 'Uses the nutritionist\'s subs: 112g whole-wheat pasta for brown rice, 45g chickpeas for lentils. Al dente pasta has a lower glycemic index — better blood sugar response.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'meal-prep'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+  {
+    id: 'dar_dinner_beef_rice',
+    name: 'Beef Bowl with Brown Rice',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Dinner (beef)',
+    prepTime: 10, totalTime: 20,
+    servings: '2 portions each',
+    macros: { him: [660, 43, 67, 37], her: [440, 22, 50, 22] },
+    ingredients: [
+      'Lean ground beef (93/7): him 125g / her 62.5g (2½ heaping tbsp her)',
+      'Brown rice (cooked): him 120g / her 80g (4 heaping tbsp her)',
+      'Mixed steamed veggies: 110g each',
+      'Iceberg lettuce: 48g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Pineapple: 1 slice (75g) each',
+      'Garlic, cumin, smoked paprika, lime juice, salt'
+    ],
+    method: [
+      'Use leftover seasoned beef from the lunch batch, or sauté fresh',
+      'Reheat rice with splash of water',
+      'Steam veggies 5 min',
+      'Bowl: rice base, lettuce + warm veg, beef on top. Olive oil drizzle. Lime squeeze. Pineapple on side'
+    ],
+    notes: 'Uses the nutritionist\'s sub: 80g brown rice for the whole-wheat wrap. Lighter than the lunch beef plate (~half the beef), suitable for a smaller dinner.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'leftover-friendly'],
+    source: 'Nutritionist plan 2026-06-10'
+  },
+
+  // ==========================================================
+  // Legacy 4-week rotation (Plan Doc v14) — kept for reference / variety
+  // ==========================================================
   {
     id: 'med_pulled_chicken',
     name: 'Slow-Cooker Mediterranean Pulled Chicken &amp; Rice',

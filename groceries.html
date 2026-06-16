@@ -49,6 +49,25 @@
   </div>
 </header>
 
+<section class="dp-groceries" id="dp-groceries-section">
+  <div class="dp-groceries-head">
+    <div>
+      <div class="dp-groceries-title">🥗 From Your Diet Plan</div>
+      <div class="dp-groceries-sub">Auto-generated from your <a href="plan.html">Diet Plan</a> picks — totals across 3 days Block A + 4 days Block B for both of you.</div>
+    </div>
+    <div class="dp-groceries-actions">
+      <button type="button" class="dp-groceries-btn" id="dp-check-all">Check all</button>
+      <button type="button" class="dp-groceries-btn" id="dp-uncheck-all">Reset</button>
+    </div>
+  </div>
+  <table class="dp-groceries-table" id="dp-groceries-table">
+    <thead>
+      <tr><th></th><th>Item</th><th>Darlene ♀</th><th>Alison ♂</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
+
 <div class="grocery-legend">
   <div class="legend-row"><span class="legend-swatch sw-meals"></span><b>Meals</b> — this week's lunches &amp; dinners</div>
   <div class="legend-row"><span class="legend-swatch sw-fixed"></span><b>Fixed Weekly</b> — daily breakfast / snacks</div>
@@ -419,6 +438,8 @@
 </footer>
 
 <script src="groceries.js"></script>
+<script src="plan.js"></script>
+<script src="groceries-plan.js" defer></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(() => {});

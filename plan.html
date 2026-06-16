@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a84ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Diet Plan</title>
+  <script type="module" src="auth-gate.js"></script>
+</head>
+<body class="plan-body">
+
+<header class="workouts-header">
+  <a href="index.html" class="back-link">‹ Home</a>
+  <h1>🥗 Diet Plan</h1>
+  <div class="workouts-subtitle">Dar's nutritionist plan · 2 plates / week · tap a quantity to edit</div>
+</header>
+
+<main class="plan-main">
+
+  <div id="plan-root"></div>
+
+  <section class="plan-summary">
+    <h2 class="plan-summary-h">Dar's targets (per nutritionist)</h2>
+    <div class="plan-summary-grid">
+      <div><span>Calories</span><b>1,942 kcal</b></div>
+      <div><span>Protein</span><b>149.6 g</b></div>
+      <div><span>Carbs</span><b>189.9 g</b></div>
+      <div><span>Fat</span><b>77.5 g</b></div>
+      <div><span>Fiber</span><b>44.7 g</b></div>
+      <div><span>Water</span><b>2.7 – 3 L</b></div>
+    </div>
+    <p class="plan-summary-note">7-day average lands on ~2,038 kcal / ~154 g P (slightly over kcal target; protein on point). Block-to-block variation is expected — chicken-day protein is higher, beef-day is lower.</p>
+  </section>
+
+  <section class="plan-notes">
+    <h2 class="plan-summary-h">Reminders</h2>
+    <ul>
+      <li><b>Avoid:</b> sugary drinks, ultra-processed snacks, fried foods, alcohol.</li>
+      <li><b>Add vitamin C</b> (orange, lemon, pineapple) to meals with iron to boost absorption.</li>
+      <li><b>3 servings</b> of dairy daily (yogurt, cheese — lactose-free for Dar if needed).</li>
+      <li><b>3–5 cups</b> of veggies daily, varied colors.</li>
+      <li><b>Don't go long without eating</b> — keep the 5-meal schedule.</li>
+    </ul>
+  </section>
+
+  <section class="plan-source-section">
+    <h2 class="plan-summary-h">Cross-check</h2>
+    <p class="plan-source-blurb">
+      Numbers above match the nutritionist's prescription — see the verbatim text for each meal, the full substitution list, and reminders:
+    </p>
+    <a class="plan-source-link" href="plan-source.html">📄 Open nutritionist's plan (verbatim)</a>
+    <p class="plan-source"><b>Source:</b> Nayanna Percy Costa (Nutricionista, CRN11:2259) · prescribed 2026-06-10 · pregnancy week 28+</p>
+  </section>
+
+</main>
+
+<script src="plan.js" defer></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

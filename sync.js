@@ -576,6 +576,55 @@ HANDLERS['rtc_chores_v1'] = choresHandler;
 });
 
 // ----------------------------------------------------------------------
+// Generic JSON-blob sync (kv_sync table) — for small piece-of-state
+// localStorage values that don't warrant a typed relational table.
+// Last-write-wins by updated_at at the blob level.
+// ----------------------------------------------------------------------
+function makeBlobHandler(storageKey) {
+  return {
+    async push() {
+      const raw = window.localStorage.getItem(storageKey);
+      const shadow = window.localStorage.getItem(shadowKey(storageKey));
+      if (raw === shadow) return;
+      const value = raw == null ? null : (() => { try { return JSON.parse(raw); } catch { return null; } })();
+      const { error } = await supabase.from('kv_sync').upsert({
+        user_id: userId,
+        storage_key: storageKey,
+        value,
+      }, { onConflict: 'user_id,storage_key' });
+      if (error) throw error;
+      withSuppressed(() => {
+        window.localStorage.setItem(shadowKey(storageKey), raw == null ? '' : raw);
+      });
+    },
+    async pull() {
+      const { data, error } = await supabase
+        .from('kv_sync')
+        .select('value')
+        .eq('user_id', userId)
+        .eq('storage_key', storageKey)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data || data.value == null) {
+        // No server value yet — local is the seed. The post-pull push will
+        // upload whatever's local.
+        return;
+      }
+      const newRaw = JSON.stringify(data.value);
+      withSuppressed(() => {
+        window.localStorage.setItem(storageKey, newRaw);
+        window.localStorage.setItem(shadowKey(storageKey), newRaw);
+      });
+    },
+  };
+}
+
+// Diet-plan picks, ingredient overrides, auto-grocery checkbox state.
+HANDLERS['rtc_week_plan_v1']        = makeBlobHandler('rtc_week_plan_v1');
+HANDLERS['rtc_plan_overrides_v1']   = makeBlobHandler('rtc_plan_overrides_v1');
+HANDLERS['rtc_grocery_plan_v1']     = makeBlobHandler('rtc_grocery_plan_v1');
+
+// ----------------------------------------------------------------------
 // Monkey-patch + debounced push scheduler
 // ----------------------------------------------------------------------
 
@@ -613,6 +662,8 @@ export async function initSync(supabaseUserId) {
     try { await h.pull(); } catch (e) { console.warn('[sync] init pull failed', e?.message || e); }
   }));
   initialized = true;
+  // Notify any page that wants to re-render with the freshly-pulled state.
+  try { window.dispatchEvent(new CustomEvent('rtc-sync-done')); } catch {}
 }
 
 export async function pullAll() {

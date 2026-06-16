@@ -283,3 +283,36 @@ create policy body_photos_owner_update on storage.objects
   for update using (bucket_id = 'body-photos' and auth.uid()::text = (storage.foldername(name))[1]);
 create policy body_photos_owner_delete on storage.objects
   for delete using (bucket_id = 'body-photos' and auth.uid()::text = (storage.foldername(name))[1]);
+
+-- =====================================================================
+-- Generic key-value sync for small JSON blobs (one row per user per key).
+-- Used by client-driven preferences/state that's awkward to model as a
+-- typed relational table:
+--   rtc_week_plan_v1       — diet plan recipe picks per block & slot
+--   rtc_plan_overrides_v1  — per-ingredient quantity overrides
+--   rtc_grocery_plan_v1    — checkbox state for the auto-generated list
+-- Last-write-wins by updated_at at the blob level (fine for couple-scale
+-- household state — rare simultaneous edits).
+-- =====================================================================
+create table if not exists public.kv_sync (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  storage_key text not null,
+  value jsonb,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, storage_key)
+);
+
+drop trigger if exists trg_kv_sync_updated_at on public.kv_sync;
+create trigger trg_kv_sync_updated_at before update on public.kv_sync
+  for each row execute function public.set_updated_at();
+
+alter table public.kv_sync enable row level security;
+
+drop policy if exists kv_sync_owner_select on public.kv_sync;
+drop policy if exists kv_sync_owner_insert on public.kv_sync;
+drop policy if exists kv_sync_owner_update on public.kv_sync;
+drop policy if exists kv_sync_owner_delete on public.kv_sync;
+create policy kv_sync_owner_select on public.kv_sync for select using (auth.uid() = user_id);
+create policy kv_sync_owner_insert on public.kv_sync for insert with check (auth.uid() = user_id);
+create policy kv_sync_owner_update on public.kv_sync for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy kv_sync_owner_delete on public.kv_sync for delete using (auth.uid() = user_id);

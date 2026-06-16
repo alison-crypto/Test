@@ -17,86 +17,12 @@
 <header class="workouts-header">
   <a href="index.html" class="back-link">‹ Home</a>
   <h1>🥗 Diet Plan</h1>
-  <div class="workouts-subtitle">Dar's nutritionist plan (2026-06-10) · 2 plates / week</div>
+  <div class="workouts-subtitle">Dar's nutritionist plan · 2 plates / week · tap a quantity to edit</div>
 </header>
 
 <main class="plan-main">
 
-  <div class="plan-block plan-block-a">
-    <div class="plan-block-head">
-      <div class="plan-block-days">MON · TUE · WED</div>
-      <div class="plan-block-title">Chicken Plate</div>
-    </div>
-    <div class="plan-meals">
-      <div class="plan-meal">
-        <div class="plan-meal-time">Breakfast</div>
-        <a class="plan-meal-name" href="recipes.html#dar_breakfast">Egg &amp; Cottage Cheese Toast + Pear + Chia</a>
-        <div class="plan-meal-macros"><span>♀ 562 kcal · 35g P</span><span>♂ 767 kcal · 44g P</span></div>
-      </div>
-      <div class="plan-meal">
-        <div class="plan-meal-time">Lunch</div>
-        <a class="plan-meal-name" href="recipes.html#dar_lunch_chicken">Chicken &amp; Rice Plate w/ Lentils</a>
-        <div class="plan-meal-macros"><span>♀ 630 kcal · 57g P</span><span>♂ 879 kcal · 76g P</span></div>
-      </div>
-      <div class="plan-meal">
-        <div class="plan-meal-time">Afternoon Snack</div>
-        <a class="plan-meal-name" href="recipes.html#dar_snack_smoothie">Banana Protein Smoothie</a>
-        <div class="plan-meal-macros"><span>♀ 227 kcal · 31g P</span><span>♂ 227 kcal · 31g P</span></div>
-      </div>
-      <div class="plan-meal">
-        <div class="plan-meal-time">Dinner</div>
-        <a class="plan-meal-name" href="recipes.html#dar_dinner_chicken">Shredded Chicken Wrap + Veg</a>
-        <div class="plan-meal-macros"><span>♀ 478 kcal · 43g P</span><span>♂ 660 kcal · 60g P</span></div>
-      </div>
-      <div class="plan-meal">
-        <div class="plan-meal-time">Evening Snack</div>
-        <a class="plan-meal-name" href="recipes.html#dar_evening_snack">Greek Yogurt + Flaxseed</a>
-        <div class="plan-meal-macros"><span>♀ 207 kcal · 13g P</span><span>♂ 307 kcal · 22g P</span></div>
-      </div>
-    </div>
-    <div class="plan-totals">
-      <div><span class="plan-tot-label">Dar daily</span><b>2,104 kcal · 179g P</b></div>
-      <div><span class="plan-tot-label">Alison daily</span><b>2,840 kcal · 234g P</b></div>
-    </div>
-  </div>
-
-  <div class="plan-block plan-block-b">
-    <div class="plan-block-head">
-      <div class="plan-block-days">THU · FRI · SAT · SUN</div>
-      <div class="plan-block-title">Lean Beef Plate</div>
-    </div>
-    <div class="plan-meals">
-      <div class="plan-meal">
-        <div class="plan-meal-time">Breakfast</div>
-        <a class="plan-meal-name" href="recipes.html#dar_breakfast">Egg &amp; Cottage Cheese Toast + Pear + Chia</a>
-        <div class="plan-meal-macros"><span>♀ 562 kcal · 35g P</span><span>♂ 767 kcal · 44g P</span></div>
-      </div>
-      <div class="plan-meal">
-        <div class="plan-meal-time">Lunch</div>
-        <a class="plan-meal-name" href="recipes.html#dar_lunch_beef">Lean Beef &amp; Rice w/ Black Beans</a>
-        <div class="plan-meal-macros"><span>♀ 574 kcal · 33g P</span><span>♂ 920 kcal · 58g P</span></div>
-      </div>
-      <div class="plan-meal">
-        <div class="plan-meal-time">Afternoon Snack</div>
-        <a class="plan-meal-name" href="recipes.html#dar_snack_smoothie">Banana Protein Smoothie</a>
-        <div class="plan-meal-macros"><span>♀ 227 kcal · 31g P</span><span>♂ 227 kcal · 31g P</span></div>
-      </div>
-      <div class="plan-meal">
-        <div class="plan-meal-time">Dinner</div>
-        <a class="plan-meal-name" href="recipes.html#dar_dinner_beef">Lean Beef Wrap + Veg</a>
-        <div class="plan-meal-macros"><span>♀ 418 kcal · 23g P</span><span>♂ 640 kcal · 42g P</span></div>
-      </div>
-      <div class="plan-meal">
-        <div class="plan-meal-time">Evening Snack</div>
-        <a class="plan-meal-name" href="recipes.html#dar_evening_snack">Greek Yogurt + Flaxseed</a>
-        <div class="plan-meal-macros"><span>♀ 207 kcal · 13g P</span><span>♂ 307 kcal · 22g P</span></div>
-      </div>
-    </div>
-    <div class="plan-totals">
-      <div><span class="plan-tot-label">Dar daily</span><b>1,988 kcal · 135g P</b></div>
-      <div><span class="plan-tot-label">Alison daily</span><b>2,861 kcal · 197g P</b></div>
-    </div>
-  </div>
+  <div id="plan-root"></div>
 
   <section class="plan-summary">
     <h2 class="plan-summary-h">Dar's targets (per nutritionist)</h2>
@@ -108,7 +34,7 @@
       <div><span>Fiber</span><b>44.7 g</b></div>
       <div><span>Water</span><b>2.7 – 3 L</b></div>
     </div>
-    <p class="plan-summary-note">7-day average lands on ~2,038 kcal / ~154 g P (slightly over kcal target; protein on point). Variation between blocks is expected — chicken-day protein is higher, beef-day is lower.</p>
+    <p class="plan-summary-note">7-day average lands on ~2,038 kcal / ~154 g P (slightly over kcal target; protein on point). Block-to-block variation is expected — chicken-day protein is higher, beef-day is lower.</p>
   </section>
 
   <section class="plan-notes">
@@ -120,11 +46,20 @@
       <li><b>3–5 cups</b> of veggies daily, varied colors.</li>
       <li><b>Don't go long without eating</b> — keep the 5-meal schedule.</li>
     </ul>
-    <p class="plan-source">Plan from Nayanna Percy Costa (Nutricionista, CRN11:2259) · prescribed 2026-06-10 · pregnancy week 28+</p>
+  </section>
+
+  <section class="plan-source-section">
+    <h2 class="plan-summary-h">Cross-check</h2>
+    <p class="plan-source-blurb">
+      Numbers above match the nutritionist's prescription — see the verbatim text for each meal, the full substitution list, and reminders:
+    </p>
+    <a class="plan-source-link" href="plan-source.html">📄 Open nutritionist's plan (verbatim)</a>
+    <p class="plan-source"><b>Source:</b> Nayanna Percy Costa (Nutricionista, CRN11:2259) · prescribed 2026-06-10 · pregnancy week 28+</p>
   </section>
 
 </main>
 
+<script src="plan.js" defer></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(() => {});

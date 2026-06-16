@@ -201,6 +201,97 @@ const RECIPES = [
     source: 'Nutritionist plan 2026-06-10'
   },
 
+  // ----- Variations using the nutritionist's substitution rules -----
+  {
+    id: 'dar_lunch_fish_sweetpotato',
+    name: 'Baked White Fish &amp; Sweet Potato w/ Black Beans (variation)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Lunch variation',
+    prepTime: 15, totalTime: 35,
+    servings: 'Cook for 2 days — 2 portions each',
+    macros: { him: [766, 56, 89, 24], her: [483, 33, 54, 16] },
+    ingredients: [
+      'Lean white fish fillet (cod, tilapia, hake — low mercury): him 180g / her 100g',
+      'Sweet potato (cooked): him 150g / her 100g',
+      'Black beans (cooked, drained): him 130g / her 68g',
+      'Mixed steamed veggies: 110g each',
+      'Raw salad: 70g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Orange: him 1 medium / her 1 small',
+      'Lemon, garlic, parsley, salt, pepper, smoked paprika'
+    ],
+    method: [
+      'Heat oven to 200°C. Season fish with salt, pepper, smoked paprika, lemon juice, garlic',
+      'Bake fish 12–15 min until flaky (75°C internal). Don\'t overcook — it dries out fast',
+      'Roast sweet potato cubes 25 min at 200°C, tossed in olive oil + salt',
+      'Warm black beans with garlic and cumin',
+      'Steam veggies 6 min',
+      'Plate: sweet potato + beans + fish on top, veggies and fresh salad on the side, olive oil drizzle, orange on the side'
+    ],
+    notes: 'Uses the nutritionist\'s subs: fish (100g) for chicken/beef, sweet potato (100g) for brown rice, black beans (68g) for lentils. Lean white fish is pregnancy-safe and low-mercury — avoid swordfish, king mackerel, shark.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'variation', 'low-mercury'],
+    source: 'Nutritionist plan 2026-06-10 — variation'
+  },
+  {
+    id: 'dar_lunch_chicken_pasta',
+    name: 'Lemon-Garlic Chicken &amp; Whole-Wheat Pasta w/ Chickpeas (variation)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Lunch variation',
+    prepTime: 12, totalTime: 25,
+    servings: '2 portions each',
+    macros: { him: [892, 84, 96, 31], her: [635, 58, 63, 22] },
+    ingredients: [
+      'Chicken breast (cooked): him 220g / her 150g',
+      'Whole-wheat pasta (cooked): him 170g / her 112g',
+      'Chickpeas (cooked, drained): him 80g / her 45g',
+      'Mixed steamed veggies: 110g each',
+      'Raw salad: 70g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Orange: him 1 medium / her 1 small',
+      'Lemon juice, garlic, oregano, salt, pepper'
+    ],
+    method: [
+      'Cook the pasta al dente in salted water; drain',
+      'Marinate chicken with lemon juice, crushed garlic, oregano, salt, pepper for 10 min',
+      'Pan-sear chicken over medium-high, 4–5 min per side until 75°C internal. Slice',
+      'Warm chickpeas with a pinch of cumin and olive oil',
+      'Steam veggies 6 min',
+      'Combine pasta + chickpeas in a bowl, sliced chicken on top, salad and steamed veg on the side. Olive oil drizzle, orange on the side'
+    ],
+    notes: 'Uses the nutritionist\'s subs: whole-wheat pasta (112g) for brown rice, chickpeas (45g) for lentils. Keep pasta al dente — lower glycemic index, better blood sugar for pregnancy.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'variation'],
+    source: 'Nutritionist plan 2026-06-10 — variation'
+  },
+  {
+    id: 'dar_dinner_fish_wrap',
+    name: 'Baked Fish Wrap (dinner variation)',
+    cuisine: 'Brazilian Nutritionist Plan',
+    mealType: 'Diet Plan / Dinner variation',
+    prepTime: 10, totalTime: 22,
+    servings: '2 portions each',
+    macros: { him: [580, 46, 38, 31], her: [388, 28, 32, 20] },
+    ingredients: [
+      'Lean white fish fillet (cod, tilapia — low mercury): him 180g / her 100g',
+      'Whole-wheat wrap: him 1.5 wraps (45g) / her 1 wrap (30g)',
+      'Mixed steamed veggies: 110g each',
+      'Iceberg lettuce: 48g each',
+      'Extra-virgin olive oil: him 1.5 tbsp / her 1 tbsp',
+      'Pineapple: 1 slice (75g) each',
+      'Lemon, garlic, dill or parsley, salt, pepper'
+    ],
+    method: [
+      'Heat oven to 200°C. Season fish with lemon juice, garlic, salt, pepper, herbs',
+      'Bake 12–15 min until flaky (75°C internal)',
+      'Warm wrap briefly in a dry pan',
+      'Steam veggies 5 min',
+      'Build the wrap: lettuce base, fish broken into chunks, warm veg, olive oil drizzle. Roll',
+      'Serve pineapple slice on the side'
+    ],
+    notes: 'Uses the nutritionist\'s sub: 100g fish for ground beef. Lighter than the beef wrap by ~30 kcal for Dar.',
+    tags: ['dar-plan', 'pregnancy-friendly', 'variation', 'low-mercury'],
+    source: 'Nutritionist plan 2026-06-10 — variation'
+  },
+
   // ==========================================================
   // Legacy 4-week rotation (Plan Doc v14) — kept for reference / variety
   // ==========================================================

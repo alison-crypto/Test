@@ -3,6 +3,15 @@
 // (Don't edit unless the source plan changes)
 // ============================================================
 const MEAL_REF = {
+  // Dar's nutritionist plan (2026-06-10) — current active plan
+  'Dar-Breakfast': { name: 'Egg & Cottage Cheese Toast + Pear + Chia',  group: 'Diet Plan', himKcal: 767, himP: 44, herKcal: 562, herP: 35 },
+  'Dar-Snack':     { name: 'Banana Protein Smoothie',                   group: 'Diet Plan', himKcal: 227, himP: 31, herKcal: 227, herP: 31 },
+  'Dar-Evening':   { name: 'Greek Yogurt + Flaxseed (evening)',         group: 'Diet Plan', himKcal: 307, himP: 22, herKcal: 207, herP: 13 },
+  'Dar-LunchA':    { name: 'Chicken & Rice Plate (Mon–Wed lunch)',      group: 'Diet Plan', himKcal: 879, himP: 76, herKcal: 630, herP: 57 },
+  'Dar-DinnerA':   { name: 'Shredded Chicken Wrap (Mon–Wed dinner)',    group: 'Diet Plan', himKcal: 660, himP: 60, herKcal: 478, herP: 43 },
+  'Dar-LunchB':    { name: 'Lean Beef & Rice Plate (Thu–Sun lunch)',    group: 'Diet Plan', himKcal: 920, himP: 58, herKcal: 574, herP: 33 },
+  'Dar-DinnerB':   { name: 'Lean Beef Wrap (Thu–Sun dinner)',           group: 'Diet Plan', himKcal: 640, himP: 42, herKcal: 418, herP: 23 },
+
   'Fixed-Breakfast-A':  { name: 'His: eggs+oats+banana / Her: overnight oats',     group: 'Daily', himKcal: 700, himP: 45, herKcal: 500, herP: 25 },
   'Fixed-Breakfast-B':  { name: 'His: toast+PB+banana+4 eggs / Her: toast+PB+2 eggs', group: 'Daily', himKcal: 750, himP: 45, herKcal: 510, herP: 22 },
   'Fixed-MidMorning':   { name: 'Her: hard-boiled egg + apple + almonds',         group: 'Daily', himKcal:   0, himP:  0, herKcal: 250, herP: 10 },

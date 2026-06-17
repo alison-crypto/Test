@@ -564,3 +564,7 @@ document.addEventListener('click', (e) => {
 });
 
 renderAll();
+
+// Re-render after the sync engine pulls fresh state from the server, so
+// picks/overrides made on another device show up without a manual reload.
+window.addEventListener('rtc-sync-done', () => { try { renderAll(); } catch {} });

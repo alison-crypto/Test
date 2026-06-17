@@ -69,4 +69,8 @@
   });
 
   render();
+
+  // Re-render after the sync engine pulls fresh state — picks made on
+  // another phone change the aggregated grocery list.
+  window.addEventListener('rtc-sync-done', () => { try { render(); } catch {} });
 })();

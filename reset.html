@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a84ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Assistant" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Reset password · Alison &amp; Darlene</title>
+</head>
+<body class="auth-page">
+  <main class="auth-card">
+    <header class="auth-header">
+      <h1>Set a new password</h1>
+      <p class="auth-subtitle">Choose a new password for your account</p>
+    </header>
+
+    <form id="reset-form" class="auth-form" autocomplete="on" hidden>
+      <label class="auth-field">
+        <span>New password</span>
+        <input type="password" name="password" required minlength="8" autocomplete="new-password" />
+      </label>
+      <label class="auth-field">
+        <span>Confirm new password</span>
+        <input type="password" name="confirm" required minlength="8" autocomplete="new-password" />
+      </label>
+      <p id="reset-message" class="auth-message" role="status" aria-live="polite"></p>
+      <button type="submit" id="reset-submit" class="auth-submit">Update password</button>
+    </form>
+
+    <p id="reset-status" class="auth-message" role="status" aria-live="polite">Verifying your reset link…</p>
+
+    <p class="auth-footnote"><a href="auth.html">‹ Back to sign in</a></p>
+  </main>
+
+  <script type="module" src="reset.js"></script>
+</body>
+</html>

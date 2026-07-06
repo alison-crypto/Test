@@ -24,13 +24,14 @@
         <span>Email</span>
         <input type="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" />
       </label>
-      <label class="auth-field">
+      <label class="auth-field" id="auth-password-field">
         <span>Password</span>
         <input type="password" name="password" required minlength="8" autocomplete="current-password" />
       </label>
       <p id="auth-message" class="auth-message" role="status" aria-live="polite"></p>
       <button type="submit" id="auth-submit" class="auth-submit">Sign in</button>
       <button type="button" id="auth-toggle" class="auth-toggle">New here? Create an account</button>
+      <button type="button" id="auth-forgot" class="auth-toggle auth-forgot">Forgot your password?</button>
     </form>
 
     <p class="auth-footnote">Your data is private to your household. Email confirmation is required for new accounts.</p>

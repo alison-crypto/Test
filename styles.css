@@ -3589,6 +3589,7 @@ body.auth-page {
 
 /* Home tile for the diet plan */
 .tile-plan { background: linear-gradient(135deg, #34c759 0%, #2a9d8f 100%); }
+.tile-diet { background: linear-gradient(135deg, #0a84ff 0%, #34c759 100%); }
 
 /* Per-meal head row with reset button */
 .plan-meal-head {

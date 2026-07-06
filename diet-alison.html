@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a84ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Diet" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Alison's Diet</title>
+  <script type="module" src="auth-gate.js"></script>
+  <style>
+    /* Alison blue accent drives the active day button */
+    body.diet-body { --gym-accent: #0a84ff; --gym-accent-deep: #0060df; }
+
+    .diet-daymeta {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      margin: 12px 0 6px;
+    }
+    .dt-badge {
+      font-size: 12px; font-weight: 800; letter-spacing: .4px;
+      padding: 4px 10px; border-radius: 999px; color: #0b0b0e; text-transform: uppercase;
+    }
+    .dt-EASY { background: #34c759; }
+    .dt-MOD  { background: #fbbf24; }
+    .dt-HIGH { background: #38bdf8; }
+    .dt-PEAK { background: #a78bfa; color: #fff; }
+    .diet-train { font-size: 13px; color: var(--muted-strong); font-weight: 600; }
+
+    .diet-kcal {
+      display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 14px;
+    }
+    .diet-kcal > div {
+      flex: 1 1 60px; text-align: center; background: var(--card);
+      border: 1px solid var(--border); border-radius: 10px; padding: 8px 4px;
+    }
+    .diet-kcal span { display: block; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+    .diet-kcal b { font-size: 16px; color: var(--text); }
+
+    .diet-meal {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+      display: flex; gap: 12px; align-items: flex-start;
+      transition: opacity .15s;
+    }
+    .diet-meal.done { opacity: .5; }
+    .diet-meal.done .diet-meal-items { text-decoration: line-through; }
+    .diet-check {
+      flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+      border: 2px solid var(--border); background: transparent; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 15px; color: transparent;
+      margin-top: 2px;
+    }
+    .diet-meal.done .diet-check { background: var(--gym-accent); border-color: var(--gym-accent); color: #fff; }
+    .diet-meal-body { flex: 1; min-width: 0; }
+    .diet-meal-head {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 4px;
+    }
+    .diet-meal-name { font-size: 15px; font-weight: 700; color: var(--text); }
+    .diet-meal-time { font-size: 12px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+    .diet-meal-items { font-size: 14px; color: var(--muted-strong); line-height: 1.5; }
+    .diet-meal-tag {
+      display: inline-block; font-size: 10px; font-weight: 700; color: var(--gym-accent);
+      border: 1px solid var(--gym-accent); border-radius: 6px; padding: 1px 6px; margin-left: 6px;
+      vertical-align: middle;
+    }
+    .diet-meal-fuel { font-size: 12px; color: var(--muted); font-style: italic; margin-top: 3px; }
+
+    .diet-section { margin: 22px 0 0; }
+    .diet-section h2 {
+      font-size: 14px; font-weight: 800; color: var(--muted-strong);
+      text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px;
+    }
+    .diet-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 14px; margin-bottom: 10px;
+    }
+    .diet-card ul { margin: 0; padding-left: 18px; }
+    .diet-card li { font-size: 14px; color: var(--muted-strong); line-height: 1.6; }
+    .diet-card p { font-size: 14px; color: var(--muted-strong); margin: 0 0 6px; line-height: 1.5; }
+    .diet-card b { color: var(--text); }
+    .diet-supp-row { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+    .diet-supp-row:last-child { border-bottom: none; }
+    .diet-supp-when { flex: 0 0 96px; font-size: 12px; font-weight: 700; color: var(--gym-accent); }
+    .diet-supp-what { flex: 1; font-size: 13px; color: var(--muted-strong); line-height: 1.5; }
+    .diet-resetbtn {
+      display: inline-block; margin-top: 4px; font-size: 12px; font-weight: 600;
+      color: var(--muted); background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 12px; cursor: pointer;
+    }
+  </style>
+</head>
+<body class="diet-body">
+
+<header class="workouts-header">
+  <a href="index.html" class="back-link">‹ Home</a>
+  <h1>🍽️ Alison's Diet</h1>
+  <div class="workouts-subtitle">Carb-cycled recomp · ~3,080 kcal avg · ~210g protein · tap a meal when eaten</div>
+
+  <div class="day-picker">
+    <div class="day-btn" data-day="mon"><div class="day-btn-label">MON</div><div class="day-btn-name">Mon</div></div>
+    <div class="day-btn" data-day="tue"><div class="day-btn-label">TUE</div><div class="day-btn-name">Tue</div></div>
+    <div class="day-btn" data-day="wed"><div class="day-btn-label">WED</div><div class="day-btn-name">Wed</div></div>
+    <div class="day-btn" data-day="thu"><div class="day-btn-label">THU</div><div class="day-btn-name">Thu</div></div>
+    <div class="day-btn" data-day="fri"><div class="day-btn-label">FRI</div><div class="day-btn-name">Fri</div></div>
+    <div class="day-btn" data-day="sat"><div class="day-btn-label">SAT</div><div class="day-btn-name">Sat</div></div>
+    <div class="day-btn" data-day="sun"><div class="day-btn-label">SUN</div><div class="day-btn-name">Sun</div></div>
+  </div>
+</header>
+
+<main class="plan-main">
+  <div id="diet-root"></div>
+
+  <!-- ===== Reference ===== -->
+  <div class="diet-section">
+    <h2>How it works</h2>
+    <div class="diet-card">
+      <p>🔥 <b>Ghost:</b> full scoop on hard days (Tue/Fri/Sat), ½ scoop other days.</p>
+      <p>🥩 <b>Protein swap:</b> 150g chicken = 160g turkey = 180g lean beef. On HIGH/PEAK, if beef, drop 1 tbsp oil.</p>
+      <p>🥤 <b>MRE</b> = 1 Redcon1 serving (4 scoops = 46P / 60C / 6F). Also fine to swap into any breakfast/snack when rushed.</p>
+      <p>🍚 All meat/rice/potato = <b>cooked weight</b>. One starch per plate. Still hungry → add 20g oats or a banana.</p>
+    </div>
+  </div>
+
+  <div class="diet-section">
+    <h2>Supplements</h2>
+    <div class="diet-card">
+      <div class="diet-supp-row"><div class="diet-supp-when">Pre-workout</div><div class="diet-supp-what">Ghost · Creatine 5g · <em>(training days)</em> Collagen 15g + Vitamin C</div></div>
+      <div class="diet-supp-row"><div class="diet-supp-when">Breakfast</div><div class="diet-supp-what">Vitamin D3 1,000–2,000 IU · Omega-3 ~1g</div></div>
+      <div class="diet-supp-row"><div class="diet-supp-when">Lunch</div><div class="diet-supp-what">Omega-3 ~1g (→2g/day) · Ashwagandha 300–600mg <em>(hard/deload blocks)</em></div></div>
+      <div class="diet-supp-row"><div class="diet-supp-when">Pre-bed</div><div class="diet-supp-what">Magnesium glycinate 200–350mg · Psyllium + water · Melatonin 0.5–1mg</div></div>
+      <div class="diet-supp-row"><div class="diet-supp-when">Long/hot</div><div class="diet-supp-what">Electrolytes (sodium-led) on long sweaty sessions</div></div>
+    </div>
+    <div class="diet-card"><p style="margin:0"><b>One-time:</b> get a vitamin D blood test to dial the D3 dose. <b>Dropped:</b> glutamine, BCAAs, Centrum, separate beta-alanine (Ghost covers 3.2g).</p></div>
+  </div>
+
+  <div class="diet-section">
+    <h2>🥘 Sunday meal-prep &amp; shopping</h2>
+    <div class="diet-card">
+      <p><b>Bulk cook:</b> chicken ~970g · lean beef ~920g · turkey ~360g · rice ~1.25kg cooked (~415g dry) · potato ~1.85kg · 12 eggs · broccoli + veg ~2.4kg</p>
+      <p><b>Grab &amp; portion:</b> Greek yogurt ~1kg · cheese ~280g · whey ~7 scoops · MRE (6 servings) · oats ~430g · almonds ~230g · peanut butter · olive oil · chia</p>
+      <p style="margin:0"><b>Fruit:</b> ~7 apples · ~10 bananas · berries ~840g · dates ~180g · 3–4 avocados</p>
+    </div>
+  </div>
+
+  <div class="diet-section">
+    <h2>The week</h2>
+    <div class="diet-card">
+      <p style="margin:0">🟡 Mon MOD · 🔵 Tue HIGH · 🟢 Wed EASY · 🟡 Thu MOD · 🔵 Fri HIGH · 🟣 Sat PEAK · 🟢 Sun EASY<br>
+      <span style="color:var(--muted)">Weekly avg ~3,080 kcal · ~470 deficit → ~0.9 lb/week (muscle-sparing recomp)</span></p>
+    </div>
+  </div>
+</main>
+
+<script src="diet-alison.js" defer></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

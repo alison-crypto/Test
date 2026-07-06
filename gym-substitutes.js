@@ -6,164 +6,139 @@
 // data-ex attributes on the exercise cards.
 const SUBSTITUTES = {
   // ============================================================
-  // ALISON — Upper A
+  // ALISON — Upper A (Wed)
   // ============================================================
   him_uA_bench: [
-    { name: 'Dumbbell Bench Press',       reason: 'No bench room / easier on shoulders' },
-    { name: 'Smith Machine Bench Press',  reason: 'No spotter available' },
-    { name: 'Machine Chest Press',        reason: 'Form check / fatigued day' },
+    { name: 'Dumbbell Bench Press',   reason: 'Bench busy / easier on shoulders' },
+    { name: 'Machine Chest Press',    reason: 'No spotter / form check' },
+    { name: 'Weighted Push-Up',       reason: 'No equipment / bodyweight' },
   ],
   him_uA_row: [
-    { name: 'Seated Cable Row',           reason: 'Bench occupied' },
-    { name: 'T-Bar Row',                  reason: 'Heavier loading option' },
-    { name: 'Single-Arm Dumbbell Row',    reason: 'Unilateral / less equipment' },
+    { name: 'Seated Cable Row',       reason: 'Bench occupied' },
+    { name: 'Single-Arm Dumbbell Row',reason: 'Unilateral / minimal kit' },
+    { name: 'Machine Row',            reason: 'Form-locked / fatigued day' },
   ],
-  him_uA_incdb: [
-    { name: 'Incline Barbell Press',      reason: 'Heavier loading' },
-    { name: 'Incline Smith Machine Press',reason: 'Solo / safer' },
-    { name: 'Machine Incline Press',      reason: 'Form check' },
+  him_uA_shoulder: [
+    { name: 'Machine Shoulder Press', reason: 'Form-locked / heavy' },
+    { name: 'Standing Overhead Press',reason: 'More compound' },
+    { name: 'Arnold Press',           reason: 'Fuller delt range' },
   ],
   him_uA_pull: [
-    { name: 'Pull-Up',                    reason: 'Bodyweight progression' },
-    { name: 'Assisted Pull-Up',           reason: 'Bands or assist machine' },
-    { name: 'Single-Arm Lat Pulldown',    reason: 'Unilateral focus' },
-  ],
-  him_uA_lat: [
-    { name: 'Cable Lateral Raise',        reason: 'Constant tension' },
-    { name: 'Machine Lateral Raise',      reason: 'Form-locked' },
-    { name: 'Leaning Dumbbell Lateral Raise', reason: 'Strict / one arm at a time' },
+    { name: 'Assisted Pull-Up',       reason: 'Bands or assist machine' },
+    { name: 'Neutral-Grip Pulldown',  reason: 'Elbow-friendly' },
+    { name: 'Straight-Arm Pulldown',  reason: 'Lat isolation' },
   ],
   him_uA_curl: [
-    { name: 'Barbell Curl',               reason: 'Straight bar / heavier' },
-    { name: 'Dumbbell Curl',              reason: 'Unilateral' },
-    { name: 'Preacher Curl',              reason: 'Strict form focus' },
+    { name: 'Cable Curl',             reason: 'Constant tension' },
+    { name: 'EZ-Bar Curl',            reason: 'Heavier / wrist-friendly' },
+    { name: 'Hammer Curl',            reason: 'Brachialis / forearm' },
   ],
   him_uA_tri: [
-    { name: 'Rope Tricep Pushdown',       reason: 'Different angle' },
-    { name: 'Overhead Tricep Extension',  reason: 'Long head focus' },
-    { name: 'Close-Grip Bench Press',     reason: 'Compound option' },
+    { name: 'Rope Overhead Extension',reason: 'Long-head focus' },
+    { name: 'Skullcrusher',           reason: 'EZ-bar loading' },
+    { name: 'Dips',                   reason: 'Bodyweight compound' },
   ],
 
   // ============================================================
-  // ALISON — Lower A
+  // ALISON — Lower A (Mon)
   // ============================================================
   him_lA_squat: [
-    { name: 'Front Squat',                reason: 'Easier on lower back' },
-    { name: 'Hack Squat',                 reason: 'Machine-locked path' },
-    { name: 'Goblet Squat',               reason: 'Lighter / form day' },
-  ],
-  him_lA_rdl: [
-    { name: 'Dumbbell Romanian Deadlift', reason: 'Lighter / unilateral option' },
-    { name: 'Stiff-Leg Deadlift',         reason: 'More hamstring stretch' },
-    { name: 'Single-Leg RDL',             reason: 'Balance + ankle work' },
-  ],
-  him_lA_press: [
-    { name: 'Hack Squat',                 reason: 'Leg press busy' },
-    { name: 'Bulgarian Split Squat',      reason: 'Unilateral / ankle work' },
-    { name: 'Walking Lunge',              reason: 'Bodyweight variant' },
+    { name: 'Hack Squat',             reason: 'Back-friendly machine path' },
+    { name: 'Leg Press',              reason: 'Rack busy / minimal spine load' },
+    { name: 'Goblet Squat',           reason: 'Lighter / form day' },
   ],
   him_lA_legcurl: [
-    { name: 'Lying Leg Curl',             reason: 'Different angle' },
-    { name: 'Nordic Curl',                reason: 'Bodyweight progression' },
-    { name: 'Stability Ball Leg Curl',    reason: 'Core + hamstring combo' },
+    { name: 'Lying Leg Curl',         reason: 'Different angle' },
+    { name: 'Romanian Deadlift',      reason: 'When back feels good — careful' },
+    { name: 'Nordic Curl',            reason: 'Bodyweight eccentric' },
+  ],
+  him_lA_lunge: [
+    { name: 'Bulgarian Split Squat',  reason: 'More stability demand' },
+    { name: 'Reverse Lunge',          reason: 'Easier on the knee' },
+    { name: 'Step-Up',                reason: 'Box available' },
   ],
   him_lA_calf: [
-    { name: 'Seated Calf Raise',          reason: 'Soleus focus' },
-    { name: 'Donkey Calf Raise',          reason: 'Different stretch' },
-    { name: 'Smith Machine Calf Raise',   reason: 'Heavy loading' },
+    { name: 'Seated Calf Raise',      reason: 'Soleus focus' },
+    { name: 'Leg-Press Calf Raise',   reason: 'Heavy loading' },
+    { name: 'Single-Leg Calf Raise',  reason: 'Unilateral / no machine' },
   ],
-  him_lA_balance: [
-    { name: 'Single-Leg RDL Hold',        reason: 'Progresses balance + strength' },
-    { name: 'BOSU Single-Leg Stand',      reason: 'More unstable surface' },
-    { name: 'Stork Stand (Eyes Closed)',  reason: 'Harder proprioception' },
+  him_lA_backext: [
+    { name: 'Reverse Hyperextension', reason: 'Lower-back friendly' },
+    { name: 'Bird-Dog',               reason: 'Floor / no equipment' },
+    { name: 'Cable Pull-Through',     reason: 'Hip-hinge pattern' },
   ],
-  him_lA_dorsi: [
-    { name: 'Heel Walks',                 reason: 'Active dorsiflexion drill' },
-    { name: 'Toe Raises (Seated)',        reason: 'Anterior tib isolation' },
-    { name: 'Band Ankle Eversion/Inversion', reason: 'Lateral stability' },
-  ],
-  him_lA_step: [
-    { name: 'Bodyweight Calf Raise',      reason: 'No step available' },
-    { name: 'Toe Walking',                reason: 'Active alternative' },
-    { name: 'Foam Roller Calf Smash',     reason: 'Recovery substitute' },
-  ],
-  him_lA_plank: [
-    { name: 'Side Plank',                 reason: 'Lateral core' },
-    { name: 'Plank with Shoulder Tap',    reason: 'Anti-rotation' },
-    { name: 'Dead Bug',                   reason: 'Anti-extension / floor' },
+  him_lA_abs: [
+    { name: 'Cable Crunch',           reason: 'Loadable / progressive' },
+    { name: 'Ab Wheel Rollout',       reason: 'Anti-extension' },
+    { name: "Captain's Chair Leg Raise", reason: 'Easier on grip' },
   ],
 
   // ============================================================
-  // ALISON — Upper B
+  // ALISON — Upper B (Sat)
   // ============================================================
-  him_uB_ohp: [
-    { name: 'Seated DB Shoulder Press',   reason: 'Easier on lower back' },
-    { name: 'Smith Machine Overhead Press', reason: 'Solo / safer' },
-    { name: 'Machine Shoulder Press',     reason: 'Form check' },
+  him_uB_incline: [
+    { name: 'Incline Barbell Press',  reason: 'Heavier loading' },
+    { name: 'Incline Machine Press',  reason: 'Solo / form check' },
+    { name: 'Weighted Dip',           reason: 'Bodyweight compound' },
   ],
   him_uB_pullup: [
-    { name: 'Lat Pulldown',               reason: 'Bar occupied' },
-    { name: 'Negative Pull-Up',           reason: 'Strength building' },
-    { name: 'Inverted Row',               reason: 'Horizontal pull alternative' },
+    { name: 'Lat Pulldown',           reason: 'Bar occupied' },
+    { name: 'Chin-Up',                reason: 'More biceps' },
+    { name: 'Neutral-Grip Pulldown',  reason: 'Elbow-friendly' },
   ],
   him_uB_row: [
-    { name: 'Chest-Supported Row',        reason: 'Lower-back-friendly' },
-    { name: 'T-Bar Row',                  reason: 'Heavier loading' },
-    { name: 'Bent-Over Barbell Row',      reason: 'More compound' },
-  ],
-  him_uB_dbbench: [
-    { name: 'Barbell Bench Press',        reason: 'Heavier loading' },
-    { name: 'Smith Machine Bench Press',  reason: 'No spotter' },
-    { name: 'Machine Chest Press',        reason: 'Form check' },
+    { name: 'Chest-Supported Row',    reason: 'Lower-back friendly' },
+    { name: 'Machine Row',            reason: 'Form-locked' },
+    { name: 'TRX Inverted Row',       reason: 'Bodyweight / no machine' },
   ],
   him_uB_lat: [
-    { name: 'DB Lateral Raise',           reason: 'Cables busy' },
-    { name: 'Machine Lateral Raise',      reason: 'Form-locked' },
-    { name: 'Leaning DB Lateral Raise',   reason: 'Strict, one arm at a time' },
+    { name: 'Cable Lateral Raise',    reason: 'Constant tension' },
+    { name: 'Machine Lateral Raise',  reason: 'Form-locked' },
+    { name: 'Upright Row',            reason: 'Compound delt option' },
   ],
-  him_uB_hammer: [
-    { name: 'Cross-Body Hammer Curl',     reason: 'More brachialis emphasis' },
-    { name: 'Rope Cable Curl',            reason: 'Constant tension' },
-    { name: 'Zottman Curl',               reason: 'Forearm focus' },
+  him_uB_curl: [
+    { name: 'Barbell Curl',           reason: 'Heaviest straight-bar' },
+    { name: 'Cable Curl',             reason: 'Constant tension' },
+    { name: 'Preacher Curl',          reason: 'Strict / no swing' },
   ],
   him_uB_triext: [
-    { name: 'Tricep Pushdown',            reason: 'Cable variant' },
-    { name: 'Skull Crusher',              reason: 'Barbell / EZ-bar version' },
-    { name: 'Bench Dips',                 reason: 'Bodyweight option' },
+    { name: 'Cable Triceps Pushdown', reason: 'Different angle' },
+    { name: 'Skullcrusher',           reason: 'EZ-bar loading' },
+    { name: 'Close-Grip Bench Press', reason: 'Compound option' },
   ],
 
   // ============================================================
-  // ALISON — Lower B
+  // ALISON — Lower B (Thu)
   // ============================================================
   him_lB_tbar: [
-    { name: 'Conventional Deadlift',      reason: 'Trap bar unavailable' },
-    { name: 'Sumo Deadlift',              reason: 'Easier on lower back' },
-    { name: 'Romanian Deadlift',          reason: 'Hamstring focus / lighter' },
+    { name: 'Conventional Deadlift',  reason: 'Trap bar unavailable' },
+    { name: 'Romanian Deadlift',      reason: 'Hamstring focus / lighter' },
+    { name: 'Rack Pull',              reason: 'Reduced range / back-friendly' },
   ],
-  him_lB_bss: [
-    { name: 'Reverse Lunge',              reason: 'Less ankle stress' },
-    { name: 'Walking Lunge',              reason: 'Space available' },
-    { name: 'Step-Up (Box)',              reason: 'Knee-friendly' },
+  him_lB_hipthrust: [
+    { name: 'Glute Bridge',           reason: 'No bench / floor' },
+    { name: 'Cable Pull-Through',     reason: 'Hinge pattern' },
+    { name: 'Back Extension',         reason: 'Glute + low-back' },
   ],
   him_lB_legext: [
-    { name: 'Sissy Squat',                reason: 'No machine' },
-    { name: 'Step-Up',                    reason: 'Functional alternative' },
-    { name: 'Wall Sit',                   reason: 'Isometric quad focus' },
+    { name: 'Sissy Squat',            reason: 'No machine' },
+    { name: 'Goblet Squat',           reason: 'Free-weight quad' },
+    { name: 'Hack Squat',             reason: 'Heavier quad option' },
   ],
-  him_lB_lyingcurl: [
-    { name: 'Seated Leg Curl',            reason: 'Different angle' },
-    { name: 'Nordic Curl',                reason: 'Eccentric focus' },
-    { name: 'Stability Ball Leg Curl',    reason: 'Bodyweight option' },
+  him_lB_legcurl: [
+    { name: 'Lying Leg Curl',         reason: 'Different angle' },
+    { name: 'Nordic Curl',            reason: 'Eccentric focus' },
+    { name: 'Glute-Ham Raise',        reason: 'Posterior chain' },
   ],
-  him_lB_seatedcalf: [
-    { name: 'Standing Calf Raise',        reason: 'Gastroc focus' },
-    { name: 'Smith Machine Calf Raise',   reason: 'Heavier loading' },
-    { name: 'Single-Leg Calf Raise',      reason: 'Unilateral / no machine' },
+  him_lB_calf: [
+    { name: 'Seated Calf Raise',      reason: 'Soleus focus' },
+    { name: 'Leg-Press Calf Raise',   reason: 'Heavy loading' },
+    { name: 'Single-Leg Calf Raise',  reason: 'Unilateral / no machine' },
   ],
-  him_lB_hanging: [
-    { name: 'Captain\'s Chair Leg Raise', reason: 'Easier on grip' },
-    { name: 'Lying Leg Raise',            reason: 'Floor-based' },
-    { name: 'Knee Raise',                 reason: 'Regression' },
+  him_lB_crunch: [
+    { name: 'Weighted Plank',         reason: 'Anti-extension isometric' },
+    { name: 'Ab Wheel Rollout',       reason: 'Harder progression' },
+    { name: 'Hanging Leg Raise',      reason: 'Lower-ab focus' },
   ],
 
   // ============================================================

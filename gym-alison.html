@@ -15,30 +15,30 @@
 <body class="workouts-body theme-alison"
       data-storage-key="rtc_gym_alison_v1"
       data-prev-key="rtc_gym_alison_prev_v1"
-      data-default-day="upperA"
+      data-default-day="lowerA"
       data-export-label="Alison gym session">
 
 <header class="workouts-header">
   <a href="index.html" class="back-link">‹ Home</a>
   <h1>💪 Gym — Alison</h1>
-  <div class="workouts-subtitle">4-day Upper/Lower split · Tap exercise to mark done · Auto-saves</div>
+  <div class="workouts-subtitle">4-day Upper/Lower · recomp + arms/abs focus · double progression · tap to mark done</div>
 
   <div class="day-picker">
-    <div class="day-btn active" data-day="upperA" onclick="switchDay('upperA')">
-      <div class="day-btn-label">Day 1</div>
-      <div class="day-btn-name">Upper A</div>
-    </div>
-    <div class="day-btn" data-day="lowerA" onclick="switchDay('lowerA')">
-      <div class="day-btn-label">Day 2</div>
+    <div class="day-btn active" data-day="lowerA" onclick="switchDay('lowerA')">
+      <div class="day-btn-label">MON</div>
       <div class="day-btn-name">Lower A</div>
     </div>
-    <div class="day-btn" data-day="upperB" onclick="switchDay('upperB')">
-      <div class="day-btn-label">Day 3</div>
-      <div class="day-btn-name">Upper B</div>
+    <div class="day-btn" data-day="upperA" onclick="switchDay('upperA')">
+      <div class="day-btn-label">WED</div>
+      <div class="day-btn-name">Upper A</div>
     </div>
     <div class="day-btn" data-day="lowerB" onclick="switchDay('lowerB')">
-      <div class="day-btn-label">Day 4</div>
+      <div class="day-btn-label">THU</div>
       <div class="day-btn-name">Lower B</div>
+    </div>
+    <div class="day-btn" data-day="upperB" onclick="switchDay('upperB')">
+      <div class="day-btn-label">SAT</div>
+      <div class="day-btn-name">Upper B</div>
     </div>
   </div>
 
@@ -54,129 +54,23 @@
   </div>
 </header>
 
-<div class="day-page active" id="day-upperA">
+<!-- ============ LOWER A — Monday ============ -->
+<div class="day-page active" id="day-lowerA">
   <div class="day-header">
-    <div class="day-title">Day 1 — Upper A (Tue)</div>
-    <div class="day-meta">Bench focus · Rest: compounds 2-3min · accessories 60-90sec</div>
-    <div class="day-note">First 2-3 weeks: leave 2-3 reps in tank. Form &gt; weight.</div>
+    <div class="day-title">Lower A · Monday</div>
+    <div class="day-meta">Squat · quads · core · ankle · rest: compounds 2–3 min, accessories 60–90 sec</div>
+    <div class="day-note">⚠️ Ankle: warm up with circles + calf raises; wrap for heavy squats. Back: brace + neutral spine. Double progression — hit the top of the range on all sets → add weight next time. 1–2 reps in reserve.</div>
   </div>
 
-  <div class="exercise" data-ex="him_uA_bench" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Barbell Bench Press</div>
-        <div class="ex-target">3 × 6-8 · rest 2-3 min</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=barbell+bench+press+proper+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_uA_row" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Chest-Supported Row</div>
-        <div class="ex-target">3 × 8-10 · rest 2 min</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=chest+supported+dumbbell+row+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_uA_incdb" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Incline DB Press</div>
-        <div class="ex-target">3 × 10-12 · rest 90 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=incline+dumbbell+bench+press+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_uA_pull" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Lat Pulldown</div>
-        <div class="ex-target">3 × 10-12 · rest 90 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=lat+pulldown+proper+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_uA_lat" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">DB Lateral Raise</div>
-        <div class="ex-target">3 × 12-15 · rest 60 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=dumbbell+lateral+raise+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_uA_curl" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">EZ-Bar Curl</div>
-        <div class="ex-target">3 × 10-12 · rest 60 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=EZ+bar+curl+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_uA_tri" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Tricep Pushdown</div>
-        <div class="ex-target">3 × 10-12 · rest 60 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=cable+tricep+pushdown+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-</div>
-
-<div class="day-page" id="day-lowerA">
-  <div class="day-header">
-    <div class="day-title">Day 2 — Lower A (Wed)</div>
-    <div class="day-meta">Squat focus · Rest: compounds 2-3min</div>
-    <div class="day-note">⚠️ Wrap left ankle for working squats. Prehab block fixes the weakness.</div>
-  </div>
-
-  <div class="exercise" data-ex="him_lA_squat" data-sets="3">
+  <div class="exercise" data-ex="him_lA_squat" data-sets="4">
     <div class="ex-header" onclick="toggleEx(this)">
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
         <div class="ex-name">Back Squat</div>
-        <div class="ex-target">3 × 6-8 · rest 2-3 min</div>
-        <div class="ex-note">Wrap ankle. Controlled depth.</div>
+        <div class="ex-target">4 × 6–8 · rest 2–3 min</div>
+        <div class="ex-note">Brace core, neutral spine, controlled depth.</div>
       </div>
       <a class="ex-demo" href="https://www.youtube.com/results?search_query=barbell+back+squat+proper+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_lA_rdl" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Romanian Deadlift</div>
-        <div class="ex-target">3 × 8-10 · rest 2 min</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=barbell+romanian+deadlift+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_lA_press" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Leg Press</div>
-        <div class="ex-target">3 × 10-12 · rest 90 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=leg+press+proper+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
   </div>
 
@@ -185,95 +79,239 @@
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
         <div class="ex-name">Seated Leg Curl</div>
-        <div class="ex-target">3 × 10-12 · rest 60 sec</div>
+        <div class="ex-target">3 × 10–12 · rest 60 sec</div>
       </div>
       <a class="ex-demo" href="https://www.youtube.com/results?search_query=seated+leg+curl+machine+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
   </div>
 
-  <div class="exercise" data-ex="him_lA_calf" data-sets="3">
+  <div class="exercise" data-ex="him_lA_lunge" data-sets="3">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Walking Lunge</div>
+        <div class="ex-target">3 × 10 / leg · rest 90 sec</div>
+        <div class="ex-note">Controlled — builds ankle stability.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=dumbbell+walking+lunge+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_lA_calf" data-sets="4">
     <div class="ex-header" onclick="toggleEx(this)">
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
         <div class="ex-name">Standing Calf Raise</div>
-        <div class="ex-target">3 × 12-15 · rest 60 sec</div>
+        <div class="ex-target">4 × 12–15 · rest 60 sec</div>
+        <div class="ex-note">Full range — ankle strength.</div>
       </div>
       <a class="ex-demo" href="https://www.youtube.com/results?search_query=standing+calf+raise+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
   </div>
 
-  <div class="exercise" data-ex="him_lA_balance" data-sets="2">
+  <div class="exercise" data-ex="him_lA_backext" data-sets="3">
     <div class="ex-header" onclick="toggleEx(this)">
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
-        <div class="ex-name">Single-Leg Balance</div>
-        <div class="ex-target">2 × 30 sec/side · rest 30 sec</div>
-        <div class="ex-note">Eyes open, then closed if easy. ANKLE PREHAB.</div>
+        <div class="ex-name">Back Extension</div>
+        <div class="ex-target">3 × 12–15 · rest 60 sec</div>
+        <div class="ex-note">Strengthens the lower back. Squeeze glutes; don't hyperextend.</div>
       </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=single+leg+balance+exercise" target="_blank" onclick="event.stopPropagation()">📹</a>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=45+degree+back+extension+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
   </div>
 
-  <div class="exercise" data-ex="him_lA_dorsi" data-sets="2">
+  <div class="exercise" data-ex="him_lA_abs" data-sets="3">
     <div class="ex-header" onclick="toggleEx(this)">
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
-        <div class="ex-name">Banded Ankle Dorsiflexion</div>
-        <div class="ex-target">2 × 15/side · rest 30 sec</div>
-        <div class="ex-note">ANKLE PREHAB.</div>
+        <div class="ex-name">Hanging Leg Raise</div>
+        <div class="ex-target">3 × 12–15 · rest 60 sec</div>
       </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=banded+ankle+dorsiflexion+exercise" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_lA_step" data-sets="2">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Calf Raises Off a Step</div>
-        <div class="ex-target">2 × 15 · rest 30 sec</div>
-        <div class="ex-note">Bodyweight, full range. ANKLE PREHAB.</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=calf+raise+off+step+bodyweight" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_lA_plank" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Plank</div>
-        <div class="ex-target">3 × 30-45 sec · rest 45 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=plank+proper+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=hanging+leg+raise+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
   </div>
 </div>
 
-<div class="day-page" id="day-upperB">
+<!-- ============ UPPER A — Wednesday ============ -->
+<div class="day-page" id="day-upperA">
   <div class="day-header">
-    <div class="day-title">Day 3 — Upper B (Fri)</div>
-    <div class="day-meta">Shoulder/pull focus · Rest: compounds 2-3min</div>
+    <div class="day-title">Upper A · Wednesday</div>
+    <div class="day-meta">Chest · back · arms · rest: compounds 2–3 min, accessories 60–90 sec</div>
+    <div class="day-note">Double progression: top of the rep range on all sets → add weight next session. Keep 1–2 reps in reserve on the big lifts.</div>
   </div>
 
-  <div class="exercise" data-ex="him_uB_ohp" data-sets="3">
+  <div class="exercise" data-ex="him_uA_bench" data-sets="4">
     <div class="ex-header" onclick="toggleEx(this)">
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
-        <div class="ex-name">Overhead Press</div>
-        <div class="ex-target">3 × 6-8 · rest 2-3 min</div>
+        <div class="ex-name">Barbell Bench Press</div>
+        <div class="ex-target">4 × 6–8 · rest 2–3 min</div>
       </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=standing+barbell+overhead+press+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=barbell+bench+press+proper+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
   </div>
 
-  <div class="exercise" data-ex="him_uB_pullup" data-sets="3">
+  <div class="exercise" data-ex="him_uA_row" data-sets="4">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Chest-Supported Row</div>
+        <div class="ex-target">4 × 8–10 · rest 2 min</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=chest+supported+dumbbell+row+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_uA_shoulder" data-sets="3">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Seated DB Shoulder Press</div>
+        <div class="ex-target">3 × 8–10 · rest 90 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=seated+dumbbell+shoulder+press+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_uA_pull" data-sets="3">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Lat Pulldown</div>
+        <div class="ex-target">3 × 10–12 · rest 90 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=lat+pulldown+proper+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_uA_curl" data-sets="3">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Incline DB Curl</div>
+        <div class="ex-target">3 × 10–12 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=incline+dumbbell+curl+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_uA_tri" data-sets="3">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Cable Triceps Pushdown</div>
+        <div class="ex-target">3 × 12–15 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=cable+tricep+pushdown+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LOWER B — Thursday ============ -->
+<div class="day-page" id="day-lowerB">
+  <div class="day-header">
+    <div class="day-title">Lower B · Thursday</div>
+    <div class="day-meta">Hinge · glutes · core · ankle · rest: compounds 2–3 min</div>
+    <div class="day-note">Back-friendly hinge (trap-bar). Brace hard, neutral spine. Deload ~every 4–6 weeks (drop volume ~50%).</div>
+  </div>
+
+  <div class="exercise" data-ex="him_lB_tbar" data-sets="3">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Trap-Bar Deadlift</div>
+        <div class="ex-target">3 × 5–6 · rest 2–3 min</div>
+        <div class="ex-note">Back-friendly vs conventional — brace hard, push the floor away.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=trap+bar+deadlift+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_lB_hipthrust" data-sets="3">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Hip Thrust</div>
+        <div class="ex-target">3 × 8–10 · rest 90 sec</div>
+        <div class="ex-note">Spine-neutral glute work. Full lockout, chin tucked.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=barbell+hip+thrust+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_lB_legext" data-sets="3">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Leg Extension</div>
+        <div class="ex-target">3 × 12–15 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=leg+extension+machine+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_lB_legcurl" data-sets="3">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Seated Leg Curl</div>
+        <div class="ex-target">3 × 10–12 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=seated+leg+curl+machine+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_lB_calf" data-sets="4">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Standing Calf Raise</div>
+        <div class="ex-target">4 × 12–15 · rest 60 sec</div>
+        <div class="ex-note">Ankle strength — full range.</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=standing+calf+raise+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_lB_crunch" data-sets="3">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Cable Crunch</div>
+        <div class="ex-target">3 × 12–15 · rest 60 sec</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=cable+crunch+abs+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ UPPER B — Saturday ============ -->
+<div class="day-page" id="day-upperB">
+  <div class="day-header">
+    <div class="day-title">Upper B · Saturday</div>
+    <div class="day-meta">Shoulders · back · arms · rest: compounds 2–3 min</div>
+    <div class="day-note">Double progression. Push the arm + shoulder work — that's your aesthetic focus.</div>
+  </div>
+
+  <div class="exercise" data-ex="him_uB_incline" data-sets="4">
+    <div class="ex-header" onclick="toggleEx(this)">
+      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
+      <div class="ex-info">
+        <div class="ex-name">Incline DB Press</div>
+        <div class="ex-target">4 × 8–10 · rest 2 min</div>
+      </div>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=incline+dumbbell+bench+press+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+    </div>
+  </div>
+
+  <div class="exercise" data-ex="him_uB_pullup" data-sets="4">
     <div class="ex-header" onclick="toggleEx(this)">
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
         <div class="ex-name">Pull-Up / Assisted</div>
-        <div class="ex-target">3 × AMRAP · rest 2 min</div>
-        <div class="ex-note">AMRAP = as many reps as possible with good form.</div>
+        <div class="ex-target">4 × 6–10 · rest 2 min</div>
+        <div class="ex-note">Assisted or bands if needed — full range.</div>
       </div>
       <a class="ex-demo" href="https://www.youtube.com/results?search_query=pull+up+proper+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
@@ -284,20 +322,9 @@
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
         <div class="ex-name">Seated Cable Row</div>
-        <div class="ex-target">3 × 10-12 · rest 90 sec</div>
+        <div class="ex-target">3 × 10–12 · rest 90 sec</div>
       </div>
       <a class="ex-demo" href="https://www.youtube.com/results?search_query=seated+cable+row+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_uB_dbbench" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">DB Bench Press</div>
-        <div class="ex-target">3 × 8-10 · rest 90 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=dumbbell+bench+press+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
   </div>
 
@@ -305,21 +332,21 @@
     <div class="ex-header" onclick="toggleEx(this)">
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
-        <div class="ex-name">Cable Lateral Raise</div>
-        <div class="ex-target">3 × 12-15 · rest 60 sec</div>
+        <div class="ex-name">DB Lateral Raise</div>
+        <div class="ex-target">3 × 12–15 · rest 60 sec</div>
       </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=cable+lateral+raise+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=dumbbell+lateral+raise+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
   </div>
 
-  <div class="exercise" data-ex="him_uB_hammer" data-sets="3">
+  <div class="exercise" data-ex="him_uB_curl" data-sets="3">
     <div class="ex-header" onclick="toggleEx(this)">
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
-        <div class="ex-name">Hammer Curl</div>
-        <div class="ex-target">3 × 10-12 · rest 60 sec</div>
+        <div class="ex-name">EZ-Bar Curl</div>
+        <div class="ex-target">3 × 8–10 · rest 60 sec</div>
       </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=dumbbell+hammer+curl+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=EZ+bar+curl+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
   </div>
 
@@ -327,92 +354,17 @@
     <div class="ex-header" onclick="toggleEx(this)">
       <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
       <div class="ex-info">
-        <div class="ex-name">Overhead Tricep Extension</div>
-        <div class="ex-target">3 × 10-12 · rest 60 sec</div>
+        <div class="ex-name">Overhead Rope Triceps Extension</div>
+        <div class="ex-target">3 × 10–12 · rest 60 sec</div>
       </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=overhead+tricep+extension+dumbbell+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-</div>
-
-<div class="day-page" id="day-lowerB">
-  <div class="day-header">
-    <div class="day-title">Day 4 — Lower B (Sat)</div>
-    <div class="day-meta">Deadlift focus · Rest: compounds 2-3min</div>
-  </div>
-
-  <div class="exercise" data-ex="him_lB_tbar" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Trap-Bar Deadlift</div>
-        <div class="ex-target">3 × 5 · rest 2-3 min</div>
-        <div class="ex-note">Easier on the ankle than conventional.</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=trap+bar+deadlift+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_lB_bss" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Bulgarian Split Squat</div>
-        <div class="ex-target">3 × 8/leg · rest 2 min</div>
-        <div class="ex-note">Huge for ankle stability.</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=bulgarian+split+squat+dumbbell+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_lB_legext" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Leg Extension</div>
-        <div class="ex-target">3 × 12-15 · rest 60 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=leg+extension+machine+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_lB_lyingcurl" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Lying Leg Curl</div>
-        <div class="ex-target">3 × 10-12 · rest 60 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=lying+leg+curl+machine+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_lB_seatedcalf" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Seated Calf Raise</div>
-        <div class="ex-target">3 × 15 · rest 60 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=seated+calf+raise+machine+form" target="_blank" onclick="event.stopPropagation()">📹</a>
-    </div>
-  </div>
-
-  <div class="exercise" data-ex="him_lB_hanging" data-sets="3">
-    <div class="ex-header" onclick="toggleEx(this)">
-      <div class="ex-checkbox"><span class="ex-checkmark">✓</span></div>
-      <div class="ex-info">
-        <div class="ex-name">Hanging Leg Raise</div>
-        <div class="ex-target">3 × 10-12 · rest 60 sec</div>
-      </div>
-      <a class="ex-demo" href="https://www.youtube.com/results?search_query=hanging+leg+raise+form" target="_blank" onclick="event.stopPropagation()">📹</a>
+      <a class="ex-demo" href="https://www.youtube.com/results?search_query=overhead+rope+tricep+extension+form" target="_blank" onclick="event.stopPropagation()">📹</a>
     </div>
   </div>
 </div>
 
 <footer class="workouts-footer">
-  Gym sheet · v14 plan · Auto-saves per session<br />
-  Tap "Export to Claude" after workout → paste in chat to update tracker
+  Gym sheet · recomp block · Auto-saves per session<br />
+  Tap "Save to Tracker" after a workout to log it into your PRs.
 </footer>
 
 <script src="gym-substitutes.js"></script>

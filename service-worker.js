@@ -1,8 +1,9 @@
-const CACHE = 'assistant-v24';
+const CACHE = 'assistant-v25';
 const ASSETS = [
   './',
   './index.html',
   './auth.html',
+  './reset.html',
   './gym-alison.html',
   './gym-darlene.html',
   './groceries.html',
@@ -26,6 +27,7 @@ const ASSETS = [
   './tracker.js',
   './chores.js',
   './auth.js',
+  './reset.js',
   './auth-gate.js',
   './sync.js',
   './supabase-client.js',

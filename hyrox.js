@@ -3,100 +3,137 @@
 // 8 × 1 km runs interleaved with 8 stations, in the order Alison runs them at
 // the YMCA: Ski + Row first with real treadmill runs, the rest in the next room
 // with the bike replacing each run. Kit the Y lacks (sled/wall/sandbags) shows
-// the real target plus a working substitute; every station has a ▾ Swap menu.
+// the real target plus a working substitute; every station has a ▾ Swap menu
+// (which also swaps the card image).
 //
-// Scalable targets: each station starts at a LOW beginner target and steps up
-// (Beginner → Amateur → Intermediate → Pro → Competition → World-class) with a
-// +/- stepper, so you grow into the real race distances/weights. A split only
-// counts as a RECORD when your logged distance/weight/reps actually meets the
-// current target — logging 500 m won't set a 1 km PR.
+// TWO INDEPENDENT DIALS per station:
+//   • Distance / weight tier — how much you do (−/+), Beginner → Competition.
+//   • Time tier — how fast you aim (named chips: Beginner/Amateur/Intermediate/
+//     Competition/Elite), with REAL HYROX benchmark times that scale to the
+//     distance you picked. You can do a Competition distance at an Amateur time,
+//     or the reverse — both change freely.
 //
-// XP is committed ONLY when you tap "Save & Log XP" (never live on a tap), and
-// only for genuine improvements, so an accidental split earns nothing until you
-// deliberately save. The stopwatch is anchored to wall-clock timestamps (leaving
-// the screen never loses time); a Wake Lock keeps the screen awake mid-race.
+// A split means "I did the current target" (auto-fills the metric), so it counts
+// as a full clear; edit the box down only if you did less. Records + XP commit
+// ONLY on "Save & Log XP" — nothing counts by accident. Best times are tracked
+// per distance so 500 m and 1 km are compared fairly. Wall-clock timer survives
+// backgrounding; a Wake Lock keeps the screen awake.
 //
 // Storage:
-//   rtc_hyrox_sim_v1     — live attempt { date, running, accumMs, lastStart, splits{} }
-//   rtc_hyrox_log_v1     — { segId:{d,w,r} } structured log (kept across sessions)
-//   rtc_hyrox_tier_v1    — { segId: currentTargetValue } scalable target per station
-//   rtc_hyrox_swaps_v1   — { segId: optionIndex }
-//   rtc_hyrox_pb_v1      — { ms, date } best finish
-//   rtc_hyrox_segpb_v1   — { segId: ms } best split per station (committed on save)
-//   rtc_hyrox_xp_v1      — { xp, prs, log[] } RPG progress (committed on save)
+//   rtc_hyrox_sim_v1       — live attempt
+//   rtc_hyrox_log_v1       — { segId:{d,w,r} } structured log
+//   rtc_hyrox_tier_v1      — { segId: distance/weight target }
+//   rtc_hyrox_timetier_v1  — { segId: timeTierKey }
+//   rtc_hyrox_swaps_v1     — { segId: optionIndex }
+//   rtc_hyrox_pb_v1        — { ms, date } best finish
+//   rtc_hyrox_segpb_v2     — { segId: { amountKey: ms } } best split per distance
+//   rtc_hyrox_xp_v1        — { xp, prs, log[] }
 
 // ============================================================
-// Race definition. scale: how the station grows.
-//   'pace'   — fixed amount (the full race distance); you get faster.
-//   'amount' — distance/reps scales from start → race.
-//   'weight' — distance fixed; the weight scales from startW → raceW.
-// bench = target split time at the RACE amount (scaled down for smaller targets).
+// Benchmark times (ms) to complete the RACE amount, by tier. Sourced from HYROX
+// result analyses (Men's Open avg ~5:15–5:30/km run, Ski ~4:30, Row ~4:45,
+// Wall Balls ~6:00, Farmers ~2:20, Lunges ~4:30, Burpees ~5:00; elite ~30–40%
+// faster; beginners run/walk ~8–9/km). Times scale linearly with distance.
 // ============================================================
+const T = (m, s) => (m * 60 + s) * 1000;
+const RUN_TIMES   = { beginner: T(9, 0),  amateur: T(7, 30), intermediate: T(6, 0),  competition: T(5, 0),  elite: T(3, 45) };
+const SKI_TIMES   = { beginner: T(6, 0),  amateur: T(5, 15), intermediate: T(4, 45), competition: T(4, 0),  elite: T(3, 30) };
+const ROW_TIMES   = { beginner: T(5, 45), amateur: T(5, 10), intermediate: T(4, 45), competition: T(4, 10), elite: T(3, 45) };
+const BBJ_TIMES   = { beginner: T(6, 30), amateur: T(5, 30), intermediate: T(5, 0),  competition: T(4, 0),  elite: T(3, 15) };
+const CARRY_TIMES = { beginner: T(3, 0),  amateur: T(2, 40), intermediate: T(2, 20), competition: T(2, 0),  elite: T(1, 40) };
+const LUNGE_TIMES = { beginner: T(5, 30), amateur: T(5, 0),  intermediate: T(4, 30), competition: T(3, 45), elite: T(3, 0) };
+const WB_TIMES    = { beginner: T(7, 30), amateur: T(6, 30), intermediate: T(6, 0),  competition: T(4, 30), elite: T(3, 30) };
+const SLED_TIMES  = { beginner: T(2, 30), amateur: T(2, 10), intermediate: T(1, 50), competition: T(1, 30), elite: T(1, 10) };
+
+const TIME_TIERS = [
+  { key: 'beginner', label: 'Beg' },
+  { key: 'amateur', label: 'Am' },
+  { key: 'intermediate', label: 'Int' },
+  { key: 'competition', label: 'Comp' },
+  { key: 'elite', label: 'Elite' },
+];
+
 const BIKE_SUBS = ['Bike ~4–5 min hard (~2.5–3 km)', 'Row 1 km hard', 'Treadmill 1 km if free'];
 
+// scale: 'amount' (distance/reps scale start→race) | 'weight' (weight scales, distance fixed)
 const SEGMENTS = [
   { id: 'run1', kind: 'run', icon: '🏃', name: 'Run 1 · 1 km', img: 'Running_Treadmill', video: 'treadmill+running+form',
-    scale: 'pace', unit: 'm', goal: 1000, bench: 360000,
+    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
     sub: 'Treadmill — steady & controlled, this is the easy one.',
-    subs: ['Treadmill 1 km', 'Outdoor 1 km', 'Bike ~4–5 min hard'] },
+    subs: ['Treadmill', 'Outdoor', 'Bike ~4–5 min hard'] },
   { id: 'ski', kind: 'station', icon: '🎿', num: 1, name: 'SkiErg', img: 'Straight-Arm_Pulldown', video: 'skierg+technique+hyrox',
-    scale: 'amount', unit: 'm', start: 400, race: 1000, step: 100, bench: 300000,
+    scale: 'amount', unit: 'm', start: 400, race: 1000, step: 100, times: SKI_TIMES,
     sub: 'Drive from the hips, not just arms. Build the distance, then the speed.',
     subs: ['SkiErg', 'Row (if ski busy)', 'Banded lat pulldowns hard'] },
   { id: 'run2', kind: 'run', icon: '🏃', name: 'Run 2 · 1 km', img: 'Running_Treadmill', video: 'treadmill+running+form',
-    scale: 'pace', unit: 'm', goal: 1000, bench: 360000,
+    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
     sub: 'Treadmill again (Ski + Row are by the treadmill).',
-    subs: ['Treadmill 1 km', 'Outdoor 1 km', 'Bike ~4–5 min hard'] },
+    subs: ['Treadmill', 'Outdoor', 'Bike ~4–5 min hard'] },
   { id: 'row', kind: 'station', icon: '🚣', num: 2, name: 'RowErg', img: 'Rowing_Stationary', video: 'rowerg+technique+hyrox',
-    scale: 'amount', unit: 'm', start: 400, race: 1000, step: 100, bench: 270000,
+    scale: 'amount', unit: 'm', start: 400, race: 1000, step: 100, times: ROW_TIMES,
     sub: 'Legs–core–arms order. Long, strong strokes; don’t yank early.',
     subs: ['RowErg', 'SkiErg', 'Bike 2 km hard'] },
   { id: 'bike3', kind: 'bike', icon: '🚴', name: 'Bike 3 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'pace', unit: 'm', goal: 2500, bench: 285000,
-    sub: 'Other room from here → the bike replaces every run. Hard ~4–5 min (~2.5 km). A 1 km ride is too easy for a 1 km run.',
+    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
+    sub: 'Bike replaces the run here (next room). Run-equivalent: ~2.5–3 km hard on the bike per 1 km.',
     subs: BIKE_SUBS },
   { id: 'push', kind: 'station', icon: '🛷', num: 3, name: 'Sled Push', img: 'Sled_Push', video: 'hyrox+sled+push+technique',
-    scale: 'weight', unit: 'm', dist: 50, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg/hand', compNote: 'race sled ≈ 152 kg',
-    bench: 120000, sub: 'YMCA has no sled → heavy DB/KB suitcase march 50 m. Build the weight toward race feel.',
-    subs: ['DB/KB suitcase march 50 m', 'Leg-press burnout ×20–30', 'Prowler / hack-squat if free'] },
+    scale: 'weight', unit: 'm', dist: 50, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg/hand', compNote: 'race sled ≈ 152 kg', times: SLED_TIMES,
+    sub: 'YMCA has no sled → heavy DB/KB suitcase march 50 m. Build the weight toward race feel.',
+    subs: ['DB/KB suitcase march', 'Leg-press burnout', 'Prowler / hack-squat if free'] },
   { id: 'bike4', kind: 'bike', icon: '🚴', name: 'Bike 4 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'pace', unit: 'm', goal: 2500, bench: 285000,
-    sub: 'Hard 4–5 min effort — match a 1 km run, not 1 km on the bike.', subs: BIKE_SUBS },
+    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
+    sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
   { id: 'pull', kind: 'station', icon: '🪝', num: 4, name: 'Sled Pull', img: 'Sled_Row', video: 'hyrox+sled+pull+technique',
-    scale: 'weight', unit: 'm', dist: 50, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg', compNote: 'race sled ≈ 103 kg',
-    bench: 120000, sub: 'No sled → hard seated cable rows / heavy DB bent rows, hand-over-hand tempo.',
-    subs: ['Seated cable row, hand-over-hand', 'Heavy DB bent row', 'Ring / TRX row'] },
+    scale: 'weight', unit: 'm', dist: 50, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg', compNote: 'race sled ≈ 103 kg', times: SLED_TIMES,
+    sub: 'No sled → hard seated cable rows / heavy DB bent rows, hand-over-hand tempo.',
+    subs: ['Seated cable row', 'Heavy DB bent row', 'Ring / TRX row'] },
   { id: 'bike5', kind: 'bike', icon: '🚴', name: 'Bike 5 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'pace', unit: 'm', goal: 2500, bench: 285000,
-    sub: 'Hard 4–5 min effort — match a 1 km run, not 1 km on the bike.', subs: BIKE_SUBS },
+    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
+    sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
   { id: 'bbj', kind: 'station', icon: '🤸', num: 5, name: 'Burpee Broad Jumps', img: 'Freehand_Jump_Squat', video: 'burpee+broad+jump+form',
-    scale: 'amount', unit: 'm', start: 40, race: 80, step: 10, bench: 270000,
+    scale: 'amount', unit: 'm', start: 40, race: 80, step: 10, times: BBJ_TIMES,
     sub: '⚠️ Brace the lower back · control every landing (ankle). ~15–18 reps ≈ 80 m.',
-    subs: ['Burpee broad jumps', 'Burpee + step forward (ankle-safe)', 'Squat-thrust + broad step'] },
+    subs: ['Burpee broad jumps', 'Burpee + step forward', 'Squat-thrust + broad step'] },
   { id: 'bike6', kind: 'bike', icon: '🚴', name: 'Bike 6 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'pace', unit: 'm', goal: 2500, bench: 285000,
-    sub: 'Hard 4–5 min effort — match a 1 km run, not 1 km on the bike.', subs: BIKE_SUBS },
+    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
+    sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
   { id: 'carry', kind: 'station', icon: '🧳', num: 6, name: 'Farmers Carry', img: 'Farmers_Walk', video: 'farmers+carry+technique',
-    scale: 'weight', unit: 'm', dist: 200, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg/hand', compNote: 'race 2 × 24 kg',
-    bench: 150000, sub: 'Heaviest DBs you can grip — tall chest, brace, don’t shrug.',
+    scale: 'weight', unit: 'm', dist: 200, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg/hand', compNote: 'race 2 × 24 kg', times: CARRY_TIMES,
+    sub: 'Heaviest DBs you can grip — tall chest, brace, don’t shrug.',
     subs: ['Farmers carry, heaviest DBs', 'KB rack carry', 'Trap-bar hold walk'] },
   { id: 'bike7', kind: 'bike', icon: '🚴', name: 'Bike 7 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'pace', unit: 'm', goal: 2500, bench: 285000,
-    sub: 'Hard 4–5 min effort — match a 1 km run, not 1 km on the bike.', subs: BIKE_SUBS },
+    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
+    sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
   { id: 'lunge', kind: 'station', icon: '🦵', num: 7, name: 'Sandbag Lunges', img: 'Dumbbell_Lunges', video: 'goblet+reverse+lunge+form',
-    scale: 'weight', unit: 'm', dist: 100, startW: 8, raceW: 20, stepW: 2, wUnit: 'kg goblet', compNote: 'race 20 kg sandbag',
-    bench: 270000, sub: 'No sandbags → DB/KB goblet reverse lunges. Brace + control the ankle.',
+    scale: 'weight', unit: 'm', dist: 100, startW: 8, raceW: 20, stepW: 2, wUnit: 'kg goblet', compNote: 'race 20 kg sandbag', times: LUNGE_TIMES,
+    sub: 'No sandbags → DB/KB goblet reverse lunges. Brace + control the ankle.',
     subs: ['DB/KB goblet reverse lunge', 'Walking lunge (bodyweight)', 'Split squats ×20 / leg'] },
   { id: 'bike8', kind: 'bike', icon: '🚴', name: 'Bike 8 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'pace', unit: 'm', goal: 2500, bench: 285000,
+    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
     sub: 'Last one — empty the tank. Hard 4–5 min.', subs: BIKE_SUBS },
   { id: 'wb', kind: 'station', icon: '🏐', num: 8, name: 'Wall Balls', img: 'Medicine_Ball_Scoop_Throw', video: 'wall+ball+shot+form',
-    scale: 'amount', unit: 'reps', start: 40, race: 100, step: 10, bench: 330000,
+    scale: 'amount', unit: 'reps', start: 40, race: 100, step: 10, times: WB_TIMES,
     sub: 'Can’t use the wall → med-ball throw-ups / DB thrusters. Full squat, full extension.',
     subs: ['Med-ball throw-ups', 'DB thrusters', 'Wall balls (if wall free)'] },
 ];
 
-// Rank titles — finish-time gates (Men's Open). No finish = Rookie.
+// Swap-option images (parallel to `subs`) — picking an option swaps the picture.
+const BIKE_SUBIMG = ['Bicycling_Stationary', 'Rowing_Stationary', 'Running_Treadmill'];
+const SUBIMG = {
+  run1: ['Running_Treadmill', 'Running_Treadmill', 'Bicycling_Stationary'],
+  run2: ['Running_Treadmill', 'Running_Treadmill', 'Bicycling_Stationary'],
+  ski: ['Straight-Arm_Pulldown', 'Rowing_Stationary', 'Straight-Arm_Pulldown'],
+  row: ['Rowing_Stationary', 'Straight-Arm_Pulldown', 'Bicycling_Stationary'],
+  bike3: BIKE_SUBIMG, bike4: BIKE_SUBIMG, bike5: BIKE_SUBIMG, bike6: BIKE_SUBIMG, bike7: BIKE_SUBIMG, bike8: BIKE_SUBIMG,
+  push: ['Farmers_Walk', 'Leg_Press', 'Sled_Push'],
+  pull: ['Seated_Cable_Rows', 'Bent_Over_Two-Dumbbell_Row', 'Inverted_Row'],
+  bbj: ['Freehand_Jump_Squat', 'Freehand_Jump_Squat', 'Freehand_Jump_Squat'],
+  carry: ['Farmers_Walk', 'Farmers_Walk', 'Trap_Bar_Deadlift'],
+  lunge: ['Dumbbell_Lunges', 'Bodyweight_Walking_Lunge', 'Dumbbell_Squat'],
+  wb: ['Medicine_Ball_Scoop_Throw', 'Kettlebell_Thruster', 'Medicine_Ball_Scoop_Throw'],
+};
+
 const RANKS = [
   { key: 'rookie',   name: 'Rookie',       emoji: '🥚', ms: Infinity },
   { key: 'beginner', name: 'Beginner',     emoji: '🐣', ms: 105 * 60000 },
@@ -107,32 +144,14 @@ const RANKS = [
   { key: 'elite',    name: 'Elite',        emoji: '🏆', ms: 54 * 60000 },
 ];
 
-// Swap-option images (parallel to each station's `subs`) — picking a different
-// option swaps the card picture too. Falls back to the station's own image.
-const BIKE_SUBIMG = ['Bicycling_Stationary', 'Rowing_Stationary', 'Running_Treadmill'];
-const SUBIMG = {
-  run1: ['Running_Treadmill', 'Running_Treadmill', 'Bicycling_Stationary'],
-  run2: ['Running_Treadmill', 'Running_Treadmill', 'Bicycling_Stationary'],
-  ski: ['Straight-Arm_Pulldown', 'Rowing_Stationary', 'Straight-Arm_Pulldown'],
-  row: ['Rowing_Stationary', 'Straight-Arm_Pulldown', 'Bicycling_Stationary'],
-  bike3: BIKE_SUBIMG, bike4: BIKE_SUBIMG, bike5: BIKE_SUBIMG,
-  bike6: BIKE_SUBIMG, bike7: BIKE_SUBIMG, bike8: BIKE_SUBIMG,
-  push: ['Farmers_Walk', 'Leg_Press', 'Sled_Push'],
-  pull: ['Seated_Cable_Rows', 'Bent_Over_Two-Dumbbell_Row', 'Inverted_Row'],
-  bbj: ['Freehand_Jump_Squat', 'Freehand_Jump_Squat', 'Freehand_Jump_Squat'],
-  carry: ['Farmers_Walk', 'Farmers_Walk', 'Trap_Bar_Deadlift'],
-  lunge: ['Dumbbell_Lunges', 'Bodyweight_Walking_Lunge', 'Dumbbell_Squat'],
-  wb: ['Medicine_Ball_Scoop_Throw', 'Kettlebell_Thruster', 'Medicine_Ball_Scoop_Throw'],
-};
-
-const SIM_KEY   = 'rtc_hyrox_sim_v1';
-const LOG_KEY    = 'rtc_hyrox_log_v1';
-const TIER_KEY  = 'rtc_hyrox_tier_v1';
-const TIMEGOAL_KEY = 'rtc_hyrox_timegoal_v1';
-const SWAPS_KEY = 'rtc_hyrox_swaps_v1';
-const PB_KEY    = 'rtc_hyrox_pb_v1';
-const SEGPB_KEY = 'rtc_hyrox_segpb_v1';
-const XP_KEY    = 'rtc_hyrox_xp_v1';
+const SIM_KEY      = 'rtc_hyrox_sim_v1';
+const LOG_KEY      = 'rtc_hyrox_log_v1';
+const TIER_KEY     = 'rtc_hyrox_tier_v1';
+const TIMETIER_KEY = 'rtc_hyrox_timetier_v1';
+const SWAPS_KEY    = 'rtc_hyrox_swaps_v1';
+const PB_KEY       = 'rtc_hyrox_pb_v1';
+const SEGPB_KEY    = 'rtc_hyrox_segpb_v2';
+const XP_KEY       = 'rtc_hyrox_xp_v1';
 
 const DB_URL       = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
 const IMG_BASE_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
@@ -157,20 +176,19 @@ if (!sim || sim.date !== todayStr()) {
   sim = { date: todayStr(), running: false, accumMs: 0, lastStart: null, splits: {} };
   saveJSON(SIM_KEY, sim);
 }
-const log    = loadJSON(LOG_KEY, {});
-const swaps  = loadJSON(SWAPS_KEY, {});
-let pb       = loadJSON(PB_KEY, null);
-const segPb  = loadJSON(SEGPB_KEY, {});
-const xpState = loadJSON(XP_KEY, { xp: 0, prs: 0, log: [] });
-
-// scalable target per station: default = beginner start (amount / weight), or the
-// fixed race amount for pace stations.
-const tiers = loadJSON(TIER_KEY, {});
+const log      = loadJSON(LOG_KEY, {});
+const swaps    = loadJSON(SWAPS_KEY, {});
+let pb         = loadJSON(PB_KEY, null);
+const segPb    = loadJSON(SEGPB_KEY, {});     // { segId: { amountKey: ms } }
+const xpState  = loadJSON(XP_KEY, { xp: 0, prs: 0, log: [] });
+const tiers    = loadJSON(TIER_KEY, {});
+const timeTier = loadJSON(TIMETIER_KEY, {});
 SEGMENTS.forEach((s) => {
-  if (tiers[s.id] == null) tiers[s.id] = s.scale === 'weight' ? s.startW : s.scale === 'amount' ? s.start : s.goal;
+  if (tiers[s.id] == null) tiers[s.id] = s.scale === 'weight' ? s.startW : s.start;
+  if (timeTier[s.id] == null) timeTier[s.id] = 'amateur';
 });
 saveJSON(TIER_KEY, tiers);
-const timeGoals = loadJSON(TIMEGOAL_KEY, {}); // { segId: ms } manual target-time override
+saveJSON(TIMETIER_KEY, timeTier);
 
 function persistSim() { saveJSON(SIM_KEY, sim); }
 
@@ -199,65 +217,46 @@ function currentSegMs() {
 }
 
 // ============================================================
-// Scalable targets, tiers & record validity
+// Two dials: distance/weight tier + time tier
 // ============================================================
-function curTarget(seg) { return tiers[seg.id]; }               // amount / weight / fixed pace
-function targetAmount(seg) { return seg.scale === 'weight' ? seg.dist : seg.scale === 'amount' ? curTarget(seg) : seg.goal; }
-function targetWeight(seg) { return seg.scale === 'weight' ? curTarget(seg) : null; }
-function targetTime(seg) {   // manual override wins; else scale time down for smaller amounts
-  if (timeGoals[seg.id] != null) return timeGoals[seg.id];
-  if (seg.scale === 'amount') return Math.round(seg.bench * curTarget(seg) / seg.race);
-  return seg.bench;
+function curTarget(seg) { return tiers[seg.id]; }
+function targetAmount(seg) { return seg.scale === 'weight' ? seg.dist : curTarget(seg); }
+function curTimeTier(seg) { return timeTier[seg.id] || 'amateur'; }
+// time to hit a tier at the CURRENT distance (weight stations: fixed distance → no scale)
+function tierTime(seg, tierKey) {
+  const base = seg.times[tierKey];
+  return seg.scale === 'weight' ? base : Math.round(base * curTarget(seg) / seg.race);
 }
-function stepTime(segId, dir) {
-  const seg = SEGMENTS.find((s) => s.id === segId);
-  if (!seg) return;
-  const base = targetTime(seg);
-  timeGoals[segId] = Math.max(15000, Math.min(3600000, base + dir * 15000));
-  saveJSON(TIMEGOAL_KEY, timeGoals);
-  render();
-}
-function tierPct(seg) {
-  if (seg.scale === 'amount') return curTarget(seg) / seg.race;
-  if (seg.scale === 'weight') return curTarget(seg) / seg.raceW;
-  return 1; // pace stations always run the full race amount
-}
-function tierLabel(seg) {
-  const p = tierPct(seg);
+function targetTime(seg) { return tierTime(seg, curTimeTier(seg)); }
+function distPct(seg) { return seg.scale === 'weight' ? curTarget(seg) / seg.raceW : curTarget(seg) / seg.race; }
+function distTierLabel(seg) {
+  const p = distPct(seg);
   if (p >= 1) return 'Competition';
   if (p >= 0.8) return 'Pro';
   if (p >= 0.6) return 'Intermediate';
   if (p >= 0.4) return 'Amateur';
   return 'Beginner';
 }
-function atMax(seg) {
-  if (seg.scale === 'amount') return curTarget(seg) >= seg.race;
-  if (seg.scale === 'weight') return curTarget(seg) >= seg.raceW;
-  return true;
-}
+function atMax(seg) { return seg.scale === 'weight' ? curTarget(seg) >= seg.raceW : curTarget(seg) >= seg.race; }
+function atMin(seg) { return curTarget(seg) <= (seg.scale === 'weight' ? 4 : seg.step); }
 function stepTarget(segId, dir) {
   const seg = SEGMENTS.find((s) => s.id === segId);
-  if (!seg || seg.scale === 'pace') return;
-  if (seg.scale === 'amount') {
-    const floor = seg.step, cap = seg.race;
-    tiers[segId] = Math.max(floor, Math.min(cap, curTarget(seg) + dir * seg.step));
-  } else {
-    const floor = 4, cap = seg.raceW;
-    tiers[segId] = Math.max(floor, Math.min(cap, curTarget(seg) + dir * seg.stepW));
-  }
-  // Changing the amount re-derives the auto target time (drop any manual override).
-  if (seg.scale === 'amount') { delete timeGoals[segId]; saveJSON(TIMEGOAL_KEY, timeGoals); }
+  if (!seg) return;
+  if (seg.scale === 'weight') tiers[segId] = Math.max(4, Math.min(seg.raceW, curTarget(seg) + dir * seg.stepW));
+  else tiers[segId] = Math.max(seg.step, Math.min(seg.race, curTarget(seg) + dir * seg.step));
   saveJSON(TIER_KEY, tiers);
   render();
 }
-// Did the logged work meet the current target? (this is what makes a split a record)
+function selectTimeTier(segId, key) { timeTier[segId] = key; saveJSON(TIMETIER_KEY, timeTier); render(); }
+
+// best time is tracked per distance/weight so 500 m and 1 km compare fairly
+function amountKey(seg) { return String(curTarget(seg)); }
+function bestFor(seg) { const m = segPb[seg.id]; return m ? m[amountKey(seg)] : undefined; }
+
 function isFullClear(seg) {
   if (sim.splits[seg.id] == null) return false;
   const e = log[seg.id] || {};
-  if (seg.scale === 'weight') {
-    const w = parseFloat(e.w);
-    return !isNaN(w) && w >= curTarget(seg);
-  }
+  if (seg.scale === 'weight') { const w = parseFloat(e.w); return !isNaN(w) && w >= curTarget(seg); }
   const metric = seg.unit === 'reps' ? parseFloat(e.r) : parseFloat(e.d);
   return !isNaN(metric) && metric >= targetAmount(seg);
 }
@@ -282,7 +281,7 @@ function rankInfo() {
 }
 
 // ============================================================
-// Image DB (best-effort; emoji fallback if offline)
+// Image DB
 // ============================================================
 let imgDb = null;
 async function loadImageDB() {
@@ -324,9 +323,10 @@ function coinHTML() {
 
 function recordsHTML() {
   const rows = SEGMENTS.map((s) => {
-    const b = segPb[s.id], tt = targetTime(s), delta = b != null ? b - tt : null;
+    const b = bestFor(s), tt = targetTime(s), delta = b != null ? b - tt : null;
+    const amt = s.scale === 'weight' ? `${curTarget(s)} ${s.wUnit}` : `${curTarget(s)} ${s.unit}`;
     return `<tr>
-      <td>${esc(s.name)}<span class="rec-tier">${esc(tierLabel(s))}</span></td>
+      <td>${esc(s.name)}<span class="rec-tier">${esc(amt)}</span></td>
       <td class="rec-best">${b != null ? fmtClock(b) : '—'}</td>
       <td class="rec-tgt">${fmtClock(tt)}</td>
       <td class="${delta == null ? '' : delta <= 0 ? 'rec-good' : 'rec-over'}">${b != null ? (delta <= 0 ? '−' : '+') + fmtClock(Math.abs(delta)) : ''}</td>
@@ -340,7 +340,7 @@ function recordsHTML() {
       <div class="race-records-body">
         <div class="race-records-fin">${pb ? `Best finish <b>${fmtClock(pb.ms)}</b> · ${esc(pb.date)}` : 'No full race finished yet.'}</div>
         <table class="race-rec-table">
-          <thead><tr><th>Station · tier</th><th>Best</th><th>Target</th><th>Δ</th></tr></thead>
+          <thead><tr><th>Station · target</th><th>Best</th><th>Aim</th><th>Δ</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
         <div class="race-rec-xp-head">Recent XP</div>
@@ -356,34 +356,32 @@ function imgSlotHTML(seg, chosen) {
     : `<div class="race-seg-img"><span>${seg.icon}</span>${seg.num ? `<span class="race-seg-num">${seg.num}</span>` : ''}</div>`;
 }
 
-// the current-target line + weight rec + stepper
-function targetLineHTML(seg) {
-  const label = tierLabel(seg);
-  let now, comp = '', stepper = '';
-  if (seg.scale === 'amount') {
-    now = `${curTarget(seg)} ${seg.unit}`;
-    comp = `comp ${seg.race} ${seg.unit}`;
-  } else if (seg.scale === 'weight') {
-    now = `${seg.dist} m · ${curTarget(seg)} ${seg.wUnit}`;
-    comp = seg.compNote;
-  } else {
-    now = seg.goal >= 1000 ? `${(seg.goal / 1000).toFixed(seg.goal % 1000 ? 1 : 0)} km` : `${seg.goal} m`;
-    comp = 'full race distance';
-  }
-  if (seg.scale !== 'pace') {
-    stepper = `
-      <div class="race-step">
-        <button type="button" class="race-step-btn" data-seg="${seg.id}" data-dir="-1" ${curTarget(seg) <= (seg.scale === 'weight' ? 4 : seg.step) ? 'disabled' : ''}>−</button>
-        <button type="button" class="race-step-btn" data-seg="${seg.id}" data-dir="1" ${atMax(seg) ? 'disabled' : ''}>+</button>
-      </div>`;
-  }
+// distance / weight dial (−/+) with tier label + competition reference
+function distLineHTML(seg) {
+  const label = distTierLabel(seg);
+  let now, comp;
+  if (seg.scale === 'weight') { now = `${seg.dist} m · ${curTarget(seg)} ${seg.wUnit}`; comp = seg.compNote; }
+  else { now = `${curTarget(seg)} ${seg.unit}`; comp = `comp ${seg.race} ${seg.unit}`; }
   return `
     <div class="race-seg-goal">
       <span class="race-goal-now">${esc(now)}</span>
       <span class="race-goal-tier tier-${label.toLowerCase()}">${esc(label)}</span>
       <span class="race-goal-comp">${esc(comp)}</span>
-      ${stepper}
+      <span class="race-step">
+        <button type="button" class="race-step-btn" data-seg="${seg.id}" data-dir="-1" ${atMin(seg) ? 'disabled' : ''}>−</button>
+        <button type="button" class="race-step-btn" data-seg="${seg.id}" data-dir="1" ${atMax(seg) ? 'disabled' : ''}>+</button>
+      </span>
     </div>`;
+}
+
+// time dial — named tier chips, each showing the time at the CURRENT distance
+function timeTierHTML(seg) {
+  const active = curTimeTier(seg);
+  const chips = TIME_TIERS.map((t) =>
+    `<button type="button" class="race-tchip ${t.key === active ? 'active' : ''}" data-seg="${seg.id}" data-tier="${t.key}">
+       <span class="race-tchip-l">${t.label}</span><span class="race-tchip-t">${fmtClock(tierTime(seg, t.key))}</span>
+     </button>`).join('');
+  return `<div class="race-tiers"><span class="race-tiers-lbl">🎯 aim</span>${chips}</div>`;
 }
 
 function segCard(seg) {
@@ -393,20 +391,10 @@ function segCard(seg) {
   const chosen = swaps[seg.id] || 0;
   const working = seg.subs[chosen] || seg.subs[0];
   const e = log[seg.id] || {};
-  const best = segPb[seg.id];
+  const best = bestFor(seg);
   const tt = targetTime(seg);
   const full = isFullClear(seg);
-
   const video = `<a class="race-seg-demo" href="https://www.youtube.com/results?search_query=${seg.video}" target="_blank" rel="noopener" title="Demo">📹</a>`;
-
-  // Adjustable target-time line (always shown) + steppers.
-  const aim = `
-    <div class="race-aim">
-      <span class="race-aim-lbl">🎯 aim <b>${fmtClock(tt)}</b>${timeGoals[seg.id] != null ? ' ·custom' : ''}</span>
-      <button type="button" class="race-time-btn" data-seg="${seg.id}" data-dir="-1" title="Faster target">−15s</button>
-      <button type="button" class="race-time-btn" data-seg="${seg.id}" data-dir="1" title="Slower target">+15s</button>
-      ${best != null ? `<span class="race-aim-best">best ${fmtClock(best)}</span>` : ''}
-    </div>`;
 
   let result = '';
   if (done) {
@@ -415,15 +403,14 @@ function segCard(seg) {
       <div class="race-seg-splits">
         <span class="race-split-seg">${fmtClock(st)}</span>
         <span class="race-split-meta">
-          ${full
-            ? `<span class="race-cmp ${cls}">${sign}${fmtClock(Math.abs(delta))} vs aim</span>`
-            : `<span class="race-cmp partial">partial — logged less than the target</span>`}
+          ${full ? `<span class="race-cmp ${cls}">${sign}${fmtClock(Math.abs(delta))} vs aim</span>`
+                 : `<span class="race-cmp partial">partial — logged less than the target</span>`}
           <span class="race-cmp-t">${full ? 'record set on Save' : `full target = ${seg.scale === 'weight' ? curTarget(seg) + ' ' + seg.wUnit : targetAmount(seg) + ' ' + seg.unit}`}</span>
         </span>
       </div>`;
   }
 
-  const dPlace = seg.scale === 'amount' && seg.unit === 'm' ? String(curTarget(seg)) : (seg.scale === 'weight' ? String(seg.dist) : 'm');
+  const dPlace = seg.scale === 'weight' ? String(seg.dist) : (seg.unit === 'm' ? String(curTarget(seg)) : 'm');
   const wPlace = seg.scale === 'weight' ? String(curTarget(seg)) : 'kg';
   const rPlace = seg.scale === 'amount' && seg.unit === 'reps' ? String(curTarget(seg)) : '#';
 
@@ -433,7 +420,7 @@ function segCard(seg) {
         ${imgSlotHTML(seg, chosen)}
         <div class="race-seg-body">
           <div class="race-seg-name">${esc(seg.name)}</div>
-          ${targetLineHTML(seg)}
+          ${distLineHTML(seg)}
           <div class="race-seg-working">▶ ${esc(working)}</div>
           <div class="race-seg-sub">${esc(seg.sub)}</div>
         </div>
@@ -450,7 +437,8 @@ function segCard(seg) {
           <button type="button" class="race-swap-opt ${i === chosen ? 'active' : ''}" data-seg="${seg.id}" data-opt="${i}">${esc(opt)}</button>`).join('')}
       </div>
 
-      ${aim}
+      ${timeTierHTML(seg)}
+      ${best != null ? `<div class="race-seg-best">your best at ${esc(seg.scale === 'weight' ? curTarget(seg) + ' ' + seg.wUnit : curTarget(seg) + ' ' + seg.unit)}: <b>${fmtClock(best)}</b></div>` : ''}
       ${result}
 
       <div class="race-seg-inputs">
@@ -483,10 +471,10 @@ function render() {
     ${recordsHTML()}
 
     <div class="race-howto">
-      Tap <b>Start</b>, then <b>Split</b> as you finish each run &amp; station. Use <b>−/+</b> to set each target — start
-      easy and step it up as you get fitter. Log Dist / Wt / Reps; a split only becomes a <b>record</b> once your logged
-      work meets the target. <b>XP is only banked when you tap “Save &amp; Log XP”</b>, so nothing counts by accident.
-      Beginner tip: rest 60–90 s between stations (⏱).
+      Two dials per station: <b>−/+</b> sets the <b>distance/weight</b>, the <b>🎯 aim</b> chips set your <b>time tier</b>
+      (real HYROX benchmarks that scale to your distance). Do a Competition distance at an Amateur pace, or the reverse —
+      both change freely. Tap <b>Split</b> when done (it logs the target; edit down if you did less). <b>XP banks only on
+      “Save & Log XP.”</b> Beginner tip: rest 60–90 s between stations (⏱).
     </div>
 
     <div class="race-segs">${SEGMENTS.map(segCard).join('')}</div>
@@ -532,19 +520,15 @@ function toggleGo() {
   persistSim(); renderTimer();
 }
 function resetRace() {
-  if (!confirm('Reset the timer and all splits for a fresh race? (Your logged weights/reps, records + XP stay.)')) return;
+  if (!confirm('Reset the timer and all splits for a fresh race? (Your targets, records + XP stay.)')) return;
   sim = { date: todayStr(), running: false, accumMs: 0, lastStart: null, splits: {} };
   stopTick(); releaseWake(); persistSim(); render();
 }
-// Splits only mark the segment done + stamp time. NO XP, NO PB here — those are
-// committed only on Save, so un-marking before saving returns everything.
 function logSplit(segId) {
   if (sim.splits[segId] != null) delete sim.splits[segId];
   else {
     if (!sim.running && sim.accumMs === 0) { sim.running = true; sim.lastStart = Date.now(); startTick(); requestWake(); }
     sim.splits[segId] = elapsedMs();
-    // A split means "I did the current target" — auto-fill the metric so it counts
-    // as a full clear. Edit the box down only if you actually did less.
     const seg = SEGMENTS.find((s) => s.id === segId);
     if (seg) {
       const e = (log[segId] || (log[segId] = {}));
@@ -558,26 +542,24 @@ function logSplit(segId) {
 }
 
 // ============================================================
-// Save & Log XP — the ONLY place records + XP are committed.
+// Save & Log XP — the ONLY place records + XP commit.
 // ============================================================
 function saveToTracker() {
   let gained = 0;
   const events = [];
-
-  // 1) Station records — only for FULL clears that beat the stored best.
   SEGMENTS.forEach((seg) => {
     if (!isFullClear(seg)) return;
     const st = segTime(seg.id);
     if (st == null) return;
-    if (segPb[seg.id] == null || st < segPb[seg.id]) {
-      const first = segPb[seg.id] == null;
-      segPb[seg.id] = st;
+    const key = amountKey(seg);
+    const bucket = segPb[seg.id] || (segPb[seg.id] = {});
+    if (bucket[key] == null || st < bucket[key]) {
+      const first = bucket[key] == null;
+      bucket[key] = st;
       const pts = first ? 25 : 40;
       gained += pts; events.push({ label: `${seg.name} ${first ? 'logged' : 'PB!'}`, pts });
     }
   });
-
-  // 2) Finish record — only if EVERY station was a full clear.
   const allFull = SEGMENTS.every((s) => isFullClear(s));
   if (allFull) {
     const total = finishMs();
@@ -587,8 +569,6 @@ function saveToTracker() {
       gained += 150; events.push({ label: first ? 'First finish!' : 'Finish PB!', pts: 150 });
     }
   }
-
-  // 3) Nothing to bank? Save the session anyway but say so.
   const logged = SEGMENTS.filter((s) => sim.splits[s.id] != null || log[s.id]);
   if (!logged.length) { toast('Nothing logged yet — hit some splits first.'); return; }
 
@@ -606,7 +586,6 @@ function saveToTracker() {
     toast('✓ Saved · no new records this time');
   }
 
-  // 4) Push the session into the shared tracker store.
   const total = finishMs() ?? elapsedMs();
   const exercises = logged.map((s) => {
     const st = segTime(s.id), e = log[s.id] || {};
@@ -630,7 +609,7 @@ function copyRace() {
   SEGMENTS.forEach((s) => {
     const st = segTime(s.id), e = log[s.id] || {};
     const bits = [e.d && `${e.d}m`, e.w && `${e.w}kg`, e.r && `${e.r} reps`].filter(Boolean).join(' · ');
-    lines.push(`${s.name} — ${tierLabel(s)} target${bits ? ` · ${bits}` : ''} · ${st != null ? fmtClock(st) : '—'} (aim ${fmtClock(targetTime(s))})`);
+    lines.push(`${s.name} — ${curTimeTier(s)} aim${bits ? ` · ${bits}` : ''} · ${st != null ? fmtClock(st) : '—'} (aim ${fmtClock(targetTime(s))})`);
   });
   const text = lines.join('\n');
   if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast('✓ Copied'), () => fallbackCopy(text));
@@ -693,8 +672,8 @@ function closeRest() { if (restState && restState.iv) clearInterval(restState.iv
 root.addEventListener('click', (e) => {
   const step = e.target.closest('.race-step-btn');
   if (step) { if (!step.disabled) stepTarget(step.dataset.seg, parseInt(step.dataset.dir, 10)); return; }
-  const timeBtn = e.target.closest('.race-time-btn');
-  if (timeBtn) { stepTime(timeBtn.dataset.seg, parseInt(timeBtn.dataset.dir, 10)); return; }
+  const tchip = e.target.closest('.race-tchip');
+  if (tchip) { selectTimeTier(tchip.dataset.seg, tchip.dataset.tier); return; }
   const swapOpt = e.target.closest('.race-swap-opt');
   if (swapOpt) { swaps[swapOpt.dataset.seg] = parseInt(swapOpt.dataset.opt, 10); saveJSON(SWAPS_KEY, swaps); render(); return; }
   const swapBtn = e.target.closest('.race-swap-btn');
@@ -714,7 +693,6 @@ root.addEventListener('input', (e) => {
   const id = inp.dataset.seg;
   (log[id] || (log[id] = {}))[inp.dataset.f] = inp.value;
   saveJSON(LOG_KEY, log);
-  // live-update this card's split validity readout without stealing focus
   const seg = SEGMENTS.find((s) => s.id === id);
   const card = inp.closest('.race-seg');
   if (seg && card && sim.splits[id] != null) {

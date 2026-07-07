@@ -4371,3 +4371,21 @@ body.auth-page {
 }
 .race-time-btn:active { transform: scale(0.94); }
 .race-aim-best { margin-left: auto; color: var(--muted-strong); font-weight: 600; }
+
+/* ---- Race sim: time-tier chips (aim) + per-distance best ---- */
+.race-tiers { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.race-tiers-lbl { font-size: 11px; color: var(--muted); font-weight: 600; margin-right: 2px; }
+.race-tchip {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 5px 8px; min-width: 48px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--card-2);
+  font-family: inherit; cursor: pointer;
+}
+.race-tchip:active { transform: scale(0.95); }
+.race-tchip-l { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; color: var(--muted); }
+.race-tchip-t { font-size: 12px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+.race-tchip.active { background: var(--gym-accent); border-color: var(--gym-accent); }
+.race-tchip.active .race-tchip-l, .race-tchip.active .race-tchip-t { color: #fff; }
+
+.race-seg-best { font-size: 11px; color: var(--muted); margin-top: 6px; }
+.race-seg-best b { color: var(--gym-accent); font-variant-numeric: tabular-nums; }

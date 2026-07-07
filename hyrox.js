@@ -36,14 +36,14 @@
 // faster; beginners run/walk ~8–9/km). Times scale linearly with distance.
 // ============================================================
 const T = (m, s) => (m * 60 + s) * 1000;
-const RUN_TIMES   = { beginner: T(9, 0),  amateur: T(7, 30), intermediate: T(6, 0),  competition: T(5, 0),  elite: T(3, 45) };
-const SKI_TIMES   = { beginner: T(6, 0),  amateur: T(5, 15), intermediate: T(4, 45), competition: T(4, 0),  elite: T(3, 30) };
-const ROW_TIMES   = { beginner: T(5, 45), amateur: T(5, 10), intermediate: T(4, 45), competition: T(4, 10), elite: T(3, 45) };
-const BBJ_TIMES   = { beginner: T(6, 30), amateur: T(5, 30), intermediate: T(5, 0),  competition: T(4, 0),  elite: T(3, 15) };
-const CARRY_TIMES = { beginner: T(3, 0),  amateur: T(2, 40), intermediate: T(2, 20), competition: T(2, 0),  elite: T(1, 40) };
-const LUNGE_TIMES = { beginner: T(5, 30), amateur: T(5, 0),  intermediate: T(4, 30), competition: T(3, 45), elite: T(3, 0) };
-const WB_TIMES    = { beginner: T(7, 30), amateur: T(6, 30), intermediate: T(6, 0),  competition: T(4, 30), elite: T(3, 30) };
-const SLED_TIMES  = { beginner: T(2, 30), amateur: T(2, 10), intermediate: T(1, 50), competition: T(1, 30), elite: T(1, 10) };
+const RUN_TIMES   = { beginner: T(9, 0),  amateur: T(7, 30), intermediate: T(6, 0),  competition: T(5, 0),  elite: T(3, 45), wr: T(2, 45) };
+const SKI_TIMES   = { beginner: T(6, 0),  amateur: T(5, 15), intermediate: T(4, 45), competition: T(4, 0),  elite: T(3, 30), wr: T(3, 0) };
+const ROW_TIMES   = { beginner: T(5, 45), amateur: T(5, 10), intermediate: T(4, 45), competition: T(4, 10), elite: T(3, 45), wr: T(3, 0) };
+const BBJ_TIMES   = { beginner: T(6, 30), amateur: T(5, 30), intermediate: T(5, 0),  competition: T(4, 0),  elite: T(3, 15), wr: T(2, 45) };
+const CARRY_TIMES = { beginner: T(3, 0),  amateur: T(2, 40), intermediate: T(2, 20), competition: T(2, 0),  elite: T(1, 40), wr: T(1, 20) };
+const LUNGE_TIMES = { beginner: T(5, 30), amateur: T(5, 0),  intermediate: T(4, 30), competition: T(3, 45), elite: T(3, 0),  wr: T(2, 30) };
+const WB_TIMES    = { beginner: T(7, 30), amateur: T(6, 30), intermediate: T(6, 0),  competition: T(4, 30), elite: T(3, 30), wr: T(3, 15) };
+const SLED_TIMES  = { beginner: T(2, 30), amateur: T(2, 10), intermediate: T(1, 50), competition: T(1, 30), elite: T(1, 10), wr: T(0, 50) };
 
 const TIME_TIERS = [
   { key: 'beginner', label: 'Beg' },
@@ -51,6 +51,7 @@ const TIME_TIERS = [
   { key: 'intermediate', label: 'Int' },
   { key: 'competition', label: 'Comp' },
   { key: 'elite', label: 'Elite' },
+  { key: 'wr', label: '🌍WR' },
 ];
 
 const BIKE_SUBS = ['Bike ~4–5 min hard (~2.5–3 km)', 'Row 1 km hard', 'Treadmill 1 km if free'];
@@ -508,6 +509,8 @@ function render() {
       both change freely. Tap <b>Split</b> when done (it logs the target; edit down if you did less). <b>XP banks only on
       “Save & Log XP.”</b> Beginner tip: rest 60–90 s between stations (⏱).
     </div>
+
+    <div class="race-wrnote">🌍 Just for fun — the HYROX solo world record is ≈ <b>0:54</b> (men) · ≈ <b>0:56</b> (women). Each station's <b>🌍WR</b> aim chip is a world-class split scaled to your distance.</div>
 
     <div class="race-segs">${SEGMENTS.map(segCard).join('')}</div>
 

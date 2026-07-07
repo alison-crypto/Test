@@ -101,6 +101,24 @@
     return { done, total: ex.length };
   }
 
+  // ---- lb↔kg converter (many gyms use pounds) ----
+  let convVal = '', convUnit = 'lb';
+  function convResult() {
+    const n = parseFloat(convVal);
+    if (isNaN(n)) return '— ' + (convUnit === 'lb' ? 'kg' : 'lb');
+    return convUnit === 'lb' ? (n * 0.453592).toFixed(1) + ' kg' : (n * 2.20462).toFixed(1) + ' lb';
+  }
+  function convHTML() {
+    return `
+      <div class="grpg-conv">
+        <span class="grpg-conv-ic">⚖️</span>
+        <input id="grpg-conv-in" class="grpg-conv-in" type="number" inputmode="decimal" placeholder="0" value="${esc(convVal)}" />
+        <button type="button" id="grpg-conv-unit" class="grpg-conv-unit">${convUnit}</button>
+        <span class="grpg-conv-eq">=</span>
+        <b id="grpg-conv-out" class="grpg-conv-out">${convResult()}</b>
+      </div>`;
+  }
+
   // ---- difficulty ----
   let diff = loadJSON(DIFF_KEY, 'intermediate');
   const DIFF = {
@@ -115,38 +133,53 @@
   // bench 0.75/1.25/1.75, deadlift 1.25/2.0/2.5, etc., converted to the working
   // set via Epley. Accessories/DBs use typical training norms. Numbers = 1 working
   // set; scale from these as guidance. perhand = per dumbbell; rep = bodyweight/reps.
+  // wr = all-time/world-class 1RM single (kg) for fun — only lifts that have one.
   const STANDARDS = {
-    him_lA_squat:    { r: 8,  beg: 72.5, int: 110,  adv: 147.5 },
+    him_lA_squat:    { r: 8,  beg: 72.5, int: 110,  adv: 147.5, wr: '490 (Ray Williams)' },
     him_lA_legcurl:  { r: 12, beg: 35,   int: 65,   adv: 95 },
     him_lA_lunge:    { r: 10, perhand: true, beg: 10, int: 20, adv: 30 },
     him_lA_calf:     { r: 15, beg: 60,   int: 120,  adv: 180 },
     him_lA_backext:  { rep: true, beg: 'BW×15', int: '+10×15', adv: '+25×15' },
     him_lA_abs:      { rep: true, beg: '8 reps', int: '15 reps', adv: '15 +wt' },
-    him_uA_bench:    { r: 8,  beg: 55,   int: 92.5, adv: 130 },
+    him_uA_bench:    { r: 8,  beg: 55,   int: 92.5, adv: 130, wr: '355 (J. Maddox)' },
     him_uA_row:      { r: 10, beg: 42.5, int: 70,   adv: 95 },
-    him_uA_shoulder: { r: 10, perhand: true, beg: 12, int: 22, adv: 32 },
+    him_uA_shoulder: { r: 10, perhand: true, beg: 12, int: 22, adv: 32, wr: '≈215 barbell strict' },
     him_uA_pull:     { r: 12, beg: 40,   int: 65,   adv: 87.5 },
     him_uA_curl:     { r: 12, perhand: true, beg: 8, int: 15, adv: 22 },
     him_uA_tri:      { r: 15, beg: 20,   int: 40,   adv: 60 },
-    him_lB_tbar:     { r: 6,  beg: 97.5, int: 155,  adv: 195 },
-    him_lB_hipthrust:{ r: 10, beg: 70,   int: 122.5, adv: 175 },
+    him_lB_tbar:     { r: 6,  beg: 97.5, int: 155,  adv: 195, wr: '487.5 raw deadlift (D. Grigsby)' },
+    him_lB_hipthrust:{ r: 10, beg: 70,   int: 122.5, adv: 175, wr: '≈300+' },
     him_lB_legext:   { r: 15, beg: 40,   int: 75,   adv: 110 },
     him_lB_legcurl:  { r: 12, beg: 35,   int: 65,   adv: 95 },
     him_lB_calf:     { r: 15, beg: 60,   int: 120,  adv: 180 },
     him_lB_crunch:   { r: 15, beg: 30,   int: 55,   adv: 80 },
     him_uB_incline:  { r: 10, perhand: true, beg: 18, int: 30, adv: 42 },
-    him_uB_pullup:   { rep: true, beg: '5 reps', int: '10 reps', adv: '12 +wt' },
+    him_uB_pullup:   { rep: true, beg: '5 reps', int: '10 reps', adv: '12 +wt', wr: '+100 kg added' },
     him_uB_row:      { r: 12, beg: 45,   int: 75,   adv: 100 },
     him_uB_lat:      { r: 15, perhand: true, beg: 6, int: 12, adv: 18 },
-    him_uB_curl:     { r: 10, beg: 25,   int: 40,   adv: 55 },
+    him_uB_curl:     { r: 10, beg: 25,   int: 40,   adv: 55, wr: '≈110 strict curl' },
     him_uB_triext:   { r: 12, beg: 20,   int: 35,   adv: 50 },
   };
   const DIFF_TIER = { beginner: 'beg', intermediate: 'int', advanced: 'adv' };
   function tierDisp(s, t) {
     const v = s[t];
     if (s.rep) return v;
-    if (s.perhand) return `${v}/hd×${s.r}`;
-    return `${v}×${s.r}`;
+    if (s.perhand) return `${v}kg/hd×${s.r}`;
+    return `${v}kg×${s.r}`;
+  }
+  function nameFor(exId) { const el = document.querySelector(`.exercise[data-ex="${exId}"] .ex-name`); return el ? el.textContent.trim() : exId; }
+  function levelName(exId, w) {
+    const s = STANDARDS[exId];
+    if (!s || s.rep || w == null) return null;
+    return w >= s.adv ? 'Advanced' : w >= s.int ? 'Intermediate' : w >= s.beg ? 'Beginner' : 'Building';
+  }
+  function nextGoal(exId, w) {
+    const s = STANDARDS[exId];
+    if (!s || s.rep) return null;
+    if (w == null || w < s.beg) return `${s.beg}kg (Beg)`;
+    if (w < s.int) return `${s.int}kg (Int)`;
+    if (w < s.adv) return `${s.adv}kg (Adv)`;
+    return 'maxed 💪';
   }
   function paintGoals() {
     const b = bests();
@@ -168,6 +201,7 @@
         <span class="grpg-goal ${aim === 'beg' ? 'aim' : ''}">Beg <b>${esc(tierDisp(s, 'beg'))}</b></span>
         <span class="grpg-goal ${aim === 'int' ? 'aim' : ''}">Int <b>${esc(tierDisp(s, 'int'))}</b></span>
         <span class="grpg-goal ${aim === 'adv' ? 'aim' : ''}">Adv <b>${esc(tierDisp(s, 'adv'))}</b></span>
+        ${s.wr ? `<span class="grpg-goal grpg-wr" title="all-time / world-class 1RM">🌍 <b>${esc(s.wr)}</b></span>` : ''}
         ${you}`;
     });
   }
@@ -198,19 +232,31 @@
         </div>
       </div>`;
   }
+  const LVL_CLASS = { Advanced: 'lv-adv', Intermediate: 'lv-int', Beginner: 'lv-beg', Building: 'lv-build' };
   function recordsHTML() {
     const b = bests();
-    const rows = Object.values(b).sort((a, c) => c.w - a.w).map((p) =>
-      `<tr><td>${esc(p.name)}</td><td class="rec-best">${p.w}</td><td class="rec-tgt">${p.r}</td><td class="rec-tier">${esc(p.date)}</td></tr>`).join('')
-      || '<tr><td colspan="4" class="rec-empty">No PRs yet — Save a workout to log your first.</td></tr>';
+    // Level tracker — one row per lift (program order), with your PR-derived level.
+    const rows = Object.keys(STANDARDS).map((exId) => {
+      const s = STANDARDS[exId], best = b[exId];
+      const name = nameFor(exId);
+      if (s.rep) {
+        const bestStr = best ? `${best.w}kg×${best.r}` : '—';
+        return `<tr><td>${esc(name)}</td><td class="rec-best">${esc(bestStr)}</td><td><span class="grpg-lv lv-build">reps</span></td><td class="rec-tgt">${esc(s.adv)}</td></tr>`;
+      }
+      const w = best ? best.w : null;
+      const lvl = w != null ? levelName(exId, w) : '—';
+      const cls = LVL_CLASS[lvl] || '';
+      const bestStr = best ? `${best.w}kg×${best.r}` : '—';
+      return `<tr><td>${esc(name)}</td><td class="rec-best">${esc(bestStr)}</td><td>${lvl === '—' ? '—' : `<span class="grpg-lv ${cls}">${lvl}</span>`}</td><td class="rec-tgt">${esc(nextGoal(exId, w))}</td></tr>`;
+    }).join('');
     const recent = (xp.log || []).slice(0, 6).map((e) => `<li><span>${esc(e.label)}</span><b>+${e.pts}</b></li>`).join('')
       || '<li class="rec-empty">Hit a PR and Save to earn XP.</li>';
     return `
       <details class="race-records">
-        <summary>🏅 Records &amp; progress · ${xp.prs || 0} PRs · ${xp.xp || 0} XP</summary>
+        <summary>🏅 Level tracker · ${xp.prs || 0} PRs · ${xp.xp || 0} XP</summary>
         <div class="race-records-body">
           <table class="race-rec-table">
-            <thead><tr><th>Lift</th><th>Top kg</th><th>Reps</th><th>Date</th></tr></thead>
+            <thead><tr><th>Lift</th><th>Your best</th><th>Level</th><th>Next goal</th></tr></thead>
             <tbody>${rows}</tbody>
           </table>
           <div class="race-rec-xp-head">Recent XP</div>
@@ -239,6 +285,7 @@
           <button type="button" class="race-btn" id="grpg-reset">Reset</button>
         </div>
       </div>
+      ${convHTML()}
       <div class="race-preset">
         <span class="race-preset-lbl">Difficulty →</span>
         <button type="button" class="race-preset-btn ${diff === 'beginner' ? 'grpg-active' : ''}" data-diff="beginner">Beginner</button>
@@ -263,8 +310,16 @@
     if (e.target.closest('#grpg-go')) return startTimer();
     if (e.target.closest('#grpg-pause')) return pauseTimer();
     if (e.target.closest('#grpg-reset')) return resetTimer();
+    if (e.target.closest('#grpg-conv-unit')) { convUnit = convUnit === 'lb' ? 'kg' : 'lb'; render(); return; }
     const d = e.target.closest('[data-diff]');
     if (d) { diff = d.dataset.diff; saveJSON(DIFF_KEY, diff); render(); paintGoals(); }
+  });
+  wrap.addEventListener('input', (e) => {
+    if (e.target.id === 'grpg-conv-in') {
+      convVal = e.target.value;
+      const out = document.getElementById('grpg-conv-out');
+      if (out) out.textContent = convResult();
+    }
   });
 
   // Refresh the ring when exercises are ticked / the day switches (wrap gym.js globals).

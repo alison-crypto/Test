@@ -4447,3 +4447,24 @@ body.auth-page {
 .grpg-goal.aim { color: var(--gym-accent); }
 .grpg-goal.aim b { color: var(--gym-accent); }
 .grpg-goal-you { margin-left: auto; font-weight: 700; color: var(--success); font-variant-numeric: tabular-nums; }
+
+/* ---- Gym: level badges, WR chip, lb↔kg converter ---- */
+.grpg-goal.grpg-wr b { color: var(--warn); }
+.grpg-lv { display: inline-block; padding: 2px 7px; border-radius: 999px; font-size: 10px; font-weight: 800; color: #fff; }
+.lv-build { background: var(--muted); }
+.lv-beg { background: #34c759; }
+.lv-int { background: #5e5ce6; }
+.lv-adv { background: #ff9500; }
+
+.grpg-conv { display: flex; align-items: center; gap: 8px; margin: 4px 0 8px; padding: 8px 12px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.grpg-conv-ic { font-size: 16px; }
+.grpg-conv-in { flex: 1; min-width: 0; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text); font-size: 15px; font-family: inherit; box-sizing: border-box; }
+.grpg-conv-in:focus { outline: none; border-color: var(--gym-accent); }
+.grpg-conv-unit { padding: 8px 12px; border: 1px solid var(--gym-accent); border-radius: 8px; background: var(--gym-accent); color: #fff; font-size: 13px; font-weight: 800; font-family: inherit; cursor: pointer; min-width: 44px; }
+.grpg-conv-eq { color: var(--muted); font-weight: 700; }
+.grpg-conv-out { font-size: 15px; font-weight: 800; color: var(--gym-accent); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ---- Hyrox: world-record fun note ---- */
+.race-wrnote { font-size: 10.5px; color: var(--muted); line-height: 1.5; margin: 0 2px 12px; padding: 9px 12px; background: var(--card-2); border-radius: 10px; }
+.race-wrnote b { color: var(--warn); }
+.race-tchip[data-tier="wr"].active { background: var(--warn); border-color: var(--warn); }

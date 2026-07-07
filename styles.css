@@ -4468,3 +4468,8 @@ body.auth-page {
 .race-wrnote { font-size: 10.5px; color: var(--muted); line-height: 1.5; margin: 0 2px 12px; padding: 9px 12px; background: var(--card-2); border-radius: 10px; }
 .race-wrnote b { color: var(--warn); }
 .race-tchip[data-tier="wr"].active { background: var(--warn); border-color: var(--warn); }
+
+/* ---- Gym: Elite tier ---- */
+.grpg-goal.grpg-eli b { color: #ff2d55; }
+.grpg-goal.grpg-eli.aim, .grpg-goal.grpg-eli.aim b { color: #ff2d55; }
+.lv-eli { background: #ff2d55; }

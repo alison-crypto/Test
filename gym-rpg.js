@@ -125,6 +125,7 @@
     beginner: 'Leave 3–4 reps in reserve · 2 working sets while you learn the movement · nail form before load.',
     intermediate: 'As written · 1–2 reps in reserve · full sets · add weight when you hit the top of the range on all sets.',
     advanced: 'Push the last set to 0–1 reps in reserve · add a set to a weak point · trim rest 15–30 s.',
+    elite: 'Chase the Elite numbers — top of the range at 0–1 RIR, intensity techniques (drop/rest-pause) on the last set. Years of work; treat it as the horizon.',
   };
 
   // ---- per-exercise goals (weight × reps by level) ----
@@ -133,34 +134,36 @@
   // bench 0.75/1.25/1.75, deadlift 1.25/2.0/2.5, etc., converted to the working
   // set via Epley. Accessories/DBs use typical training norms. Numbers = 1 working
   // set; scale from these as guidance. perhand = per dumbbell; rep = bodyweight/reps.
-  // wr = all-time/world-class 1RM single (kg) for fun — only lifts that have one.
+  // Working weight × reps by level. eli = elite / pro-bodybuilder working set (the
+  // top a very advanced lifter hits for good reps). wr = all-time/world-class 1RM
+  // single (kg), just for fun, on lifts that have an official record.
   const STANDARDS = {
-    him_lA_squat:    { r: 8,  beg: 72.5, int: 110,  adv: 147.5, wr: '490 (Ray Williams)' },
-    him_lA_legcurl:  { r: 12, beg: 35,   int: 65,   adv: 95 },
-    him_lA_lunge:    { r: 10, perhand: true, beg: 10, int: 20, adv: 30 },
-    him_lA_calf:     { r: 15, beg: 60,   int: 120,  adv: 180 },
-    him_lA_backext:  { rep: true, beg: 'BW×15', int: '+10×15', adv: '+25×15' },
-    him_lA_abs:      { rep: true, beg: '8 reps', int: '15 reps', adv: '15 +wt' },
-    him_uA_bench:    { r: 8,  beg: 55,   int: 92.5, adv: 130, wr: '355 (J. Maddox)' },
-    him_uA_row:      { r: 10, beg: 42.5, int: 70,   adv: 95 },
-    him_uA_shoulder: { r: 10, perhand: true, beg: 12, int: 22, adv: 32, wr: '≈215 barbell strict' },
-    him_uA_pull:     { r: 12, beg: 40,   int: 65,   adv: 87.5 },
-    him_uA_curl:     { r: 12, perhand: true, beg: 8, int: 15, adv: 22 },
-    him_uA_tri:      { r: 15, beg: 20,   int: 40,   adv: 60 },
-    him_lB_tbar:     { r: 6,  beg: 97.5, int: 155,  adv: 195, wr: '487.5 raw deadlift (D. Grigsby)' },
-    him_lB_hipthrust:{ r: 10, beg: 70,   int: 122.5, adv: 175, wr: '≈300+' },
-    him_lB_legext:   { r: 15, beg: 40,   int: 75,   adv: 110 },
-    him_lB_legcurl:  { r: 12, beg: 35,   int: 65,   adv: 95 },
-    him_lB_calf:     { r: 15, beg: 60,   int: 120,  adv: 180 },
-    him_lB_crunch:   { r: 15, beg: 30,   int: 55,   adv: 80 },
-    him_uB_incline:  { r: 10, perhand: true, beg: 18, int: 30, adv: 42 },
-    him_uB_pullup:   { rep: true, beg: '5 reps', int: '10 reps', adv: '12 +wt', wr: '+100 kg added' },
-    him_uB_row:      { r: 12, beg: 45,   int: 75,   adv: 100 },
-    him_uB_lat:      { r: 15, perhand: true, beg: 6, int: 12, adv: 18 },
-    him_uB_curl:     { r: 10, beg: 25,   int: 40,   adv: 55, wr: '≈110 strict curl' },
-    him_uB_triext:   { r: 12, beg: 20,   int: 35,   adv: 50 },
+    him_lA_squat:    { r: 8,  beg: 72.5, int: 110,  adv: 147.5, eli: 180, wr: '490 (Ray Williams)' },
+    him_lA_legcurl:  { r: 12, beg: 35,   int: 65,   adv: 95,    eli: 125 },
+    him_lA_lunge:    { r: 10, perhand: true, beg: 10, int: 20, adv: 30, eli: 40 },
+    him_lA_calf:     { r: 15, beg: 60,   int: 120,  adv: 180,   eli: 250 },
+    him_lA_backext:  { rep: true, beg: 'BW×15', int: '+10×15', adv: '+25×15', eli: '+40×15' },
+    him_lA_abs:      { rep: true, beg: '8 reps', int: '15 reps', adv: '15 +wt', eli: '20 +10kg' },
+    him_uA_bench:    { r: 8,  beg: 55,   int: 92.5, adv: 130,   eli: 147.5, wr: '355 (J. Maddox)' },
+    him_uA_row:      { r: 10, beg: 42.5, int: 70,   adv: 95,    eli: 120 },
+    him_uA_shoulder: { r: 10, perhand: true, beg: 12, int: 22, adv: 32, eli: 42, wr: '≈215 barbell strict' },
+    him_uA_pull:     { r: 12, beg: 40,   int: 65,   adv: 87.5,  eli: 110 },
+    him_uA_curl:     { r: 12, perhand: true, beg: 8, int: 15, adv: 22, eli: 30 },
+    him_uA_tri:      { r: 15, beg: 20,   int: 40,   adv: 60,    eli: 80 },
+    him_lB_tbar:     { r: 6,  beg: 97.5, int: 155,  adv: 195,   eli: 232.5, wr: '487.5 raw deadlift (D. Grigsby)' },
+    him_lB_hipthrust:{ r: 10, beg: 70,   int: 122.5, adv: 175,  eli: 230,   wr: '≈300+' },
+    him_lB_legext:   { r: 15, beg: 40,   int: 75,   adv: 110,   eli: 145 },
+    him_lB_legcurl:  { r: 12, beg: 35,   int: 65,   adv: 95,    eli: 125 },
+    him_lB_calf:     { r: 15, beg: 60,   int: 120,  adv: 180,   eli: 250 },
+    him_lB_crunch:   { r: 15, beg: 30,   int: 55,   adv: 80,    eli: 110 },
+    him_uB_incline:  { r: 10, perhand: true, beg: 18, int: 30, adv: 42, eli: 54 },
+    him_uB_pullup:   { rep: true, beg: '5 reps', int: '10 reps', adv: '12 +wt', eli: '15 +25kg', wr: '+100 kg added' },
+    him_uB_row:      { r: 12, beg: 45,   int: 75,   adv: 100,   eli: 130 },
+    him_uB_lat:      { r: 15, perhand: true, beg: 6, int: 12, adv: 18, eli: 26 },
+    him_uB_curl:     { r: 10, beg: 25,   int: 40,   adv: 55,    eli: 75, wr: '≈110 strict curl' },
+    him_uB_triext:   { r: 12, beg: 20,   int: 35,   adv: 50,    eli: 70 },
   };
-  const DIFF_TIER = { beginner: 'beg', intermediate: 'int', advanced: 'adv' };
+  const DIFF_TIER = { beginner: 'beg', intermediate: 'int', advanced: 'adv', elite: 'eli' };
   function tierDisp(s, t) {
     const v = s[t];
     if (s.rep) return v;
@@ -171,7 +174,7 @@
   function levelName(exId, w) {
     const s = STANDARDS[exId];
     if (!s || s.rep || w == null) return null;
-    return w >= s.adv ? 'Advanced' : w >= s.int ? 'Intermediate' : w >= s.beg ? 'Beginner' : 'Building';
+    return w >= s.eli ? 'Elite' : w >= s.adv ? 'Advanced' : w >= s.int ? 'Intermediate' : w >= s.beg ? 'Beginner' : 'Building';
   }
   function nextGoal(exId, w) {
     const s = STANDARDS[exId];
@@ -179,6 +182,7 @@
     if (w == null || w < s.beg) return `${s.beg}kg (Beg)`;
     if (w < s.int) return `${s.int}kg (Int)`;
     if (w < s.adv) return `${s.adv}kg (Adv)`;
+    if (w < s.eli) return `${s.eli}kg (Elite)`;
     return 'maxed 💪';
   }
   function paintGoals() {
@@ -201,6 +205,7 @@
         <span class="grpg-goal ${aim === 'beg' ? 'aim' : ''}">Beg <b>${esc(tierDisp(s, 'beg'))}</b></span>
         <span class="grpg-goal ${aim === 'int' ? 'aim' : ''}">Int <b>${esc(tierDisp(s, 'int'))}</b></span>
         <span class="grpg-goal ${aim === 'adv' ? 'aim' : ''}">Adv <b>${esc(tierDisp(s, 'adv'))}</b></span>
+        <span class="grpg-goal grpg-eli ${aim === 'eli' ? 'aim' : ''}">Elite <b>${esc(tierDisp(s, 'eli'))}</b></span>
         ${s.wr ? `<span class="grpg-goal grpg-wr" title="all-time / world-class 1RM">🌍 <b>${esc(s.wr)}</b></span>` : ''}
         ${you}`;
     });
@@ -232,7 +237,7 @@
         </div>
       </div>`;
   }
-  const LVL_CLASS = { Advanced: 'lv-adv', Intermediate: 'lv-int', Beginner: 'lv-beg', Building: 'lv-build' };
+  const LVL_CLASS = { Elite: 'lv-eli', Advanced: 'lv-adv', Intermediate: 'lv-int', Beginner: 'lv-beg', Building: 'lv-build' };
   function recordsHTML() {
     const b = bests();
     // Level tracker — one row per lift (program order), with your PR-derived level.
@@ -288,9 +293,10 @@
       ${convHTML()}
       <div class="race-preset">
         <span class="race-preset-lbl">Difficulty →</span>
-        <button type="button" class="race-preset-btn ${diff === 'beginner' ? 'grpg-active' : ''}" data-diff="beginner">Beginner</button>
-        <button type="button" class="race-preset-btn ${diff === 'intermediate' ? 'grpg-active' : ''}" data-diff="intermediate">Intermediate</button>
-        <button type="button" class="race-preset-btn ${diff === 'advanced' ? 'grpg-active' : ''}" data-diff="advanced">Advanced</button>
+        <button type="button" class="race-preset-btn ${diff === 'beginner' ? 'grpg-active' : ''}" data-diff="beginner">Beg</button>
+        <button type="button" class="race-preset-btn ${diff === 'intermediate' ? 'grpg-active' : ''}" data-diff="intermediate">Int</button>
+        <button type="button" class="race-preset-btn ${diff === 'advanced' ? 'grpg-active' : ''}" data-diff="advanced">Adv</button>
+        <button type="button" class="race-preset-btn ${diff === 'elite' ? 'grpg-active' : ''}" data-diff="elite">Elite</button>
       </div>
       <div class="grpg-diff-note">${esc(DIFF[diff])}</div>
       ${recordsHTML()}`;

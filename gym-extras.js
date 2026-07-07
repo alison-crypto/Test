@@ -106,6 +106,36 @@ function saveOverride(exId, dbId) {
   try { localStorage.setItem(OVERRIDES_KEY, JSON.stringify(o)); } catch {}
 }
 
+// Curated exId -> exact free-exercise-db id, so the image is the right
+// movement instead of a fuzzy guess. null = the DB has no good match, so we
+// show the neutral placeholder rather than a wrong picture. exIds not listed
+// here (e.g. Darlene's) fall back to the fuzzy matcher.
+const CURATED = {
+  // Alison — Lower A
+  him_lA_squat: 'Barbell_Squat', him_lA_legcurl: 'Seated_Leg_Curl',
+  him_lA_lunge: 'Dumbbell_Lunges', him_lA_calf: 'Standing_Calf_Raises',
+  him_lA_backext: 'Hyperextensions_Back_Extensions', him_lA_abs: 'Hanging_Leg_Raise',
+  // Alison — Upper A
+  him_uA_bench: 'Barbell_Bench_Press_-_Medium_Grip', him_uA_row: 'Dumbbell_Incline_Row',
+  him_uA_shoulder: 'Dumbbell_Shoulder_Press', him_uA_pull: 'Full_Range-Of-Motion_Lat_Pulldown',
+  him_uA_curl: 'Incline_Dumbbell_Curl', him_uA_tri: 'Triceps_Pushdown',
+  // Alison — Lower B
+  him_lB_tbar: 'Trap_Bar_Deadlift', him_lB_hipthrust: 'Barbell_Hip_Thrust',
+  him_lB_legext: 'Leg_Extensions', him_lB_legcurl: 'Seated_Leg_Curl',
+  him_lB_calf: 'Standing_Calf_Raises', him_lB_crunch: 'Cable_Crunch',
+  // Alison — Upper B
+  him_uB_incline: 'Incline_Dumbbell_Press', him_uB_pullup: 'Pullups',
+  him_uB_row: 'Seated_Cable_Rows', him_uB_lat: 'Side_Lateral_Raise',
+  him_uB_curl: 'EZ-Bar_Curl', him_uB_triext: 'Cable_Rope_Overhead_Triceps_Extension',
+  // Hyrox — real matches, else null (no wrong picture)
+  hx_c_push: 'Sled_Push', hx_c_pull: 'Sled_Row', hx_c_row: 'Rowing_Stationary',
+  hx_c_carry: 'Farmers_Walk', hx_c_lunge: 'Dumbbell_Lunges',
+  hx_c_ski: null, hx_c_bbj: null, hx_c_wb: null,
+  hx_wu_jog: null, hx_wu_flow: null, hx_wu_primer: null, hx_wu_prep: null,
+  hx_cd_walk: null, hx_cd_couch: null, hx_cd_pigeon: null, hx_cd_lat: null,
+  hx_cd_calf: null, hx_cd_breath: null,
+};
+
 // ============================================================
 // Per-exercise image slot
 // ============================================================
@@ -124,8 +154,15 @@ async function mountImageSlot(ex, db) {
   const overrides = loadOverrides();
   const matches = rankMatches(name, db);
   let chosen = null;
-  if (overrides[exId]) chosen = db.find((d) => d.id === overrides[exId]) || null;
-  if (!chosen) chosen = matches[0] || null;
+  let curated = false;
+  if (overrides[exId]) {
+    chosen = db.find((d) => d.id === overrides[exId]) || null;
+  } else if (Object.prototype.hasOwnProperty.call(CURATED, exId)) {
+    curated = true; // trust the curated pick (id or intentional null) — no fuzzy fallback
+    const cid = CURATED[exId];
+    chosen = cid ? (db.find((d) => d.id === cid) || null) : null;
+  }
+  if (!chosen && !curated) chosen = matches[0] || null;
 
   paintSlot(slot, chosen, name);
 

@@ -4285,3 +4285,48 @@ body.auth-page {
   background: var(--card-2); color: var(--text); font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer;
 }
 .race-rest-ctrls #race-rest-go { background: var(--gym-accent); color: #fff; border-color: var(--gym-accent); }
+
+/* ---- Race sim: RPG level badge + records panel ---- */
+.race-coin-badge { flex-direction: column; gap: 0; line-height: 1; }
+.race-coin-emoji { font-size: 22px; }
+.race-coin-lvl { font-size: 10px; font-weight: 800; color: #fff; margin-top: 1px; }
+.race-coin-best { color: var(--muted); font-weight: 600; font-size: 12px; }
+.race-coin-next { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.race-coin-title { color: var(--muted-strong); }
+.race-coin-title b { color: var(--gym-accent); }
+
+.race-records {
+  margin: 0 0 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.race-records > summary {
+  list-style: none; cursor: pointer;
+  padding: 12px 14px;
+  font-size: 13px; font-weight: 700; color: var(--text);
+}
+.race-records > summary::-webkit-details-marker { display: none; }
+.race-records > summary::after { content: '▾'; float: right; color: var(--muted); }
+.race-records[open] > summary::after { content: '▴'; }
+.race-records-body { padding: 0 14px 14px; }
+.race-records-fin { font-size: 12px; color: var(--muted-strong); margin-bottom: 10px; }
+.race-records-fin b { color: var(--gym-accent); }
+.race-rec-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.race-rec-table th {
+  text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 0.4px;
+  color: var(--muted); font-weight: 700; padding: 4px 6px; border-bottom: 1px solid var(--border);
+}
+.race-rec-table th:nth-child(n+2), .race-rec-table td:nth-child(n+2) { text-align: right; }
+.race-rec-table td { font-size: 12px; color: var(--text); padding: 5px 6px; border-bottom: 1px solid var(--border-2); }
+.race-rec-table .rec-best { font-weight: 700; }
+.race-rec-table .rec-tgt { color: var(--muted); }
+.race-rec-table .rec-good { color: var(--success); font-weight: 700; }
+.race-rec-table .rec-over { color: var(--danger); font-weight: 700; }
+.race-rec-xp-head { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--muted); font-weight: 700; margin: 12px 0 4px; }
+.race-rec-xp { list-style: none; margin: 0; padding: 0; }
+.race-rec-xp li { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; color: var(--muted-strong); }
+.race-rec-xp li b { color: var(--gym-accent); }
+.race-rec-xp .rec-empty { color: var(--muted); justify-content: flex-start; }

@@ -28,54 +28,61 @@
 // bench = target split to chase (ms). img = free-exercise-db id or null (emoji).
 // subs = 3 options for the ▾ Swap menu (first is the working default).
 // ============================================================
+// bike "run sub" = MATCH the ~1 km run effort, not the distance. A 1 km bike is
+// far too easy — a 1 km run is ~4–5 min hard, so the bike is a ~4–5 min hard
+// effort (~2.5–3 km), benchmarked near the run split.
+const BIKE_TARGET = '≈ 1 km run · ~4–5 min hard';
+const BIKE_BENCH  = 285000; // 4:45 — matched to a 1 km run, not a 1 km ride
+const BIKE_SUBS   = ['Bike ~4–5 min hard (~2.5–3 km)', 'Row 1 km hard', 'Treadmill 1 km if free'];
+
 const SEGMENTS = [
   { id: 'run1', kind: 'run', icon: '🏃', name: 'Run 1 · 1 km', target: '1 km run', bench: 360000,
-    sub: 'Treadmill — steady & controlled, this is the easy one.', img: null,
-    subs: ['Treadmill 1 km', 'Outdoor 1 km', 'Bike ~1 km hard'], video: 'treadmill+running+form' },
+    sub: 'Treadmill — steady & controlled, this is the easy one.', img: 'Running_Treadmill',
+    subs: ['Treadmill 1 km', 'Outdoor 1 km', 'Bike ~4–5 min hard'], video: 'treadmill+running+form' },
   { id: 'ski', kind: 'station', icon: '🎿', name: 'SkiErg', num: 1, target: '1000 m', bench: 300000,
-    sub: 'Drive from the hips, not just arms. 400 m was easy — hold pace to 1 km.', img: null,
+    sub: 'Drive from the hips, not just arms. 400 m was easy — hold pace to 1 km.', img: 'Straight-Arm_Pulldown',
     subs: ['SkiErg 1000 m', 'Row 1000 m (if ski busy)', 'Banded lat pulldowns ×60 hard'], video: 'skierg+technique+hyrox' },
   { id: 'run2', kind: 'run', icon: '🏃', name: 'Run 2 · 1 km', target: '1 km run', bench: 360000,
-    sub: 'Treadmill again (Ski + Row are by the treadmill).', img: null,
-    subs: ['Treadmill 1 km', 'Outdoor 1 km', 'Bike ~1 km hard'], video: 'treadmill+running+form' },
+    sub: 'Treadmill again (Ski + Row are by the treadmill).', img: 'Running_Treadmill',
+    subs: ['Treadmill 1 km', 'Outdoor 1 km', 'Bike ~4–5 min hard'], video: 'treadmill+running+form' },
   { id: 'row', kind: 'station', icon: '🚣', name: 'RowErg', num: 2, target: '1000 m', bench: 270000,
     sub: 'Legs–core–arms order. Long, strong strokes; don’t yank early.', img: 'Rowing_Stationary',
     subs: ['RowErg 1000 m', 'SkiErg 1000 m', 'Bike 2 km hard'], video: 'rowerg+technique+hyrox' },
-  { id: 'bike3', kind: 'bike', icon: '🚴', name: 'Bike 3 · run sub', target: '≈ 1 km run effort', bench: 150000,
-    sub: 'Other room from here → bike replaces every run. ~90 sec hard.', img: null,
-    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'bike3', kind: 'bike', icon: '🚴', name: 'Bike 3 · run sub', target: BIKE_TARGET, bench: BIKE_BENCH,
+    sub: 'Other room from here → the bike replaces every run. Go hard ~4–5 min — a 1 km ride is too easy for a 1 km run.', img: 'Bicycling_Stationary',
+    subs: BIKE_SUBS, video: 'assault+bike+intervals' },
   { id: 'push', kind: 'station', icon: '🛷', name: 'Sled Push', num: 3, target: '50 m · ~152 kg (race)', bench: 120000,
     sub: 'YMCA has no sled → heavy DB/KB suitcase march 50 m, or a leg-press burnout.', img: 'Sled_Push',
     subs: ['Heavy DB/KB suitcase march 50 m', 'Leg-press burnout ×20–30', 'Prowler / hack-squat if free'], video: 'hyrox+sled+push+technique' },
-  { id: 'bike4', kind: 'bike', icon: '🚴', name: 'Bike 4 · run sub', target: '≈ 1 km run effort', bench: 150000,
-    sub: '~90 sec hard.', img: null,
-    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'bike4', kind: 'bike', icon: '🚴', name: 'Bike 4 · run sub', target: BIKE_TARGET, bench: BIKE_BENCH,
+    sub: 'Hard 4–5 min effort — match a 1 km run, not 1 km on the bike.', img: 'Bicycling_Stationary',
+    subs: BIKE_SUBS, video: 'assault+bike+intervals' },
   { id: 'pull', kind: 'station', icon: '🪝', name: 'Sled Pull', num: 4, target: '50 m · ~103 kg (race)', bench: 120000,
     sub: 'No sled → hard seated cable rows / heavy DB bent rows, hand-over-hand tempo.', img: 'Sled_Row',
     subs: ['Seated cable row, hand-over-hand', 'Heavy DB bent row ×50', 'Ring / TRX row ×50'], video: 'hyrox+sled+pull+technique' },
-  { id: 'bike5', kind: 'bike', icon: '🚴', name: 'Bike 5 · run sub', target: '≈ 1 km run effort', bench: 150000,
-    sub: '~90 sec hard.', img: null,
-    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'bike5', kind: 'bike', icon: '🚴', name: 'Bike 5 · run sub', target: BIKE_TARGET, bench: BIKE_BENCH,
+    sub: 'Hard 4–5 min effort — match a 1 km run, not 1 km on the bike.', img: 'Bicycling_Stationary',
+    subs: BIKE_SUBS, video: 'assault+bike+intervals' },
   { id: 'bbj', kind: 'station', icon: '🤸', name: 'Burpee Broad Jumps', num: 5, target: '80 m', bench: 270000,
-    sub: '⚠️ Brace the lower back · control every landing (ankle). ~15–18 reps ≈ 80 m.', img: null,
+    sub: '⚠️ Brace the lower back · control every landing (ankle). ~15–18 reps ≈ 80 m.', img: 'Freehand_Jump_Squat',
     subs: ['Burpee broad jumps 80 m', 'Burpee + step forward (ankle-safe)', 'Squat-thrust + broad step 80 m'], video: 'burpee+broad+jump+form' },
-  { id: 'bike6', kind: 'bike', icon: '🚴', name: 'Bike 6 · run sub', target: '≈ 1 km run effort', bench: 150000,
-    sub: '~90 sec hard.', img: null,
-    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'bike6', kind: 'bike', icon: '🚴', name: 'Bike 6 · run sub', target: BIKE_TARGET, bench: BIKE_BENCH,
+    sub: 'Hard 4–5 min effort — match a 1 km run, not 1 km on the bike.', img: 'Bicycling_Stationary',
+    subs: BIKE_SUBS, video: 'assault+bike+intervals' },
   { id: 'carry', kind: 'station', icon: '🧳', name: 'Farmers Carry', num: 6, target: '200 m · 2 × 24 kg (race)', bench: 150000,
     sub: 'Heaviest DBs you can grip — tall chest, brace, don’t shrug.', img: 'Farmers_Walk',
     subs: ['Farmers carry, heaviest DBs 200 m', 'KB rack carry 200 m', 'Trap-bar hold walk 200 m'], video: 'farmers+carry+technique' },
-  { id: 'bike7', kind: 'bike', icon: '🚴', name: 'Bike 7 · run sub', target: '≈ 1 km run effort', bench: 150000,
-    sub: '~90 sec hard.', img: null,
-    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'bike7', kind: 'bike', icon: '🚴', name: 'Bike 7 · run sub', target: BIKE_TARGET, bench: BIKE_BENCH,
+    sub: 'Hard 4–5 min effort — match a 1 km run, not 1 km on the bike.', img: 'Bicycling_Stationary',
+    subs: BIKE_SUBS, video: 'assault+bike+intervals' },
   { id: 'lunge', kind: 'station', icon: '🦵', name: 'Sandbag Lunges', num: 7, target: '100 m · 20 kg (race)', bench: 270000,
     sub: 'No sandbags → DB/KB goblet reverse lunges, 100 m. Brace + control the ankle.', img: 'Dumbbell_Lunges',
     subs: ['DB/KB goblet reverse lunge 100 m', 'Walking lunge (bodyweight) 100 m', 'Split squats ×20 / leg'], video: 'goblet+reverse+lunge+form' },
-  { id: 'bike8', kind: 'bike', icon: '🚴', name: 'Bike 8 · run sub', target: '≈ 1 km run effort', bench: 150000,
-    sub: 'Last one — empty the tank.', img: null,
-    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'bike8', kind: 'bike', icon: '🚴', name: 'Bike 8 · run sub', target: BIKE_TARGET, bench: BIKE_BENCH,
+    sub: 'Last one — empty the tank. Hard 4–5 min.', img: 'Bicycling_Stationary',
+    subs: BIKE_SUBS, video: 'assault+bike+intervals' },
   { id: 'wb', kind: 'station', icon: '🏐', name: 'Wall Balls', num: 8, target: '100 reps · 6 kg to 3 m', bench: 330000,
-    sub: 'Can’t use the wall → med-ball throw-ups / DB thrusters × 100. Full squat, full extension.', img: null,
+    sub: 'Can’t use the wall → med-ball throw-ups / DB thrusters × 100. Full squat, full extension.', img: 'Medicine_Ball_Scoop_Throw',
     subs: ['Med-ball throw-ups ×100', 'DB thrusters ×100', 'Wall balls ×100 (if wall free)'], video: 'wall+ball+shot+form' },
 ];
 
@@ -96,6 +103,7 @@ const LOG_KEY   = 'rtc_hyrox_log_v1';
 const SWAPS_KEY = 'rtc_hyrox_swaps_v1';
 const PB_KEY    = 'rtc_hyrox_pb_v1';
 const SEGPB_KEY = 'rtc_hyrox_segpb_v1';
+const XP_KEY    = 'rtc_hyrox_xp_v1';
 
 // free-exercise-db (shared cache with gym-extras)
 const DB_URL       = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
@@ -126,6 +134,8 @@ const log   = loadJSON(LOG_KEY, {});     // { segId: {d,w,r} }
 const swaps = loadJSON(SWAPS_KEY, {});   // { segId: index }
 let pb      = loadJSON(PB_KEY, null);     // { ms, date }
 const segPb = loadJSON(SEGPB_KEY, {});   // { segId: ms }
+// RPG progress: XP only ever climbs. { xp, prs, log:[{date,label,pts}] }
+const xpState = loadJSON(XP_KEY, { xp: 0, prs: 0, log: [] });
 
 function persistSim() { saveJSON(SIM_KEY, sim); }
 
@@ -166,8 +176,31 @@ function currentSegMs() {
 }
 
 // ============================================================
-// Rank + XP
+// Rank (title, from finish time) + Hero Level (from cumulative XP)
 // ============================================================
+// XP to REACH level L = 50 * (L-1) * L  → 0,100,300,600,1000,1500,2100…
+function levelStartXp(L) { return 50 * (L - 1) * L; }
+function levelInfo() {
+  const xp = xpState.xp || 0;
+  let L = 1;
+  while (levelStartXp(L + 1) <= xp) L++;
+  const start = levelStartXp(L);
+  const next = levelStartXp(L + 1);
+  const inLevel = xp - start;
+  const span = next - start;
+  return { level: L, xp, inLevel, span, pct: Math.round((inLevel / span) * 100), toNext: next - xp };
+}
+function addXp(pts, label) {
+  const before = levelInfo().level;
+  xpState.xp = (xpState.xp || 0) + pts;
+  xpState.prs = (xpState.prs || 0) + 1;
+  (xpState.log = xpState.log || []).unshift({ date: todayStr(), label, pts });
+  if (xpState.log.length > 40) xpState.log.length = 40;
+  saveJSON(XP_KEY, xpState);
+  const after = levelInfo().level;
+  toast(after > before ? `⚡ LEVEL ${after}! ${label} +${pts} XP` : `＋${pts} XP · ${label}`);
+}
+
 function rankInfo() {
   const best = pb ? pb.ms : null;
   if (best == null) {
@@ -225,18 +258,53 @@ function esc(s) {
 
 function coinHTML() {
   const r = rankInfo();
+  const L = levelInfo();
   return `
     <div class="race-coin">
-      <div class="race-coin-badge">${r.cur.emoji}</div>
+      <div class="race-coin-badge">
+        <span class="race-coin-emoji">${r.cur.emoji}</span>
+        <span class="race-coin-lvl">L${L.level}</span>
+      </div>
       <div class="race-coin-main">
-        <div class="race-coin-rank">${r.cur.name}${pb ? ` · best ${fmtClock(pb.ms)}` : ''}</div>
-        <div class="race-coin-bar"><div class="race-coin-fill" style="width:${r.pct}%"></div></div>
-        <div class="race-coin-next">${
-          r.rookie ? `Finish a full race to rank up · ${r.pct}% there`
-          : r.next ? `${r.pct}% to <b>${r.next.name}</b> (${fmtClock(r.next.ms)})`
-          : 'Top rank — chase the world record 🏆'}</div>
+        <div class="race-coin-rank">Level ${L.level} · ${r.cur.name}${pb ? ` <span class="race-coin-best">· best ${fmtClock(pb.ms)}</span>` : ''}</div>
+        <div class="race-coin-bar"><div class="race-coin-fill" style="width:${L.pct}%"></div></div>
+        <div class="race-coin-next">
+          <span>${L.inLevel} / ${L.span} XP → Lvl ${L.level + 1}</span>
+          <span class="race-coin-title">${
+            r.rookie ? 'Finish a race for your first title'
+            : r.next ? `Next: <b>${r.next.name}</b> @ ${fmtClock(r.next.ms)}`
+            : 'Top title · Elite 🏆'}</span>
+        </div>
       </div>
     </div>`;
+}
+
+function recordsHTML() {
+  const rows = SEGMENTS.map((s) => {
+    const b = segPb[s.id];
+    const delta = b != null ? b - s.bench : null;
+    return `<tr>
+      <td>${esc(s.name)}</td>
+      <td class="rec-best">${b != null ? fmtClock(b) : '—'}</td>
+      <td class="rec-tgt">${fmtClock(s.bench)}</td>
+      <td class="${delta == null ? '' : delta <= 0 ? 'rec-good' : 'rec-over'}">${b != null ? (delta <= 0 ? '−' : '+') + fmtClock(Math.abs(delta)) : ''}</td>
+    </tr>`;
+  }).join('');
+  const recent = (xpState.log || []).slice(0, 6).map((e) =>
+    `<li><span>${esc(e.label)}</span><b>+${e.pts}</b></li>`).join('') || '<li class="rec-empty">Set your first record to start earning XP.</li>';
+  return `
+    <details class="race-records">
+      <summary>🏅 Records &amp; progress · ${xpState.prs || 0} PRs · ${xpState.xp || 0} XP</summary>
+      <div class="race-records-body">
+        <div class="race-records-fin">${pb ? `Best finish <b>${fmtClock(pb.ms)}</b> · ${esc(pb.date)}` : 'No full race finished yet — complete all 16 to log your first finish.'}</div>
+        <table class="race-rec-table">
+          <thead><tr><th>Station</th><th>Best</th><th>Target</th><th>Δ</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <div class="race-rec-xp-head">Recent XP</div>
+        <ul class="race-rec-xp">${recent}</ul>
+      </div>
+    </details>`;
 }
 
 function imgSlotHTML(seg) {
@@ -329,6 +397,8 @@ function render() {
       <div class="race-finish-banner" id="race-finish-banner"></div>
     </div>
 
+    ${recordsHTML()}
+
     <div class="race-howto">
       Tap <b>Start</b>, then <b>Split</b> as you finish each run &amp; station — it stamps the segment time and
       compares it to the target. Log Distance / Weight / Reps to scale up week to week. <b>Beginner tip:</b> take
@@ -412,7 +482,13 @@ function logSplit(segId) {
     if (!sim.running && sim.accumMs === 0) { sim.running = true; sim.lastStart = Date.now(); startTick(); requestWake(); }
     sim.splits[segId] = elapsedMs();
     const st = segTime(segId);
-    if (st != null && (segPb[segId] == null || st < segPb[segId])) { segPb[segId] = st; saveJSON(SEGPB_KEY, segPb); }
+    if (st != null && (segPb[segId] == null || st < segPb[segId])) {
+      const first = segPb[segId] == null;
+      segPb[segId] = st; saveJSON(SEGPB_KEY, segPb);
+      const seg = SEGMENTS.find((s) => s.id === segId);
+      addXp(first ? 25 : 40, `${seg ? seg.name : 'Station'} ${first ? 'logged' : 'PB!'}`);
+    }
+    if (finishMs() != null && !sim.finBonus) { sim.finBonus = true; addXp(80, 'Race complete'); }
   }
   persistSim();
   maybeSetPB();
@@ -422,7 +498,11 @@ function logSplit(segId) {
 function maybeSetPB() {
   const total = finishMs();
   if (total == null) return;
-  if (!pb || total < pb.ms) { pb = { ms: total, date: todayStr() }; saveJSON(PB_KEY, pb); }
+  if (!pb || total < pb.ms) {
+    const first = !pb;
+    pb = { ms: total, date: todayStr() }; saveJSON(PB_KEY, pb);
+    addXp(150, first ? 'First finish!' : 'Finish PB!');
+  }
 }
 
 // ============================================================

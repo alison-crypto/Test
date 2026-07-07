@@ -1,84 +1,106 @@
-// hyrox.js — HYROX race simulator.
+// hyrox.js — HYROX race simulator (gym-card format + timer, splits, ranks).
 //
 // A full race is 8 × 1 km runs interleaved with 8 functional stations. This
-// page runs that simulation the way Alison's YMCA actually allows it:
-//   • SkiErg + RowErg sit by the treadmill, so those two go first with REAL runs.
-//   • The rest of the stations are in the next room, so their "runs" are done on
-//     the bike instead (same ~1 km / ~90 sec hard effort).
-//   • The Y has no sled, no wall-ball wall and no sandbags, so those stations show
-//     the real race target PLUS the working substitute he can actually do there.
+// page runs that simulation the way Alison's YMCA allows it: SkiErg + RowErg
+// first with REAL treadmill runs (those machines sit by the treadmill), then
+// every other station in the next room with the bike standing in for the run.
+// Kit the Y doesn't have (sled, wall, sandbags) shows the real race target plus
+// the working substitute — and every station has a ▾ Swap with 3 options.
 //
-// Each segment shows the true competition rep/distance, a box to log what he
-// actually did that day (so he can scale up week to week), and a split button.
-// A total timer runs up top; every split records the segment time + cumulative.
-// A goal ladder (first-timer → elite/pro → world-record) tracks the finish time.
+// Each card keeps the gym look: an exercise image, a Swap menu, and Distance /
+// Weight / Reps inputs. On top of that: a sticky total stopwatch, a Split button
+// that records each segment's time, a benchmark/record comparison per station,
+// and a rank "coin" (Rookie → Elite) whose XP bar fills as the finish time drops.
+//
+// The stopwatch is anchored to real wall-clock timestamps, so leaving/locking
+// the screen never loses time — it recomputes on return. A Wake Lock keeps the
+// screen awake during a race.
 //
 // Storage keys:
 //   rtc_hyrox_sim_v1      — live attempt { date, running, accumMs, lastStart, splits{} }
-//   rtc_hyrox_actuals_v1  — { segId: text } persisted across attempts (last-time log)
-//   rtc_hyrox_pb_v1       — { ms, date } personal best finish time
+//   rtc_hyrox_log_v1      — { segId:{d,w,r} } structured log, kept across sessions
+//   rtc_hyrox_swaps_v1    — { segId: optionIndex } chosen swap
+//   rtc_hyrox_pb_v1       — { ms, date } best finish time
+//   rtc_hyrox_segpb_v1    — { segId: ms } best split per segment
 
 // ============================================================
-// Race definition — 16 segments, in the order he'll do them
+// Race definition — 16 segments, in the order he'll do them.
+// bench = target split to chase (ms). img = free-exercise-db id or null (emoji).
+// subs = 3 options for the ▾ Swap menu (first is the working default).
 // ============================================================
 const SEGMENTS = [
-  { id: 'run1', kind: 'run', icon: '🏃', name: 'Run 1 · 1 km',
-    target: '1 km run', sub: 'Treadmill — steady & controlled, this is the easy one.' },
-  { id: 'ski', kind: 'station', icon: '🎿', name: 'SkiErg', num: 1,
-    target: '1000 m', sub: 'Drive from the hips, not just arms. You said 400 m was easy — hold pace to 1 km.',
-    video: 'skierg+technique+hyrox' },
-  { id: 'run2', kind: 'run', icon: '🏃', name: 'Run 2 · 1 km',
-    target: '1 km run', sub: 'Treadmill again (Ski + Row are by the treadmill).' },
-  { id: 'row', kind: 'station', icon: '🚣', name: 'RowErg', num: 2,
-    target: '1000 m', sub: 'Legs–core–arms order. Long, strong strokes; don’t yank early.',
-    video: 'rowerg+technique+hyrox' },
-  { id: 'bike3', kind: 'bike', icon: '🚴', name: 'Bike 3 · run sub',
-    target: '≈ 1 km run effort', sub: 'Other room from here → bike replaces every run. ~90 sec hard.' },
-  { id: 'push', kind: 'station', icon: '🛷', name: 'Sled Push', num: 3,
-    target: '50 m · ~152 kg (race)', sub: 'YMCA has no sled → heavy DB/KB suitcase march 50 m, or a leg-press burnout.',
-    video: 'hyrox+sled+push+technique' },
-  { id: 'bike4', kind: 'bike', icon: '🚴', name: 'Bike 4 · run sub',
-    target: '≈ 1 km run effort', sub: '~90 sec hard.' },
-  { id: 'pull', kind: 'station', icon: '🪝', name: 'Sled Pull', num: 4,
-    target: '50 m · ~103 kg (race)', sub: 'No sled → hard seated cable rows / heavy DB bent-over rows, hand-over-hand tempo.',
-    video: 'hyrox+sled+pull+technique' },
-  { id: 'bike5', kind: 'bike', icon: '🚴', name: 'Bike 5 · run sub',
-    target: '≈ 1 km run effort', sub: '~90 sec hard.' },
-  { id: 'bbj', kind: 'station', icon: '🤸', name: 'Burpee Broad Jumps', num: 5,
-    target: '80 m', sub: '⚠️ Brace the lower back · control every landing (ankle). ~15–18 reps ≈ 80 m.',
-    video: 'burpee+broad+jump+form' },
-  { id: 'bike6', kind: 'bike', icon: '🚴', name: 'Bike 6 · run sub',
-    target: '≈ 1 km run effort', sub: '~90 sec hard.' },
-  { id: 'carry', kind: 'station', icon: '🧳', name: 'Farmers Carry', num: 6,
-    target: '200 m · 2 × 24 kg (race)', sub: 'Heaviest DBs you can grip — tall chest, brace, don’t shrug.',
-    video: 'farmers+carry+technique' },
-  { id: 'bike7', kind: 'bike', icon: '🚴', name: 'Bike 7 · run sub',
-    target: '≈ 1 km run effort', sub: '~90 sec hard.' },
-  { id: 'lunge', kind: 'station', icon: '🦵', name: 'Sandbag Lunges', num: 7,
-    target: '100 m · 20 kg (race)', sub: 'No sandbags → DB/KB goblet reverse lunges, 100 m. Brace + control the ankle.',
-    video: 'goblet+reverse+lunge+form' },
-  { id: 'bike8', kind: 'bike', icon: '🚴', name: 'Bike 8 · run sub',
-    target: '≈ 1 km run effort', sub: 'Last one — empty the tank.' },
-  { id: 'wb', kind: 'station', icon: '🏐', name: 'Wall Balls', num: 8,
-    target: '100 reps · 6 kg to 3 m', sub: 'Can’t use the wall → med-ball throw-ups / DB thrusters × 100. Full squat, full extension.',
-    video: 'wall+ball+shot+form' },
+  { id: 'run1', kind: 'run', icon: '🏃', name: 'Run 1 · 1 km', target: '1 km run', bench: 360000,
+    sub: 'Treadmill — steady & controlled, this is the easy one.', img: null,
+    subs: ['Treadmill 1 km', 'Outdoor 1 km', 'Bike ~1 km hard'], video: 'treadmill+running+form' },
+  { id: 'ski', kind: 'station', icon: '🎿', name: 'SkiErg', num: 1, target: '1000 m', bench: 300000,
+    sub: 'Drive from the hips, not just arms. 400 m was easy — hold pace to 1 km.', img: null,
+    subs: ['SkiErg 1000 m', 'Row 1000 m (if ski busy)', 'Banded lat pulldowns ×60 hard'], video: 'skierg+technique+hyrox' },
+  { id: 'run2', kind: 'run', icon: '🏃', name: 'Run 2 · 1 km', target: '1 km run', bench: 360000,
+    sub: 'Treadmill again (Ski + Row are by the treadmill).', img: null,
+    subs: ['Treadmill 1 km', 'Outdoor 1 km', 'Bike ~1 km hard'], video: 'treadmill+running+form' },
+  { id: 'row', kind: 'station', icon: '🚣', name: 'RowErg', num: 2, target: '1000 m', bench: 270000,
+    sub: 'Legs–core–arms order. Long, strong strokes; don’t yank early.', img: 'Rowing_Stationary',
+    subs: ['RowErg 1000 m', 'SkiErg 1000 m', 'Bike 2 km hard'], video: 'rowerg+technique+hyrox' },
+  { id: 'bike3', kind: 'bike', icon: '🚴', name: 'Bike 3 · run sub', target: '≈ 1 km run effort', bench: 150000,
+    sub: 'Other room from here → bike replaces every run. ~90 sec hard.', img: null,
+    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'push', kind: 'station', icon: '🛷', name: 'Sled Push', num: 3, target: '50 m · ~152 kg (race)', bench: 120000,
+    sub: 'YMCA has no sled → heavy DB/KB suitcase march 50 m, or a leg-press burnout.', img: 'Sled_Push',
+    subs: ['Heavy DB/KB suitcase march 50 m', 'Leg-press burnout ×20–30', 'Prowler / hack-squat if free'], video: 'hyrox+sled+push+technique' },
+  { id: 'bike4', kind: 'bike', icon: '🚴', name: 'Bike 4 · run sub', target: '≈ 1 km run effort', bench: 150000,
+    sub: '~90 sec hard.', img: null,
+    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'pull', kind: 'station', icon: '🪝', name: 'Sled Pull', num: 4, target: '50 m · ~103 kg (race)', bench: 120000,
+    sub: 'No sled → hard seated cable rows / heavy DB bent rows, hand-over-hand tempo.', img: 'Sled_Row',
+    subs: ['Seated cable row, hand-over-hand', 'Heavy DB bent row ×50', 'Ring / TRX row ×50'], video: 'hyrox+sled+pull+technique' },
+  { id: 'bike5', kind: 'bike', icon: '🚴', name: 'Bike 5 · run sub', target: '≈ 1 km run effort', bench: 150000,
+    sub: '~90 sec hard.', img: null,
+    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'bbj', kind: 'station', icon: '🤸', name: 'Burpee Broad Jumps', num: 5, target: '80 m', bench: 270000,
+    sub: '⚠️ Brace the lower back · control every landing (ankle). ~15–18 reps ≈ 80 m.', img: null,
+    subs: ['Burpee broad jumps 80 m', 'Burpee + step forward (ankle-safe)', 'Squat-thrust + broad step 80 m'], video: 'burpee+broad+jump+form' },
+  { id: 'bike6', kind: 'bike', icon: '🚴', name: 'Bike 6 · run sub', target: '≈ 1 km run effort', bench: 150000,
+    sub: '~90 sec hard.', img: null,
+    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'carry', kind: 'station', icon: '🧳', name: 'Farmers Carry', num: 6, target: '200 m · 2 × 24 kg (race)', bench: 150000,
+    sub: 'Heaviest DBs you can grip — tall chest, brace, don’t shrug.', img: 'Farmers_Walk',
+    subs: ['Farmers carry, heaviest DBs 200 m', 'KB rack carry 200 m', 'Trap-bar hold walk 200 m'], video: 'farmers+carry+technique' },
+  { id: 'bike7', kind: 'bike', icon: '🚴', name: 'Bike 7 · run sub', target: '≈ 1 km run effort', bench: 150000,
+    sub: '~90 sec hard.', img: null,
+    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'lunge', kind: 'station', icon: '🦵', name: 'Sandbag Lunges', num: 7, target: '100 m · 20 kg (race)', bench: 270000,
+    sub: 'No sandbags → DB/KB goblet reverse lunges, 100 m. Brace + control the ankle.', img: 'Dumbbell_Lunges',
+    subs: ['DB/KB goblet reverse lunge 100 m', 'Walking lunge (bodyweight) 100 m', 'Split squats ×20 / leg'], video: 'goblet+reverse+lunge+form' },
+  { id: 'bike8', kind: 'bike', icon: '🚴', name: 'Bike 8 · run sub', target: '≈ 1 km run effort', bench: 150000,
+    sub: 'Last one — empty the tank.', img: null,
+    subs: ['Bike ~1 km hard', 'Treadmill 1 km', 'Row 1 km'], video: 'assault+bike+intervals' },
+  { id: 'wb', kind: 'station', icon: '🏐', name: 'Wall Balls', num: 8, target: '100 reps · 6 kg to 3 m', bench: 330000,
+    sub: 'Can’t use the wall → med-ball throw-ups / DB thrusters × 100. Full squat, full extension.', img: null,
+    subs: ['Med-ball throw-ups ×100', 'DB thrusters ×100', 'Wall balls ×100 (if wall free)'], video: 'wall+ball+shot+form' },
 ];
 
-// Goal ladder — whole-race finish times. Anchors from real HYROX (Men, Open):
-// average first-timers land ~1:30–1:45; strong amateurs ~1:10–1:15; the elite
-// men's benchmark sits around 0:54. Beat a tier → it lights up.
-const LADDER = [
-  { key: 'firsttimer', label: 'First-timer · just finish', emoji: '🐣', ms: 105 * 60000 },
-  { key: 'finisher',   label: 'Solid finisher',           emoji: '🟢', ms: 90 * 60000 },
-  { key: 'intermed',   label: 'Intermediate',             emoji: '🔵', ms: 75 * 60000 },
-  { key: 'advanced',   label: 'Advanced',                 emoji: '🟣', ms: 65 * 60000 },
-  { key: 'elite',      label: 'Elite / Pro',              emoji: '🟠', ms: 58 * 60000 },
-  { key: 'wr',         label: 'World-record benchmark',   emoji: '🏆', ms: 54 * 60000 },
+// Rank ladder — finish-time gates (Men's Open). Any completed race = Beginner;
+// no finish yet = Rookie. Rank = fastest gate your best finish clears.
+const RANKS = [
+  { key: 'rookie',   name: 'Rookie',       emoji: '🥚', ms: Infinity },
+  { key: 'beginner', name: 'Beginner',     emoji: '🐣', ms: 105 * 60000 },
+  { key: 'rising',   name: 'Intermediate', emoji: '🔵', ms: 90 * 60000 },
+  { key: 'advanced', name: 'Advanced',     emoji: '🟣', ms: 75 * 60000 },
+  { key: 'expert',   name: 'Expert',       emoji: '🟠', ms: 65 * 60000 },
+  { key: 'pro',      name: 'Pro',          emoji: '🔥', ms: 58 * 60000 },
+  { key: 'elite',    name: 'Elite',        emoji: '🏆', ms: 54 * 60000 },
 ];
 
-const SIM_KEY     = 'rtc_hyrox_sim_v1';
-const ACTUALS_KEY = 'rtc_hyrox_actuals_v1';
-const PB_KEY      = 'rtc_hyrox_pb_v1';
+const SIM_KEY   = 'rtc_hyrox_sim_v1';
+const LOG_KEY   = 'rtc_hyrox_log_v1';
+const SWAPS_KEY = 'rtc_hyrox_swaps_v1';
+const PB_KEY    = 'rtc_hyrox_pb_v1';
+const SEGPB_KEY = 'rtc_hyrox_segpb_v1';
+
+// free-exercise-db (shared cache with gym-extras)
+const DB_URL       = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
+const IMG_BASE_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
+const DB_CACHE_KEY = 'rtc_exercise_db_v1';
 
 // ============================================================
 // Storage helpers
@@ -100,8 +122,10 @@ if (!sim || sim.date !== todayStr()) {
   sim = { date: todayStr(), running: false, accumMs: 0, lastStart: null, splits: {} };
   saveJSON(SIM_KEY, sim);
 }
-const actuals = loadJSON(ACTUALS_KEY, {});
-const pb = loadJSON(PB_KEY, null);
+const log   = loadJSON(LOG_KEY, {});     // { segId: {d,w,r} }
+const swaps = loadJSON(SWAPS_KEY, {});   // { segId: index }
+let pb      = loadJSON(PB_KEY, null);     // { ms, date }
+const segPb = loadJSON(SEGPB_KEY, {});   // { segId: ms }
 
 function persistSim() { saveJSON(SIM_KEY, sim); }
 
@@ -111,18 +135,12 @@ function persistSim() { saveJSON(SIM_KEY, sim); }
 function pad(n) { return String(n).padStart(2, '0'); }
 function fmtClock(ms) {
   const s = Math.floor(Math.max(0, ms) / 1000);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
   return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`;
 }
-
 function elapsedMs() {
   return sim.accumMs + (sim.running && sim.lastStart ? Date.now() - sim.lastStart : 0);
 }
-
-// Cumulative time recorded at each *completed* segment, walked in race order,
-// so a segment's own split = its cum minus the previous completed segment's cum.
 function prevCum(segId) {
   const idx = SEGMENTS.findIndex((s) => s.id === segId);
   for (let i = idx - 1; i >= 0; i--) {
@@ -131,130 +149,193 @@ function prevCum(segId) {
   }
   return 0;
 }
+function segTime(segId) {
+  const cum = sim.splits[segId];
+  return cum == null ? null : cum - prevCum(segId);
+}
 function doneCount() { return Object.keys(sim.splits).length; }
 function finishMs() {
-  // Total = the latest cumulative split once every segment is logged.
   if (doneCount() < SEGMENTS.length) return null;
   return Math.max(...SEGMENTS.map((s) => sim.splits[s.id] || 0));
+}
+// live time on the segment in progress = elapsed minus the last recorded split
+function currentSegMs() {
+  const cums = Object.values(sim.splits);
+  const last = cums.length ? Math.max(...cums) : 0;
+  return Math.max(0, elapsedMs() - last);
+}
+
+// ============================================================
+// Rank + XP
+// ============================================================
+function rankInfo() {
+  const best = pb ? pb.ms : null;
+  if (best == null) {
+    // Rookie: XP = how far through your first full race you've gotten.
+    const pct = Math.round((doneCount() / SEGMENTS.length) * 100);
+    return { cur: RANKS[0], next: RANKS[1], pct, rookie: true };
+  }
+  // highest rank whose gate the best finish clears (skip Rookie/Infinity)
+  let idx = 1;
+  for (let i = RANKS.length - 1; i >= 1; i--) {
+    if (best <= RANKS[i].ms) { idx = i; break; }
+  }
+  const cur = RANKS[idx];
+  const next = RANKS[idx + 1] || null;
+  let pct = 100;
+  if (next) {
+    // progress in TIME from this gate down to the next (faster) gate
+    const span = cur.ms - next.ms;
+    pct = span > 0 ? Math.round(Math.min(1, Math.max(0, (cur.ms - best) / span)) * 100) : 0;
+  }
+  return { cur, next, pct, rookie: false };
+}
+
+// ============================================================
+// Image DB (best-effort; emoji fallback if offline)
+// ============================================================
+let imgDb = null;
+async function loadImageDB() {
+  try {
+    const raw = localStorage.getItem(DB_CACHE_KEY);
+    if (raw) { imgDb = JSON.parse(raw); return; }
+  } catch {}
+  try {
+    const res = await fetch(DB_URL, { cache: 'force-cache' });
+    if (res.ok) {
+      imgDb = await res.json();
+      try { localStorage.setItem(DB_CACHE_KEY, JSON.stringify(imgDb)); } catch {}
+    }
+  } catch { imgDb = null; }
+}
+function imgUrlFor(seg) {
+  if (!seg.img || !imgDb) return null;
+  const ex = imgDb.find((d) => d.id === seg.img);
+  if (!ex || !ex.images || !ex.images.length) return null;
+  return IMG_BASE_URL + ex.images[0];
 }
 
 // ============================================================
 // Render
 // ============================================================
 const root = document.getElementById('race-root');
-
 function esc(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function coinHTML() {
+  const r = rankInfo();
+  return `
+    <div class="race-coin">
+      <div class="race-coin-badge">${r.cur.emoji}</div>
+      <div class="race-coin-main">
+        <div class="race-coin-rank">${r.cur.name}${pb ? ` · best ${fmtClock(pb.ms)}` : ''}</div>
+        <div class="race-coin-bar"><div class="race-coin-fill" style="width:${r.pct}%"></div></div>
+        <div class="race-coin-next">${
+          r.rookie ? `Finish a full race to rank up · ${r.pct}% there`
+          : r.next ? `${r.pct}% to <b>${r.next.name}</b> (${fmtClock(r.next.ms)})`
+          : 'Top rank — chase the world record 🏆'}</div>
+      </div>
+    </div>`;
+}
+
+function imgSlotHTML(seg) {
+  const url = imgUrlFor(seg);
+  return url
+    ? `<div class="race-seg-img has-image"><img src="${esc(url)}" loading="lazy" alt="" /></div>`
+    : `<div class="race-seg-img"><span>${seg.icon}</span>${seg.num ? `<span class="race-seg-num">${seg.num}</span>` : ''}</div>`;
 }
 
 function segCard(seg) {
   const cum = sim.splits[seg.id];
   const done = cum != null;
-  const segMs = done ? cum - prevCum(seg.id) : null;
-  const actual = actuals[seg.id] || '';
-  const video = seg.video
-    ? `<a class="race-seg-demo" href="https://www.youtube.com/results?search_query=${seg.video}" target="_blank" rel="noopener">📹</a>`
-    : '';
-  const splitReadout = done
-    ? `<div class="race-seg-splits">
-         <span class="race-split-seg">${fmtClock(segMs)}</span>
-         <span class="race-split-cum">total ${fmtClock(cum)}</span>
-       </div>`
-    : '';
+  const st = segTime(seg.id);
+  const chosen = swaps[seg.id] || 0;
+  const working = seg.subs[chosen] || seg.subs[0];
+  const entry = log[seg.id] || {};
+  const best = segPb[seg.id];
+
+  const video = `<a class="race-seg-demo" href="https://www.youtube.com/results?search_query=${seg.video}" target="_blank" rel="noopener" title="Demo">📹</a>`;
+
+  // benchmark compare line (shown once a split exists)
+  let compare = '';
+  if (done) {
+    const delta = st - seg.bench;
+    const sign = delta <= 0 ? '−' : '+';
+    const cls = delta <= 0 ? 'good' : 'over';
+    compare = `
+      <div class="race-seg-splits">
+        <span class="race-split-seg">${fmtClock(st)}</span>
+        <span class="race-split-meta">
+          <span class="race-cmp ${cls}">${sign}${fmtClock(Math.abs(delta))} vs target</span>
+          <span class="race-cmp-t">target ${fmtClock(seg.bench)}${best != null ? ` · best ${fmtClock(best)}` : ''}</span>
+          <span class="race-cmp-t">total ${fmtClock(cum)}</span>
+        </span>
+      </div>`;
+  } else {
+    compare = `<div class="race-seg-targetline">🎯 target split ${fmtClock(seg.bench)}${best != null ? ` · your best ${fmtClock(best)}` : ''}</div>`;
+  }
+
   return `
     <div class="race-seg race-seg-${seg.kind} ${done ? 'done' : ''}" data-seg="${seg.id}">
       <div class="race-seg-top">
-        <div class="race-seg-icon">${seg.icon}${seg.num ? `<span class="race-seg-num">${seg.num}</span>` : ''}</div>
+        ${imgSlotHTML(seg)}
         <div class="race-seg-body">
           <div class="race-seg-name">${esc(seg.name)}</div>
           <div class="race-seg-target">${esc(seg.target)}</div>
+          <div class="race-seg-working">▶ ${esc(working)}</div>
           <div class="race-seg-sub">${esc(seg.sub)}</div>
         </div>
-        ${video}
-        <button type="button" class="race-split-btn ${done ? 'logged' : ''}" data-seg="${seg.id}">
-          ${done ? '✓' : 'Split'}
-        </button>
+        <div class="race-seg-tools">
+          ${video}
+          <button type="button" class="race-rest-btn" data-seg="${seg.id}" title="Rest timer">⏱</button>
+          <button type="button" class="race-swap-btn" data-seg="${seg.id}" title="Swap">▾</button>
+        </div>
       </div>
-      ${splitReadout}
-      <input type="text" class="race-actual" data-seg="${seg.id}"
-             value="${esc(actual)}" placeholder="What I did today (distance · weight · reps)…" />
-    </div>`;
-}
 
-function ladderHTML() {
-  const best = pb ? pb.ms : null;
-  const rows = LADDER.map((t) => {
-    const beat = best != null && best <= t.ms;
-    return `
-      <div class="race-ladder-row ${beat ? 'beat' : ''}">
-        <span class="race-ladder-emoji">${t.emoji}</span>
-        <span class="race-ladder-label">${esc(t.label)}</span>
-        <span class="race-ladder-time">${fmtClock(t.ms)}</span>
-        <span class="race-ladder-mark">${beat ? '✓' : ''}</span>
-      </div>`;
-  }).join('');
-  const pbLine = pb
-    ? `<div class="race-pb">Your best: <b>${fmtClock(pb.ms)}</b> <span>· ${esc(pb.date)}</span></div>`
-    : `<div class="race-pb race-pb-empty">No finish logged yet — complete all 16 splits to set your first time.</div>`;
-  return `
-    <div class="race-ladder">
-      <div class="race-ladder-head">🎯 Goal ladder — finish time</div>
-      ${pbLine}
-      ${rows}
-      <div class="race-ladder-note">≈ elite benchmarks for HYROX Men’s Open. Chase the next tier up — most first-timers land near 1:30–1:45, then it falls fast as the runs and stations get familiar.</div>
-    </div>`;
-}
+      <div class="race-swap-panel" data-seg="${seg.id}" hidden>
+        ${seg.subs.map((opt, i) => `
+          <button type="button" class="race-swap-opt ${i === chosen ? 'active' : ''}" data-seg="${seg.id}" data-opt="${i}">
+            ${esc(opt)}
+          </button>`).join('')}
+      </div>
 
-function renderTimer() {
-  const el = document.getElementById('race-clock');
-  if (el) el.textContent = fmtClock(elapsedMs());
-  const goBtn = document.getElementById('race-go');
-  if (goBtn) {
-    goBtn.textContent = sim.running ? '❚❚ Pause' : (elapsedMs() > 0 ? '▶ Resume' : '▶ Start');
-    goBtn.classList.toggle('running', sim.running);
-  }
-  const prog = document.getElementById('race-progress-text');
-  if (prog) prog.textContent = `${doneCount()} / ${SEGMENTS.length} segments`;
-  const fill = document.getElementById('race-progress-fill');
-  if (fill) fill.style.width = `${(doneCount() / SEGMENTS.length) * 100}%`;
-  const fin = document.getElementById('race-finish-banner');
-  if (fin) {
-    const total = finishMs();
-    if (total != null) {
-      fin.classList.add('show');
-      fin.innerHTML = `🏁 Race complete — <b>${fmtClock(total)}</b>${
-        pb && total <= pb.ms ? ' · new best!' : pb ? ` · best ${fmtClock(pb.ms)}` : ''}`;
-    } else {
-      fin.classList.remove('show');
-    }
-  }
+      ${compare}
+
+      <div class="race-seg-inputs">
+        <label>Dist<input type="text" inputmode="decimal" data-seg="${seg.id}" data-f="d" value="${esc(entry.d || '')}" placeholder="m" /></label>
+        <label>Wt<input type="text" inputmode="decimal" data-seg="${seg.id}" data-f="w" value="${esc(entry.w || '')}" placeholder="kg" /></label>
+        <label>Reps<input type="text" inputmode="numeric" data-seg="${seg.id}" data-f="r" value="${esc(entry.r || '')}" placeholder="#" /></label>
+        <button type="button" class="race-split-btn ${done ? 'logged' : ''}" data-seg="${seg.id}">${done ? '✓ Split' : 'Split'}</button>
+      </div>
+    </div>`;
 }
 
 function render() {
   root.innerHTML = `
+    ${coinHTML()}
+
     <div class="race-timer">
       <div class="race-clock" id="race-clock">${fmtClock(elapsedMs())}</div>
+      <div class="race-seg-live" id="race-seg-live"></div>
       <div class="race-timer-controls">
         <button type="button" class="race-btn race-btn-go" id="race-go">▶ Start</button>
         <button type="button" class="race-btn" id="race-reset">Reset</button>
       </div>
       <div class="race-progress">
         <div class="race-progress-bar"><div class="race-progress-fill" id="race-progress-fill"></div></div>
-        <div class="race-progress-text" id="race-progress-text">0 / ${SEGMENTS.length} segments</div>
+        <div class="race-progress-text" id="race-progress-text">0 / ${SEGMENTS.length}</div>
       </div>
       <div class="race-finish-banner" id="race-finish-banner"></div>
     </div>
 
     <div class="race-howto">
-      Tap <b>Start</b> when you begin. Hit <b>Split</b> as you finish each run &amp; station — it stamps your
-      segment time and running total. Log what you actually did in each box so you can scale up next week.
+      Tap <b>Start</b>, then <b>Split</b> as you finish each run &amp; station — it stamps the segment time and
+      compares it to the target. Log Distance / Weight / Reps to scale up week to week. <b>Beginner tip:</b> take
+      <b>60–90 s rest</b> between stations (tap ⏱) and shrink it as you get fitter — race pace is minimal rest.
     </div>
 
-    <div class="race-segs">
-      ${SEGMENTS.map(segCard).join('')}
-    </div>
-
-    ${ladderHTML()}
+    <div class="race-segs">${SEGMENTS.map(segCard).join('')}</div>
 
     <div class="race-actions">
       <button type="button" class="ghost-btn gym-save-tracker" id="race-save">Save to Tracker</button>
@@ -263,53 +344,75 @@ function render() {
   renderTimer();
 }
 
+function renderTimer() {
+  const clk = document.getElementById('race-clock');
+  if (clk) clk.textContent = fmtClock(elapsedMs());
+  const live = document.getElementById('race-seg-live');
+  if (live) {
+    const dc = doneCount();
+    live.textContent = (sim.running || elapsedMs() > 0) && dc < SEGMENTS.length
+      ? `this segment: ${fmtClock(currentSegMs())}` : '';
+  }
+  const go = document.getElementById('race-go');
+  if (go) {
+    go.textContent = sim.running ? '❚❚ Pause' : (elapsedMs() > 0 ? '▶ Resume' : '▶ Start');
+    go.classList.toggle('running', sim.running);
+  }
+  const pt = document.getElementById('race-progress-text');
+  if (pt) pt.textContent = `${doneCount()} / ${SEGMENTS.length}`;
+  const fill = document.getElementById('race-progress-fill');
+  if (fill) fill.style.width = `${(doneCount() / SEGMENTS.length) * 100}%`;
+  const fin = document.getElementById('race-finish-banner');
+  if (fin) {
+    const total = finishMs();
+    if (total != null) {
+      fin.classList.add('show');
+      fin.innerHTML = `🏁 Complete — <b>${fmtClock(total)}</b>${pb && total <= pb.ms ? ' · new best!' : pb ? ` · best ${fmtClock(pb.ms)}` : ''}`;
+    } else fin.classList.remove('show');
+  }
+}
+
 // ============================================================
-// Timer control
+// Timer control (+ Wake Lock so the screen stays on mid-race)
 // ============================================================
 let tickId = null;
-function startTick() {
-  if (tickId) return;
-  tickId = setInterval(renderTimer, 250);
+let wakeLock = null;
+async function requestWake() {
+  if (!('wakeLock' in navigator)) return;
+  try { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); }
+  catch {}
 }
-function stopTick() {
-  if (tickId) { clearInterval(tickId); tickId = null; }
-}
+function releaseWake() { if (wakeLock) { try { wakeLock.release(); } catch {} wakeLock = null; } }
+
+function startTick() { if (!tickId) tickId = setInterval(renderTimer, 250); }
+function stopTick() { if (tickId) { clearInterval(tickId); tickId = null; } }
 
 function toggleGo() {
   if (sim.running) {
-    // pause
     sim.accumMs += Date.now() - sim.lastStart;
-    sim.running = false;
-    sim.lastStart = null;
-    stopTick();
+    sim.running = false; sim.lastStart = null;
+    stopTick(); releaseWake();
   } else {
-    sim.running = true;
-    sim.lastStart = Date.now();
-    startTick();
+    sim.running = true; sim.lastStart = Date.now();
+    startTick(); requestWake();
   }
-  persistSim();
-  renderTimer();
+  persistSim(); renderTimer();
 }
 
 function resetRace() {
-  if (!confirm('Reset the timer and all splits for a fresh race? (Your logged weights/reps stay.)')) return;
+  if (!confirm('Reset the timer and all splits for a fresh race? (Your logged weights/reps + rank stay.)')) return;
   sim = { date: todayStr(), running: false, accumMs: 0, lastStart: null, splits: {} };
-  stopTick();
-  persistSim();
-  render();
+  stopTick(); releaseWake(); persistSim(); render();
 }
 
 function logSplit(segId) {
   if (sim.splits[segId] != null) {
-    delete sim.splits[segId];        // tap again to undo
+    delete sim.splits[segId];
   } else {
-    // auto-start the clock on the first split if it isn't running yet
-    if (!sim.running && sim.accumMs === 0) {
-      sim.running = true;
-      sim.lastStart = Date.now();
-      startTick();
-    }
+    if (!sim.running && sim.accumMs === 0) { sim.running = true; sim.lastStart = Date.now(); startTick(); requestWake(); }
     sim.splits[segId] = elapsedMs();
+    const st = segTime(segId);
+    if (st != null && (segPb[segId] == null || st < segPb[segId])) { segPb[segId] = st; saveJSON(SEGPB_KEY, segPb); }
   }
   persistSim();
   maybeSetPB();
@@ -319,9 +422,7 @@ function logSplit(segId) {
 function maybeSetPB() {
   const total = finishMs();
   if (total == null) return;
-  if (!pb || total < pb.ms) {
-    saveJSON(PB_KEY, { ms: total, date: todayStr() });
-  }
+  if (!pb || total < pb.ms) { pb = { ms: total, date: todayStr() }; saveJSON(PB_KEY, pb); }
 }
 
 // ============================================================
@@ -329,29 +430,23 @@ function maybeSetPB() {
 // ============================================================
 function saveToTracker() {
   const total = finishMs() ?? elapsedMs();
-  const logged = SEGMENTS.filter((s) => sim.splits[s.id] != null || (actuals[s.id] || '').trim());
-  if (!logged.length) {
-    toast('Nothing logged yet — hit a few splits first.');
-    return;
-  }
+  const logged = SEGMENTS.filter((s) => sim.splits[s.id] != null || log[s.id]);
+  if (!logged.length) { toast('Nothing logged yet — hit a few splits first.'); return; }
   const exercises = logged.map((s) => {
-    const cum = sim.splits[s.id];
-    const split = cum != null ? fmtClock(cum - prevCum(s.id)) : '';
+    const st = segTime(s.id);
+    const e = log[s.id] || {};
+    // w/r are strings (weight, split time) — non-numeric time won't touch the PR board.
     return {
       exId: 'hx_' + s.id,
       name: s.name,
       target: s.target,
-      done: cum != null,
-      // w/r are strings (distance/weight, split) — non-numeric, so they never
-      // pollute the numeric PR board in the tracker.
-      sets: [{ w: (actuals[s.id] || '').trim(), r: split }],
+      done: sim.splits[s.id] != null,
+      sets: [{ w: e.w || '', r: st != null ? fmtClock(st) : (e.r || '') }],
     };
   });
   const entry = {
     id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8),
-    date: todayStr(),
-    person: 'him',
-    day: 'hyrox',
+    date: todayStr(), person: 'him', day: 'hyrox',
     dayLabel: `Hyrox Race Sim · ${fmtClock(total)}`,
     exercises,
   };
@@ -361,9 +456,7 @@ function saveToTracker() {
     arr.push(entry);
     localStorage.setItem(KEY, JSON.stringify(arr));
     toast('✓ Saved to Tracker');
-  } catch {
-    toast('Could not save (storage unavailable).');
-  }
+  } catch { toast('Could not save (storage unavailable).'); }
 }
 
 function copyRace() {
@@ -371,10 +464,10 @@ function copyRace() {
   const total = finishMs();
   if (total != null) lines.push(`Finish: ${fmtClock(total)}`);
   SEGMENTS.forEach((s) => {
-    const cum = sim.splits[s.id];
-    const split = cum != null ? fmtClock(cum - prevCum(s.id)) : '—';
-    const a = (actuals[s.id] || '').trim();
-    lines.push(`${s.name} — ${s.target}${a ? ` · did: ${a}` : ''} · split ${split}`);
+    const st = segTime(s.id);
+    const e = log[s.id] || {};
+    const bits = [e.d && `${e.d}m`, e.w && `${e.w}kg`, e.r && `${e.r} reps`].filter(Boolean).join(' · ');
+    lines.push(`${s.name} — ${s.target}${bits ? ` · ${bits}` : ''} · ${st != null ? fmtClock(st) : '—'} (target ${fmtClock(s.bench)})`);
   });
   const text = lines.join('\n');
   if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast('✓ Copied'), () => fallbackCopy(text));
@@ -386,39 +479,102 @@ function fallbackCopy(text) {
   try { document.execCommand('copy'); toast('✓ Copied'); } catch { toast('Copy failed'); }
   ta.remove();
 }
-
 function toast(msg) {
-  const t = document.createElement('div');
-  t.className = 't-toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2600);
+  const t = document.createElement('div'); t.className = 't-toast'; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
 }
+
+// ============================================================
+// Rest timer — small countdown panel (default 75 s)
+// ============================================================
+let restEl = null, restState = null;
+function ensureRestEl() {
+  if (restEl) return restEl;
+  restEl = document.createElement('div');
+  restEl.className = 'race-rest';
+  restEl.innerHTML = `
+    <div class="race-rest-row"><span id="race-rest-name">Rest</span>
+      <button type="button" id="race-rest-x" aria-label="Close">×</button></div>
+    <div class="race-rest-time" id="race-rest-time">1:15</div>
+    <div class="race-rest-ctrls">
+      <button type="button" data-d="-15">−15s</button>
+      <button type="button" id="race-rest-go">Start</button>
+      <button type="button" data-d="15">+15s</button>
+    </div>`;
+  document.body.appendChild(restEl);
+  restEl.querySelector('#race-rest-x').onclick = closeRest;
+  restEl.querySelector('#race-rest-go').onclick = toggleRest;
+  restEl.querySelectorAll('[data-d]').forEach((b) => b.onclick = () => adjRest(parseInt(b.dataset.d, 10)));
+  return restEl;
+}
+function openRest(name) {
+  ensureRestEl();
+  if (restState && restState.iv) clearInterval(restState.iv);
+  restState = { name, remaining: 75, running: false, iv: null, endAt: null };
+  restEl.classList.remove('done'); restEl.classList.add('open');
+  paintRest();
+}
+function paintRest() {
+  if (!restEl || !restState) return;
+  restEl.querySelector('#race-rest-name').textContent = 'Rest · ' + restState.name;
+  restEl.querySelector('#race-rest-time').textContent = fmtClock(restState.remaining * 1000);
+  restEl.querySelector('#race-rest-go').textContent = restState.running ? 'Pause' : 'Start';
+}
+function adjRest(d) { if (restState) { restState.remaining = Math.max(0, restState.remaining + d); if (restState.running && restState.endAt) restState.endAt += d * 1000; restEl.classList.remove('done'); paintRest(); } }
+function toggleRest() {
+  if (!restState) return;
+  if (restState.running) { restState.running = false; if (restState.iv) clearInterval(restState.iv); restState.iv = null; restState.endAt = null; }
+  else { if (restState.remaining <= 0) restState.remaining = 75; restState.running = true; restState.endAt = Date.now() + restState.remaining * 1000; restState.iv = setInterval(tickRest, 250); }
+  paintRest();
+}
+function tickRest() {
+  if (!restState || !restState.running) return;
+  const rem = Math.max(0, Math.ceil((restState.endAt - Date.now()) / 1000));
+  restState.remaining = rem; paintRest();
+  if (rem <= 0) { restState.running = false; clearInterval(restState.iv); restState.iv = null; restEl.classList.add('done'); try { navigator.vibrate && navigator.vibrate([200, 100, 300]); } catch {} }
+}
+function closeRest() { if (restState && restState.iv) clearInterval(restState.iv); restState = null; if (restEl) restEl.classList.remove('open', 'done'); }
 
 // ============================================================
 // Events (delegated)
 // ============================================================
 root.addEventListener('click', (e) => {
+  const swapOpt = e.target.closest('.race-swap-opt');
+  if (swapOpt) { swaps[swapOpt.dataset.seg] = parseInt(swapOpt.dataset.opt, 10); saveJSON(SWAPS_KEY, swaps); render(); return; }
+  const swapBtn = e.target.closest('.race-swap-btn');
+  if (swapBtn) {
+    const panel = root.querySelector(`.race-swap-panel[data-seg="${swapBtn.dataset.seg}"]`);
+    if (panel) panel.hidden = !panel.hidden;
+    return;
+  }
+  const restBtn = e.target.closest('.race-rest-btn');
+  if (restBtn) { const seg = SEGMENTS.find((s) => s.id === restBtn.dataset.seg); openRest(seg ? seg.name : 'station'); return; }
   const split = e.target.closest('.race-split-btn');
   if (split) { logSplit(split.dataset.seg); return; }
-  if (e.target.closest('#race-go'))    { toggleGo();      return; }
-  if (e.target.closest('#race-reset')) { resetRace();     return; }
+  if (e.target.closest('#race-go'))    { toggleGo(); return; }
+  if (e.target.closest('#race-reset')) { resetRace(); return; }
   if (e.target.closest('#race-save'))  { saveToTracker(); return; }
-  if (e.target.closest('#race-copy'))  { copyRace();      return; }
+  if (e.target.closest('#race-copy'))  { copyRace(); return; }
 });
 
 root.addEventListener('input', (e) => {
-  const inp = e.target.closest('.race-actual');
+  const inp = e.target.closest('input[data-f]');
   if (!inp) return;
-  actuals[inp.dataset.seg] = inp.value;
-  saveJSON(ACTUALS_KEY, actuals);
+  const id = inp.dataset.seg;
+  (log[id] || (log[id] = {}))[inp.dataset.f] = inp.value;
+  saveJSON(LOG_KEY, log);
 });
 
-// Recompute after backgrounding (iOS throttles setInterval).
-document.addEventListener('visibilitychange', () => { if (!document.hidden) renderTimer(); });
+// Recompute after backgrounding (iOS throttles setInterval) + re-grab wake lock.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) return;
+  if (sim.running && !wakeLock) requestWake();
+  renderTimer();
+});
 
 // ============================================================
 // Init
 // ============================================================
 render();
-if (sim.running) startTick();
+if (sim.running) { startTick(); requestWake(); }
+loadImageDB().then(() => { if (imgDb) render(); });

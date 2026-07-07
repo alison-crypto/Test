@@ -109,6 +109,69 @@
     advanced: 'Push the last set to 0–1 reps in reserve · add a set to a weak point · trim rest 15–30 s.',
   };
 
+  // ---- per-exercise goals (weight × reps by level) ----
+  // Working weights for the program's rep target, derived from strength standards
+  // for a ~93 kg male (Strength Level / bodyweight ratios): squat ~1.0/1.5/2.0×BW,
+  // bench 0.75/1.25/1.75, deadlift 1.25/2.0/2.5, etc., converted to the working
+  // set via Epley. Accessories/DBs use typical training norms. Numbers = 1 working
+  // set; scale from these as guidance. perhand = per dumbbell; rep = bodyweight/reps.
+  const STANDARDS = {
+    him_lA_squat:    { r: 8,  beg: 72.5, int: 110,  adv: 147.5 },
+    him_lA_legcurl:  { r: 12, beg: 35,   int: 65,   adv: 95 },
+    him_lA_lunge:    { r: 10, perhand: true, beg: 10, int: 20, adv: 30 },
+    him_lA_calf:     { r: 15, beg: 60,   int: 120,  adv: 180 },
+    him_lA_backext:  { rep: true, beg: 'BW×15', int: '+10×15', adv: '+25×15' },
+    him_lA_abs:      { rep: true, beg: '8 reps', int: '15 reps', adv: '15 +wt' },
+    him_uA_bench:    { r: 8,  beg: 55,   int: 92.5, adv: 130 },
+    him_uA_row:      { r: 10, beg: 42.5, int: 70,   adv: 95 },
+    him_uA_shoulder: { r: 10, perhand: true, beg: 12, int: 22, adv: 32 },
+    him_uA_pull:     { r: 12, beg: 40,   int: 65,   adv: 87.5 },
+    him_uA_curl:     { r: 12, perhand: true, beg: 8, int: 15, adv: 22 },
+    him_uA_tri:      { r: 15, beg: 20,   int: 40,   adv: 60 },
+    him_lB_tbar:     { r: 6,  beg: 97.5, int: 155,  adv: 195 },
+    him_lB_hipthrust:{ r: 10, beg: 70,   int: 122.5, adv: 175 },
+    him_lB_legext:   { r: 15, beg: 40,   int: 75,   adv: 110 },
+    him_lB_legcurl:  { r: 12, beg: 35,   int: 65,   adv: 95 },
+    him_lB_calf:     { r: 15, beg: 60,   int: 120,  adv: 180 },
+    him_lB_crunch:   { r: 15, beg: 30,   int: 55,   adv: 80 },
+    him_uB_incline:  { r: 10, perhand: true, beg: 18, int: 30, adv: 42 },
+    him_uB_pullup:   { rep: true, beg: '5 reps', int: '10 reps', adv: '12 +wt' },
+    him_uB_row:      { r: 12, beg: 45,   int: 75,   adv: 100 },
+    him_uB_lat:      { r: 15, perhand: true, beg: 6, int: 12, adv: 18 },
+    him_uB_curl:     { r: 10, beg: 25,   int: 40,   adv: 55 },
+    him_uB_triext:   { r: 12, beg: 20,   int: 35,   adv: 50 },
+  };
+  const DIFF_TIER = { beginner: 'beg', intermediate: 'int', advanced: 'adv' };
+  function tierDisp(s, t) {
+    const v = s[t];
+    if (s.rep) return v;
+    if (s.perhand) return `${v}/hd×${s.r}`;
+    return `${v}×${s.r}`;
+  }
+  function paintGoals() {
+    const b = bests();
+    const aim = DIFF_TIER[diff] || 'int';
+    document.querySelectorAll('.exercise[data-ex]').forEach((card) => {
+      const s = STANDARDS[card.dataset.ex];
+      if (!s) return;
+      let goals = card.querySelector('.grpg-goals');
+      if (!goals) { goals = document.createElement('div'); goals.className = 'grpg-goals'; card.appendChild(goals); }
+      // your tier from best top weight (skip for rep/bodyweight lifts)
+      let you = '';
+      if (!s.rep && b[card.dataset.ex]) {
+        const w = b[card.dataset.ex].w;
+        const lvl = w >= s.adv ? 'Advanced' : w >= s.int ? 'Intermediate' : w >= s.beg ? 'Beginner' : 'building';
+        you = `<span class="grpg-goal-you">you ${w}kg · ${lvl}</span>`;
+      }
+      goals.innerHTML = `
+        <span class="grpg-goal-lbl">Goals</span>
+        <span class="grpg-goal ${aim === 'beg' ? 'aim' : ''}">Beg <b>${esc(tierDisp(s, 'beg'))}</b></span>
+        <span class="grpg-goal ${aim === 'int' ? 'aim' : ''}">Int <b>${esc(tierDisp(s, 'int'))}</b></span>
+        <span class="grpg-goal ${aim === 'adv' ? 'aim' : ''}">Adv <b>${esc(tierDisp(s, 'adv'))}</b></span>
+        ${you}`;
+    });
+  }
+
   // ---- toast ----
   function toast(msg) { const t = document.createElement('div'); t.className = 't-toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2800); }
 
@@ -201,7 +264,7 @@
     if (e.target.closest('#grpg-pause')) return pauseTimer();
     if (e.target.closest('#grpg-reset')) return resetTimer();
     const d = e.target.closest('[data-diff]');
-    if (d) { diff = d.dataset.diff; saveJSON(DIFF_KEY, diff); render(); }
+    if (d) { diff = d.dataset.diff; saveJSON(DIFF_KEY, diff); render(); paintGoals(); }
   });
 
   // Refresh the ring when exercises are ticked / the day switches (wrap gym.js globals).
@@ -223,12 +286,13 @@
         if (!b) { gained += 25; leveled = addXp(25, `${after[exId].name} logged`) || leveled; }
         else if (after[exId].w > b.w) { gained += 40; leveled = addXp(40, `${after[exId].name} PR!`) || leveled; }
       });
-      render();
+      render(); paintGoals();
       if (gained > 0) toast(leveled ? `⚡ LEVEL ${levelInfo().level}! +${gained} XP` : `＋${gained} XP banked`);
       return out;
     };
   }
 
   render();
+  paintGoals();
   if (timer.running) startTick();
 })();

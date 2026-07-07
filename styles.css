@@ -4434,3 +4434,16 @@ body.auth-page {
 .grpg .race-timer { position: static; }
 .race-preset-btn.grpg-active { background: var(--gym-accent); color: #fff; border-color: var(--gym-accent); }
 .grpg-diff-note { font-size: 11px; color: var(--muted); margin: 2px 2px 10px; line-height: 1.5; }
+
+/* ---- Gym per-exercise goals line ---- */
+.grpg-goals {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 5px 8px;
+  padding: 9px 14px 11px; border-top: 1px dashed var(--border);
+  font-size: 11px; background: var(--card-2);
+}
+.grpg-goal-lbl { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--muted); }
+.grpg-goal { color: var(--muted-strong); font-variant-numeric: tabular-nums; }
+.grpg-goal b { color: var(--text); font-weight: 700; }
+.grpg-goal.aim { color: var(--gym-accent); }
+.grpg-goal.aim b { color: var(--gym-accent); }
+.grpg-goal-you { margin-left: auto; font-weight: 700; color: var(--success); font-variant-numeric: tabular-nums; }

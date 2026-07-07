@@ -4389,3 +4389,42 @@ body.auth-page {
 
 .race-seg-best { font-size: 11px; color: var(--muted); margin-top: 6px; }
 .race-seg-best b { color: var(--gym-accent); font-variant-numeric: tabular-nums; }
+
+/* ---- Race sim: global preset bar + round timer dial (overrides earlier) ---- */
+.race-preset { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 6px 0 8px; }
+.race-preset-lbl { font-size: 11px; font-weight: 700; color: var(--muted); }
+.race-preset-btn {
+  flex: 1; min-width: 62px; padding: 8px 6px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--card); color: var(--text); font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer;
+}
+.race-preset-btn:active { transform: scale(0.96); background: var(--gym-accent); color: #fff; border-color: var(--gym-accent); }
+
+.race-timer {
+  position: sticky; top: 8px; z-index: 9;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  margin: 6px 0 12px; padding: 14px;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); color: var(--text);
+}
+.race-dial { position: relative; width: 158px; height: 158px; }
+.race-ring { width: 100%; height: 100%; display: block; }
+.race-ring-bg { fill: none; stroke: var(--border); stroke-width: 9; }
+.race-ring-fg { fill: none; stroke: var(--gym-accent); stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset 0.4s ease; }
+.race-dial-c { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.race-clock { font-size: 34px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--text); letter-spacing: 0.5px; line-height: 1; text-align: center; }
+.race-dial-count { font-size: 12px; font-weight: 700; color: var(--muted-strong); }
+.race-seg-live { font-size: 10px; color: var(--muted); min-height: 12px; text-align: center; }
+.race-timer-controls { display: flex; gap: 8px; width: 100%; }
+.race-btn {
+  flex: 1; padding: 11px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--card-2); color: var(--text); font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer;
+}
+.race-btn:active:not(:disabled) { transform: scale(0.97); }
+.race-btn:disabled { opacity: 0.4; cursor: default; }
+.race-btn-go { background: var(--gym-accent); color: #fff; border-color: var(--gym-accent); }
+.race-btn-go:disabled { background: var(--card-2); color: var(--text); border-color: var(--border); }
+.race-finish-banner {
+  display: none; width: 100%; margin-top: 2px; padding: 9px 12px;
+  background: var(--accent-soft); color: var(--text); border-radius: 8px; font-size: 13px; text-align: center;
+}
+.race-finish-banner.show { display: block; }

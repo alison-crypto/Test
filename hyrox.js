@@ -128,9 +128,9 @@ const SUBIMG = {
   bike3: BIKE_SUBIMG, bike4: BIKE_SUBIMG, bike5: BIKE_SUBIMG, bike6: BIKE_SUBIMG, bike7: BIKE_SUBIMG, bike8: BIKE_SUBIMG,
   push: ['Farmers_Walk', 'Leg_Press', 'Sled_Push'],
   pull: ['Seated_Cable_Rows', 'Bent_Over_Two-Dumbbell_Row', 'Inverted_Row'],
-  bbj: ['Freehand_Jump_Squat', 'Freehand_Jump_Squat', 'Freehand_Jump_Squat'],
+  bbj: ['Standing_Long_Jump', 'Standing_Long_Jump', 'Standing_Long_Jump'],
   carry: ['Farmers_Walk', 'Farmers_Walk', 'Trap_Bar_Deadlift'],
-  lunge: ['Dumbbell_Lunges', 'Bodyweight_Walking_Lunge', 'Dumbbell_Squat'],
+  lunge: ['Dumbbell_Rear_Lunge', 'Bodyweight_Walking_Lunge', 'Split_Squat_with_Dumbbells'],
   wb: ['Medicine_Ball_Scoop_Throw', 'Kettlebell_Thruster', 'Medicine_Ball_Scoop_Throw'],
 };
 
@@ -248,6 +248,23 @@ function stepTarget(segId, dir) {
   render();
 }
 function selectTimeTier(segId, key) { timeTier[segId] = key; saveJSON(TIMETIER_KEY, timeTier); render(); }
+
+// Global preset — set every station's distance/weight + time tier in one tap, so
+// you can start easy and customize individual stations as you level up.
+const PRESET_FRAC = { beginner: 0.4, amateur: 0.6, intermediate: 0.8, competition: 1.0 };
+function snapVal(v, step, min, max) { return Math.max(min, Math.min(max, Math.round(v / step) * step)); }
+function applyPreset(level) {
+  const frac = PRESET_FRAC[level];
+  if (frac == null) return;
+  SEGMENTS.forEach((seg) => {
+    timeTier[seg.id] = level;
+    if (seg.scale === 'weight') tiers[seg.id] = snapVal(seg.raceW * frac, seg.stepW, 4, seg.raceW);
+    else tiers[seg.id] = snapVal(seg.race * frac, seg.step, seg.step, seg.race);
+  });
+  saveJSON(TIER_KEY, tiers); saveJSON(TIMETIER_KEY, timeTier);
+  render();
+  toast(`All stations → ${level[0].toUpperCase() + level.slice(1)}`);
+}
 
 // best time is tracked per distance/weight so 500 m and 1 km compare fairly
 function amountKey(seg) { return String(curTarget(seg)); }
@@ -452,18 +469,33 @@ function segCard(seg) {
 
 function render() {
   root.innerHTML = `
+    <div class="race-preset">
+      <span class="race-preset-lbl">Set all&nbsp;→</span>
+      <button type="button" class="race-preset-btn" data-preset="beginner">Beginner</button>
+      <button type="button" class="race-preset-btn" data-preset="amateur">Amateur</button>
+      <button type="button" class="race-preset-btn" data-preset="intermediate">Inter</button>
+      <button type="button" class="race-preset-btn" data-preset="competition">Comp</button>
+    </div>
+
     ${coinHTML()}
 
     <div class="race-timer">
-      <div class="race-clock" id="race-clock">${fmtClock(elapsedMs())}</div>
-      <div class="race-seg-live" id="race-seg-live"></div>
+      <div class="race-dial">
+        <svg class="race-ring" viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="race-ring-bg" cx="60" cy="60" r="52"></circle>
+          <circle class="race-ring-fg" id="race-ring-fg" cx="60" cy="60" r="52"
+            stroke-dasharray="326.7" stroke-dashoffset="326.7" transform="rotate(-90 60 60)"></circle>
+        </svg>
+        <div class="race-dial-c">
+          <div class="race-clock" id="race-clock">${fmtClock(elapsedMs())}</div>
+          <div class="race-dial-count" id="race-progress-text">0 / ${SEGMENTS.length}</div>
+          <div class="race-seg-live" id="race-seg-live"></div>
+        </div>
+      </div>
       <div class="race-timer-controls">
         <button type="button" class="race-btn race-btn-go" id="race-go">▶ Start</button>
+        <button type="button" class="race-btn race-btn-pause" id="race-pause">❚❚ Pause</button>
         <button type="button" class="race-btn" id="race-reset">Reset</button>
-      </div>
-      <div class="race-progress">
-        <div class="race-progress-bar"><div class="race-progress-fill" id="race-progress-fill"></div></div>
-        <div class="race-progress-text" id="race-progress-text">0 / ${SEGMENTS.length}</div>
       </div>
       <div class="race-finish-banner" id="race-finish-banner"></div>
     </div>
@@ -486,14 +518,17 @@ function render() {
   renderTimer();
 }
 
+const RING_CIRC = 2 * Math.PI * 52;
 function renderTimer() {
   const clk = document.getElementById('race-clock'); if (clk) clk.textContent = fmtClock(elapsedMs());
   const live = document.getElementById('race-seg-live');
-  if (live) live.textContent = (sim.running || elapsedMs() > 0) && !allSplit() ? `this segment: ${fmtClock(currentSegMs())}` : '';
+  if (live) live.textContent = (sim.running || elapsedMs() > 0) && !allSplit() ? `seg ${fmtClock(currentSegMs())}` : '';
   const go = document.getElementById('race-go');
-  if (go) { go.textContent = sim.running ? '❚❚ Pause' : (elapsedMs() > 0 ? '▶ Resume' : '▶ Start'); go.classList.toggle('running', sim.running); }
+  if (go) { go.textContent = elapsedMs() > 0 ? '▶ Resume' : '▶ Start'; go.disabled = sim.running; }
+  const pause = document.getElementById('race-pause'); if (pause) pause.disabled = !sim.running;
   const pt = document.getElementById('race-progress-text'); if (pt) pt.textContent = `${doneCount()} / ${SEGMENTS.length}`;
-  const fill = document.getElementById('race-progress-fill'); if (fill) fill.style.width = `${(doneCount() / SEGMENTS.length) * 100}%`;
+  const ring = document.getElementById('race-ring-fg');
+  if (ring) ring.style.strokeDashoffset = String(RING_CIRC * (1 - doneCount() / SEGMENTS.length));
   const fin = document.getElementById('race-finish-banner');
   if (fin) {
     const total = finishMs();
@@ -514,9 +549,14 @@ function releaseWake() { if (wakeLock) { try { wakeLock.release(); } catch {} wa
 function startTick() { if (!tickId) tickId = setInterval(renderTimer, 250); }
 function stopTick() { if (tickId) { clearInterval(tickId); tickId = null; } }
 
-function toggleGo() {
-  if (sim.running) { sim.accumMs += Date.now() - sim.lastStart; sim.running = false; sim.lastStart = null; stopTick(); releaseWake(); }
-  else { sim.running = true; sim.lastStart = Date.now(); startTick(); requestWake(); }
+function startTimer() {
+  if (sim.running) return;
+  sim.running = true; sim.lastStart = Date.now(); startTick(); requestWake();
+  persistSim(); renderTimer();
+}
+function pauseTimer() {
+  if (!sim.running) return;
+  sim.accumMs += Date.now() - sim.lastStart; sim.running = false; sim.lastStart = null; stopTick(); releaseWake();
   persistSim(); renderTimer();
 }
 function resetRace() {
@@ -670,6 +710,8 @@ function closeRest() { if (restState && restState.iv) clearInterval(restState.iv
 // Events (delegated)
 // ============================================================
 root.addEventListener('click', (e) => {
+  const preset = e.target.closest('.race-preset-btn');
+  if (preset) { applyPreset(preset.dataset.preset); return; }
   const step = e.target.closest('.race-step-btn');
   if (step) { if (!step.disabled) stepTarget(step.dataset.seg, parseInt(step.dataset.dir, 10)); return; }
   const tchip = e.target.closest('.race-tchip');
@@ -682,7 +724,8 @@ root.addEventListener('click', (e) => {
   if (restBtn) { const s = SEGMENTS.find((x) => x.id === restBtn.dataset.seg); openRest(s ? s.name : 'station'); return; }
   const split = e.target.closest('.race-split-btn');
   if (split) { logSplit(split.dataset.seg); return; }
-  if (e.target.closest('#race-go'))    { toggleGo(); return; }
+  if (e.target.closest('#race-go'))    { startTimer(); return; }
+  if (e.target.closest('#race-pause')) { pauseTimer(); return; }
   if (e.target.closest('#race-reset')) { resetRace(); return; }
   if (e.target.closest('#race-save'))  { saveToTracker(); return; }
   if (e.target.closest('#race-copy'))  { copyRace(); return; }

@@ -9,13 +9,13 @@ const DAY_KEY   = 'rtc_diet_alison_day_v1';
 const CHECK_KEY = 'rtc_diet_alison_checks_v1';
 
 const WEEK = {
-  mon: { type: 'MOD',  train: 'Lower body + 5K run' },
-  tue: { type: 'HIGH', train: 'Hyrox prep · 50 min · 6am' },
-  wed: { type: 'EASY', train: 'Upper body + 5K run' },
-  thu: { type: 'MOD',  train: 'Lower body + evening swim' },
-  fri: { type: 'HIGH', train: 'Boxing · 50 min · 6am + 5K run' },
-  sat: { type: 'PEAK', train: 'Upper body + 10K run' },
-  sun: { type: 'EASY', train: 'Recovery swim + volleyball' },
+  mon: { type: 'MOD',  train: 'Gym: Lower A · 5K run after work' },
+  tue: { type: 'MOD',  train: 'RTC functional 6am · Upper A after work' },
+  wed: { type: 'MOD',  train: 'Gym: Lower B · 5K run after work' },
+  thu: { type: 'EASY', train: 'Gym: Upper B · swim after work' },
+  fri: { type: 'HIGH', train: 'Boxing 6am · carb-load for Saturday' },
+  sat: { type: 'PEAK', train: 'HYROX race sim · morning' },
+  sun: { type: 'EASY', train: 'Swim (morning) · volleyball 6pm' },
 };
 
 const MACROS = {
@@ -39,7 +39,7 @@ const MEALS = {
     { time: '7:15 AM',  name: 'Breakfast',   items: ['3 eggs', '1 scoop whey', '70g oats', '120g berries'] },
     { time: '12:15 PM', name: 'Lunch',       items: ['150g chicken', '190g rice', '200g veg', '½ avocado', '1 tbsp olive oil'] },
     { time: '3:30 PM',  name: 'Snack',       items: ['90g turkey', '40g cheese', '1 apple', '40g dates', '25g almonds'] },
-    { time: '6:30 PM',  name: 'Dinner', fuel: 'Carb-loaded → fuels tomorrow’s 6am session', items: ['150g beef', '230g potato', '150g broccoli', '1 tbsp olive oil'] },
+    { time: '6:30 PM',  name: 'Dinner', fuel: 'Carb-loaded → recovery + tops off glycogen for tomorrow', items: ['150g beef', '230g potato', '150g broccoli', '1 tbsp olive oil'] },
     { time: '8:00 PM',  name: 'Pre-bed',     items: ['150g Greek yogurt', '1 banana'] },
   ],
   HIGH: [

@@ -107,9 +107,28 @@ const RANKS = [
   { key: 'elite',    name: 'Elite',        emoji: '🏆', ms: 54 * 60000 },
 ];
 
+// Swap-option images (parallel to each station's `subs`) — picking a different
+// option swaps the card picture too. Falls back to the station's own image.
+const BIKE_SUBIMG = ['Bicycling_Stationary', 'Rowing_Stationary', 'Running_Treadmill'];
+const SUBIMG = {
+  run1: ['Running_Treadmill', 'Running_Treadmill', 'Bicycling_Stationary'],
+  run2: ['Running_Treadmill', 'Running_Treadmill', 'Bicycling_Stationary'],
+  ski: ['Straight-Arm_Pulldown', 'Rowing_Stationary', 'Straight-Arm_Pulldown'],
+  row: ['Rowing_Stationary', 'Straight-Arm_Pulldown', 'Bicycling_Stationary'],
+  bike3: BIKE_SUBIMG, bike4: BIKE_SUBIMG, bike5: BIKE_SUBIMG,
+  bike6: BIKE_SUBIMG, bike7: BIKE_SUBIMG, bike8: BIKE_SUBIMG,
+  push: ['Farmers_Walk', 'Leg_Press', 'Sled_Push'],
+  pull: ['Seated_Cable_Rows', 'Bent_Over_Two-Dumbbell_Row', 'Inverted_Row'],
+  bbj: ['Freehand_Jump_Squat', 'Freehand_Jump_Squat', 'Freehand_Jump_Squat'],
+  carry: ['Farmers_Walk', 'Farmers_Walk', 'Trap_Bar_Deadlift'],
+  lunge: ['Dumbbell_Lunges', 'Bodyweight_Walking_Lunge', 'Dumbbell_Squat'],
+  wb: ['Medicine_Ball_Scoop_Throw', 'Kettlebell_Thruster', 'Medicine_Ball_Scoop_Throw'],
+};
+
 const SIM_KEY   = 'rtc_hyrox_sim_v1';
 const LOG_KEY    = 'rtc_hyrox_log_v1';
 const TIER_KEY  = 'rtc_hyrox_tier_v1';
+const TIMEGOAL_KEY = 'rtc_hyrox_timegoal_v1';
 const SWAPS_KEY = 'rtc_hyrox_swaps_v1';
 const PB_KEY    = 'rtc_hyrox_pb_v1';
 const SEGPB_KEY = 'rtc_hyrox_segpb_v1';
@@ -151,6 +170,7 @@ SEGMENTS.forEach((s) => {
   if (tiers[s.id] == null) tiers[s.id] = s.scale === 'weight' ? s.startW : s.scale === 'amount' ? s.start : s.goal;
 });
 saveJSON(TIER_KEY, tiers);
+const timeGoals = loadJSON(TIMEGOAL_KEY, {}); // { segId: ms } manual target-time override
 
 function persistSim() { saveJSON(SIM_KEY, sim); }
 
@@ -184,9 +204,18 @@ function currentSegMs() {
 function curTarget(seg) { return tiers[seg.id]; }               // amount / weight / fixed pace
 function targetAmount(seg) { return seg.scale === 'weight' ? seg.dist : seg.scale === 'amount' ? curTarget(seg) : seg.goal; }
 function targetWeight(seg) { return seg.scale === 'weight' ? curTarget(seg) : null; }
-function targetTime(seg) {   // scale the time target down for smaller amounts
+function targetTime(seg) {   // manual override wins; else scale time down for smaller amounts
+  if (timeGoals[seg.id] != null) return timeGoals[seg.id];
   if (seg.scale === 'amount') return Math.round(seg.bench * curTarget(seg) / seg.race);
   return seg.bench;
+}
+function stepTime(segId, dir) {
+  const seg = SEGMENTS.find((s) => s.id === segId);
+  if (!seg) return;
+  const base = targetTime(seg);
+  timeGoals[segId] = Math.max(15000, Math.min(3600000, base + dir * 15000));
+  saveJSON(TIMEGOAL_KEY, timeGoals);
+  render();
 }
 function tierPct(seg) {
   if (seg.scale === 'amount') return curTarget(seg) / seg.race;
@@ -216,6 +245,8 @@ function stepTarget(segId, dir) {
     const floor = 4, cap = seg.raceW;
     tiers[segId] = Math.max(floor, Math.min(cap, curTarget(seg) + dir * seg.stepW));
   }
+  // Changing the amount re-derives the auto target time (drop any manual override).
+  if (seg.scale === 'amount') { delete timeGoals[segId]; saveJSON(TIMEGOAL_KEY, timeGoals); }
   saveJSON(TIER_KEY, tiers);
   render();
 }
@@ -261,9 +292,11 @@ async function loadImageDB() {
     if (res.ok) { imgDb = await res.json(); try { localStorage.setItem(DB_CACHE_KEY, JSON.stringify(imgDb)); } catch {} }
   } catch { imgDb = null; }
 }
-function imgUrlFor(seg) {
-  if (!seg.img || !imgDb) return null;
-  const ex = imgDb.find((d) => d.id === seg.img);
+function imgUrlFor(seg, chosen) {
+  if (!imgDb) return null;
+  const id = (SUBIMG[seg.id] && SUBIMG[seg.id][chosen || 0]) || seg.img;
+  if (!id) return null;
+  const ex = imgDb.find((d) => d.id === id);
   return ex && ex.images && ex.images.length ? IMG_BASE_URL + ex.images[0] : null;
 }
 
@@ -316,8 +349,8 @@ function recordsHTML() {
     </details>`;
 }
 
-function imgSlotHTML(seg) {
-  const url = imgUrlFor(seg);
+function imgSlotHTML(seg, chosen) {
+  const url = imgUrlFor(seg, chosen);
   return url
     ? `<div class="race-seg-img has-image"><img src="${esc(url)}" loading="lazy" alt="" /></div>`
     : `<div class="race-seg-img"><span>${seg.icon}</span>${seg.num ? `<span class="race-seg-num">${seg.num}</span>` : ''}</div>`;
@@ -366,21 +399,28 @@ function segCard(seg) {
 
   const video = `<a class="race-seg-demo" href="https://www.youtube.com/results?search_query=${seg.video}" target="_blank" rel="noopener" title="Demo">📹</a>`;
 
-  let compare = '';
+  // Adjustable target-time line (always shown) + steppers.
+  const aim = `
+    <div class="race-aim">
+      <span class="race-aim-lbl">🎯 aim <b>${fmtClock(tt)}</b>${timeGoals[seg.id] != null ? ' ·custom' : ''}</span>
+      <button type="button" class="race-time-btn" data-seg="${seg.id}" data-dir="-1" title="Faster target">−15s</button>
+      <button type="button" class="race-time-btn" data-seg="${seg.id}" data-dir="1" title="Slower target">+15s</button>
+      ${best != null ? `<span class="race-aim-best">best ${fmtClock(best)}</span>` : ''}
+    </div>`;
+
+  let result = '';
   if (done) {
     const delta = st - tt, sign = delta <= 0 ? '−' : '+', cls = delta <= 0 ? 'good' : 'over';
-    compare = `
+    result = `
       <div class="race-seg-splits">
         <span class="race-split-seg">${fmtClock(st)}</span>
         <span class="race-split-meta">
           ${full
-            ? `<span class="race-cmp ${cls}">${sign}${fmtClock(Math.abs(delta))} vs target</span>`
-            : `<span class="race-cmp partial">partial — log the full target to set a record</span>`}
-          <span class="race-cmp-t">target ${fmtClock(tt)}${best != null ? ` · best ${fmtClock(best)}` : ''}</span>
+            ? `<span class="race-cmp ${cls}">${sign}${fmtClock(Math.abs(delta))} vs aim</span>`
+            : `<span class="race-cmp partial">partial — logged less than the target</span>`}
+          <span class="race-cmp-t">${full ? 'record set on Save' : `full target = ${seg.scale === 'weight' ? curTarget(seg) + ' ' + seg.wUnit : targetAmount(seg) + ' ' + seg.unit}`}</span>
         </span>
       </div>`;
-  } else {
-    compare = `<div class="race-seg-targetline">🎯 target ${fmtClock(tt)}${best != null ? ` · your best ${fmtClock(best)}` : ''}</div>`;
   }
 
   const dPlace = seg.scale === 'amount' && seg.unit === 'm' ? String(curTarget(seg)) : (seg.scale === 'weight' ? String(seg.dist) : 'm');
@@ -390,7 +430,7 @@ function segCard(seg) {
   return `
     <div class="race-seg race-seg-${seg.kind} ${done ? 'done' : ''}" data-seg="${seg.id}">
       <div class="race-seg-top">
-        ${imgSlotHTML(seg)}
+        ${imgSlotHTML(seg, chosen)}
         <div class="race-seg-body">
           <div class="race-seg-name">${esc(seg.name)}</div>
           ${targetLineHTML(seg)}
@@ -410,7 +450,8 @@ function segCard(seg) {
           <button type="button" class="race-swap-opt ${i === chosen ? 'active' : ''}" data-seg="${seg.id}" data-opt="${i}">${esc(opt)}</button>`).join('')}
       </div>
 
-      ${compare}
+      ${aim}
+      ${result}
 
       <div class="race-seg-inputs">
         <label>Dist<input type="text" inputmode="decimal" data-seg="${seg.id}" data-f="d" value="${esc(e.d || '')}" placeholder="${esc(dPlace)}" /></label>
@@ -502,6 +543,16 @@ function logSplit(segId) {
   else {
     if (!sim.running && sim.accumMs === 0) { sim.running = true; sim.lastStart = Date.now(); startTick(); requestWake(); }
     sim.splits[segId] = elapsedMs();
+    // A split means "I did the current target" — auto-fill the metric so it counts
+    // as a full clear. Edit the box down only if you actually did less.
+    const seg = SEGMENTS.find((s) => s.id === segId);
+    if (seg) {
+      const e = (log[segId] || (log[segId] = {}));
+      if (seg.scale === 'weight') { if (!e.w) e.w = String(curTarget(seg)); if (!e.d) e.d = String(seg.dist); }
+      else if (seg.unit === 'reps') { if (!e.r) e.r = String(targetAmount(seg)); }
+      else { if (!e.d) e.d = String(targetAmount(seg)); }
+      saveJSON(LOG_KEY, log);
+    }
   }
   persistSim(); render();
 }
@@ -642,6 +693,8 @@ function closeRest() { if (restState && restState.iv) clearInterval(restState.iv
 root.addEventListener('click', (e) => {
   const step = e.target.closest('.race-step-btn');
   if (step) { if (!step.disabled) stepTarget(step.dataset.seg, parseInt(step.dataset.dir, 10)); return; }
+  const timeBtn = e.target.closest('.race-time-btn');
+  if (timeBtn) { stepTime(timeBtn.dataset.seg, parseInt(timeBtn.dataset.dir, 10)); return; }
   const swapOpt = e.target.closest('.race-swap-opt');
   if (swapOpt) { swaps[swapOpt.dataset.seg] = parseInt(swapOpt.dataset.opt, 10); saveJSON(SWAPS_KEY, swaps); render(); return; }
   const swapBtn = e.target.closest('.race-swap-btn');
@@ -669,9 +722,9 @@ root.addEventListener('input', (e) => {
     const meta = card.querySelector('.race-split-meta');
     if (meta) {
       const delta = st - tt, sign = delta <= 0 ? '−' : '+', cls = delta <= 0 ? 'good' : 'over';
-      meta.innerHTML = `${full ? `<span class="race-cmp ${cls}">${sign}${fmtClock(Math.abs(delta))} vs target</span>`
-        : `<span class="race-cmp partial">partial — log the full target to set a record</span>`}
-        <span class="race-cmp-t">target ${fmtClock(tt)}${segPb[id] != null ? ` · best ${fmtClock(segPb[id])}` : ''}</span>`;
+      meta.innerHTML = `${full ? `<span class="race-cmp ${cls}">${sign}${fmtClock(Math.abs(delta))} vs aim</span>`
+        : `<span class="race-cmp partial">partial — logged less than the target</span>`}
+        <span class="race-cmp-t">${full ? 'record set on Save' : `full target = ${seg.scale === 'weight' ? curTarget(seg) + ' ' + seg.wUnit : targetAmount(seg) + ' ' + seg.unit}`}</span>`;
     }
   }
 });

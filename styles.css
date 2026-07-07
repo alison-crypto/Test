@@ -4361,3 +4361,13 @@ body.auth-page {
   display: inline-block; margin-left: 6px; font-size: 8px; font-weight: 800; text-transform: uppercase;
   letter-spacing: 0.3px; color: var(--muted-strong);
 }
+
+/* ---- Race sim: adjustable target-time (aim) line ---- */
+.race-aim { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 8px; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.race-aim-lbl b { color: var(--text); font-size: 13px; }
+.race-time-btn {
+  border: 1px solid var(--border); border-radius: 6px; background: var(--card-2); color: var(--text);
+  font-size: 11px; font-weight: 700; font-family: inherit; padding: 4px 7px; cursor: pointer;
+}
+.race-time-btn:active { transform: scale(0.94); }
+.race-aim-best { margin-left: auto; color: var(--muted-strong); font-weight: 600; }

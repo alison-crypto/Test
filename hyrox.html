@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a84ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Hyrox" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Hyrox Prep</title>
+  <script type="module" src="auth-gate.js"></script>
+  <style>
+    body.hyrox-body { --hx: #f97316; --hx-deep: #ea580c; }
+
+    .hx-kcal { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 6px; }
+    .hx-kcal > div { flex:1 1 80px; text-align:center; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:8px 4px; }
+    .hx-kcal span { display:block; font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.4px; }
+    .hx-kcal b { font-size:15px; color:var(--text); }
+
+    .hx-section { margin:20px 0 0; }
+    .hx-section h2 { font-size:14px; font-weight:800; color:var(--muted-strong); text-transform:uppercase; letter-spacing:1px; margin:0 0 4px; }
+    .hx-section .hx-sub { font-size:12px; color:var(--muted); margin:0 0 8px; }
+
+    .hx-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px 14px; margin-bottom:10px; }
+    .hx-card ul { margin:0; padding-left:18px; }
+    .hx-card li { font-size:14px; color:var(--muted-strong); line-height:1.6; }
+    .hx-card p { font-size:14px; color:var(--muted-strong); margin:0 0 6px; line-height:1.5; }
+    .hx-card b { color:var(--text); }
+
+    .hx-round { display:flex; gap:12px; align-items:flex-start; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:11px 14px; margin-bottom:9px; transition:opacity .15s; }
+    .hx-round.done { opacity:.5; }
+    .hx-round.done .hx-station { text-decoration:line-through; }
+    .hx-round.prog { border-style:dashed; }
+    .hx-check { flex:0 0 auto; width:26px; height:26px; border-radius:50%; border:2px solid var(--border); background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; color:transparent; margin-top:2px; }
+    .hx-round.done .hx-check { background:var(--hx); border-color:var(--hx); color:#fff; }
+    .hx-round-body { flex:1; min-width:0; }
+    .hx-round-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:2px; }
+    .hx-run { font-size:15px; font-weight:800; color:var(--hx); }
+    .hx-rnum { font-size:11px; color:var(--muted); font-weight:700; white-space:nowrap; }
+    .hx-station { font-size:14px; color:var(--text); font-weight:600; }
+    .hx-sub2 { font-size:12px; color:var(--muted); margin-top:2px; }
+    .hx-warn { color:#d97706; }
+    .hx-tag { display:inline-block; font-size:9px; font-weight:800; color:var(--hx); border:1px solid var(--hx); border-radius:6px; padding:1px 5px; margin-left:6px; vertical-align:middle; }
+    .hx-demo { text-decoration:none; font-size:15px; flex:0 0 auto; margin-top:1px; }
+
+    .hx-resetbtn { display:inline-block; margin-top:4px; font-size:12px; font-weight:600; color:var(--muted); background:var(--card); border:1px solid var(--border); border-radius:8px; padding:6px 12px; cursor:pointer; }
+    .hx-progress { font-size:12px; color:var(--muted); font-weight:600; margin:2px 0 10px; }
+  </style>
+</head>
+<body class="hyrox-body">
+
+<header class="workouts-header">
+  <a href="index.html" class="back-link">‹ Home</a>
+  <h1>🏃 Hyrox Prep</h1>
+  <div class="workouts-subtitle">Tuesday · ~50 min · compromised-run circuit · Vancouver Dec</div>
+
+  <div class="hx-kcal">
+    <div><span>Warm-up</span><b>8 min</b></div>
+    <div><span>Main set</span><b>~36 min</b></div>
+    <div><span>Cool-down</span><b>6 min</b></div>
+  </div>
+</header>
+
+<main class="plan-main">
+
+  <!-- Warm-up -->
+  <div class="hx-section">
+    <h2>Warm-up · 8 min</h2>
+    <div class="hx-card">
+      <ul>
+        <li>3 min easy treadmill jog or row</li>
+        <li><b>Dynamic flow</b> (1 round): 10 leg swings/side · 10 walking lunges w/ twist · 5 inchworm→push-up · 10 air squats · 10 scap pull-ups / band pull-aparts</li>
+        <li><b>Primer</b> (2 min): 2 rounds of 5 broad jumps + 5 burpees — wakes the pattern up before you're tired</li>
+        <li>🦶 Add ankle circles + a set of calf raises · 🔒 a few braced good-mornings to prime the lower back</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main set -->
+  <div class="hx-section">
+    <h2>Main set · Compromised-Run Circuit</h2>
+    <p class="hx-sub">Run 400m, then straight into the station — keep transitions under 30 sec (that's the skill). <b>Start at 6 rounds</b>; build toward 8 as December nears. Pace the runs "comfortably hard" — never sprint the first ones.</p>
+    <div id="hyrox-rounds"></div>
+    <div class="hx-progress" id="hx-progress"></div>
+    <button type="button" class="hx-resetbtn" id="hx-reset">Reset today</button>
+  </div>
+
+  <!-- Cool-down -->
+  <div class="hx-section">
+    <h2>Cool-down · 6 min</h2>
+    <div class="hx-card">
+      <p>2-min easy walk or row, then hold ~45 sec each:</p>
+      <ul>
+        <li><b>Couch stretch</b> (quads/hip flexors — you'll need these after the lunges)</li>
+        <li><b>Pigeon</b> (glutes/hips) · <b>Lat / overhead reach</b> · <b>Calves</b> (your ankle)</li>
+      </ul>
+      <p style="margin:6px 0 0">Finish with 1 min slow nasal breathing to drop the heart rate.</p>
+    </div>
+  </div>
+
+  <!-- Cues -->
+  <div class="hx-section">
+    <h2>Your cues</h2>
+    <div class="hx-card">
+      <p>🔒 <b>Lower back:</b> broad jumps, KB swings and lunges load it — brace hard. If it niggles, swap broad jumps for step-back lunges and drop swing load.</p>
+      <p>🦶 <b>Left ankle:</b> wrap it for heavy carries/lunges; control every landing on the broad jumps.</p>
+      <p>🏃 <b>Pace &amp; fuel:</b> runs "comfortably hard" — races are lost on the sleds &amp; wall balls. This is a HIGH-carb day; Monday's dinner + breakfast fuel it.</p>
+      <p style="margin:0">🔁 <b>Rotate the cut:</b> when doing 6 rounds, rotate which 2 stations you skip so you still practise lunges &amp; wall balls regularly. Don't add a 2nd Hyrox session/week yet — one is right for your load.</p>
+    </div>
+  </div>
+
+</main>
+
+<script src="hyrox.js" defer></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

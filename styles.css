@@ -4230,7 +4230,9 @@ body.auth-page {
 }
 .race-seg-tools button:active { transform: scale(0.94); }
 
-.race-swap-panel { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+.race-swap-panel { display: none; flex-direction: column; gap: 4px; margin-top: 8px; }
+.race-swap-panel.open { display: flex; }
+.race-swap-head { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--muted); margin-bottom: 2px; }
 .race-swap-opt {
   text-align: left; padding: 8px 10px; font-size: 12px; font-family: inherit;
   border: 1px solid var(--border); border-radius: 7px; background: var(--card-2); color: var(--text); cursor: pointer;
@@ -4330,3 +4332,32 @@ body.auth-page {
 .race-rec-xp li { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; color: var(--muted-strong); }
 .race-rec-xp li b { color: var(--gym-accent); }
 .race-rec-xp .rec-empty { color: var(--muted); justify-content: flex-start; }
+
+/* ---- Race sim: scalable target line, tier badge, stepper ---- */
+.race-seg-goal { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.race-goal-now { font-size: 13px; font-weight: 800; color: var(--gym-accent); font-variant-numeric: tabular-nums; }
+.race-goal-tier {
+  font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;
+  padding: 2px 6px; border-radius: 999px; color: #fff; background: var(--muted);
+}
+.tier-beginner { background: #34c759; }
+.tier-amateur { background: #30b0c7; }
+.tier-intermediate { background: #5e5ce6; }
+.tier-pro { background: #ff9500; }
+.tier-competition { background: #ff2d55; }
+.race-goal-comp { font-size: 10px; color: var(--muted); }
+.race-step { display: inline-flex; gap: 4px; margin-left: auto; }
+.race-step-btn {
+  width: 30px; height: 26px; border: 1px solid var(--border); border-radius: 7px;
+  background: var(--card-2); color: var(--text); font-size: 16px; font-weight: 700; line-height: 1;
+  font-family: inherit; cursor: pointer;
+}
+.race-step-btn:disabled { opacity: 0.35; cursor: default; }
+.race-step-btn:active:not(:disabled) { transform: scale(0.92); }
+
+.race-cmp.partial { color: var(--warn); font-weight: 700; font-size: 11px; }
+
+.rec-tier {
+  display: inline-block; margin-left: 6px; font-size: 8px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.3px; color: var(--muted-strong);
+}

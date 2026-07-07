@@ -286,4 +286,48 @@ const SUBSTITUTES = {
     { name: 'Upright Stationary Bike',    reason: 'Equipment alternative' },
     { name: 'Stair Stepper (low pace)',   reason: 'Low-impact cardio' },
   ],
+
+  // ============================================================
+  // ALISON — Hyrox stations (busy machine / gear the Y lacks)
+  // ============================================================
+  hx_c_ski: [
+    { name: 'RowErg 250m',                reason: 'No SkiErg' },
+    { name: '20 Kettlebell Swings',       reason: 'No machine' },
+    { name: 'Banded Straight-Arm Pulldown', reason: 'Same pull pattern, fast' },
+  ],
+  hx_c_push: [
+    { name: 'Backward Incline Treadmill Walk', reason: 'No sled' },
+    { name: 'Heavy DB March 40m',         reason: 'Loaded push pace' },
+    { name: 'Leg Press Bursts',           reason: 'Quad drive' },
+  ],
+  hx_c_pull: [
+    { name: 'Backward Cable Low-Row Walk', reason: 'Mimics the drag' },
+    { name: 'Bent-Over DB Rows ×15',      reason: 'No sled' },
+    { name: 'Ring / TRX Rows ×15',        reason: 'Bodyweight pull' },
+  ],
+  hx_c_bbj: [
+    { name: 'Step-Back Lunges',           reason: 'Back-friendly when sore' },
+    { name: 'Burpee + Broad Bound',       reason: 'Tight on space' },
+    { name: 'Box Jump + Burpee',          reason: 'Lower-impact landing' },
+  ],
+  hx_c_row: [
+    { name: 'SkiErg 200m',                reason: 'Rower busy' },
+    { name: 'Air / Echo Bike 30s',        reason: 'Alternate machine' },
+    { name: '20 Kettlebell Swings',       reason: 'No machine' },
+  ],
+  hx_c_carry: [
+    { name: 'Kettlebell Farmers Carry',   reason: 'DBs busy' },
+    { name: 'Suitcase Carry (per side)',  reason: 'Single-arm / core' },
+    { name: 'DB Rack-Hold Walk',          reason: 'Front-loaded carry' },
+  ],
+  hx_c_lunge: [
+    { name: 'DB Front-Rack Reverse Lunge', reason: 'No sandbag' },
+    { name: 'Goblet Reverse Lunge',       reason: 'Easier on the back' },
+    { name: 'DB Walking Lunge',           reason: 'Space available' },
+  ],
+  hx_c_wb: [
+    { name: 'DB Thrusters ×15',           reason: 'No wall / med ball' },
+    { name: 'Goblet Squat-to-Press',      reason: 'Same pattern' },
+    { name: 'Med-Ball Chest Throw',       reason: 'No target height' },
+  ],
 };

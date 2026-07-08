@@ -244,7 +244,7 @@ let SEGS = buildSegments(lvl);
 let st = loadJSON(ST_KEY, null);
 if (!st || st.lvl !== lvl || st.n !== SEGS.length) st = freshState();
 function freshState() {
-  return { lvl, n: SEGS.length, i: 0, running: false, remainMs: SEGS[0].dur, endAt: null, totalMs: 0, totalAnchor: null, swFired: false, sw2Fired: false, done: false };
+  return { lvl, n: SEGS.length, i: 0, running: false, remainMs: SEGS[0].dur, endAt: null, totalMs: 0, totalAnchor: null, swFired: false, sw2Fired: false, pushFired: false, done: false };
 }
 function persist() { saveJSON(ST_KEY, st); }
 
@@ -401,15 +401,27 @@ const SPOKEN = {
   'Free Flow — All 8 Limbs': 'Free flow. The holder calls anything from any level. React, keep breathing, stay in your stance. Quality over speed.',
 };
 
+// Motivation pools — a random one is woven into each announcement so the
+// coach sounds alive, not looped.
+const CHEER = {
+  go: ['Let’s go!', 'Here we go!', 'Let’s get it!', 'Time to work!', 'Bring the energy!', 'All right, let’s roll!', 'Stay sharp!', 'Let’s move!'],
+  switchGo: ['Your turn — let’s see it!', 'Switch done — go get it!', 'Fresh striker, let’s go!', 'Show them how it’s done!'],
+  water: ['Nice work, you two!', 'Good round! Breathe.', 'That’s the pace — quick breather.', 'Strong work! Shake it out.'],
+  push: ['Ten seconds — push!', 'Last ten — empty the tank!', 'Ten to go — finish strong!'],
+  done: ['You two rock! Same energy next time.', 'Awesome work today. That’s how it’s done!', 'Great class — be proud of that one!'],
+};
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
 function announce(seg) {
   if (!seg) return;
-  if (seg.water) { speak(`Water break, forty-five seconds. Sip, shake it out, gloves back on. ${seg.bullets && seg.bullets[1] ? seg.bullets[1].replace('Next:', 'Next up:') : ''}`); return; }
+  if (seg.water) { speak(`${pick(CHEER.water)} Water break, forty-five seconds. Sip, shake it out, gloves back on. ${seg.bullets && seg.bullets[1] ? seg.bullets[1].replace('Next:', 'Next up:') : ''}`); return; }
+  const cheer = pick(CHEER.go);
   // Combos: "Combo N. Twenty reps each, then switch." + flowing script
-  if (seg.subName && SPOKEN[seg.subName]) { speak(`${seg.name}. Twenty reps each, then switch. ${SPOKEN[seg.subName]}`); return; }
+  if (seg.subName && SPOKEN[seg.subName]) { speak(`${seg.name}. ${cheer} Twenty reps each, then switch. ${SPOKEN[seg.subName]}`); return; }
   const base = seg.baseName || seg.name;
-  if (SPOKEN[base]) { speak(SPOKEN[base]); return; }
+  if (SPOKEN[base]) { speak(`${cheer} ${SPOKEN[base]}`); return; }
   // fallback: smooth out the bullets into sentences
-  let text = `${seg.name}. ${seg.reps || ''}. `;
+  let text = `${cheer} ${seg.name}. ${seg.reps || ''}. `;
   if (seg.steps) text += seg.steps.map((sp) => `${SIDE_WORD[sp.s] || ''} ${sp.m}, ${sp.t}`).join('. ');
   else if (seg.bullets) text += seg.bullets.join('. ');
   speak(text);
@@ -481,7 +493,7 @@ function resetClass() {
 }
 function goTo(i, ringBell) {
   st.i = Math.max(0, Math.min(SEGS.length - 1, i));
-  st.swFired = false; st.sw2Fired = false; st.done = false;
+  st.swFired = false; st.sw2Fired = false; st.pushFired = false; st.done = false;
   st.remainMs = SEGS[st.i].dur;
   if (st.running) st.endAt = Date.now() + st.remainMs;
   persist();
@@ -495,12 +507,12 @@ function advance() {
     st.totalAnchor = null; st.endAt = null; st.remainMs = 0;
     persist(); stopTick(); releaseWake();
     bell('done');
-    speak('Class complete. Great work! Stretch, water, and save it to the tracker.');
+    speak(`Class complete. ${pick(CHEER.done)} Stretch, water, and save it to the tracker.`);
     document.body.classList.remove('mt-live');
     paint();
     return;
   }
-  st.i += 1; st.swFired = false; st.sw2Fired = false;
+  st.i += 1; st.swFired = false; st.sw2Fired = false; st.pushFired = false;
   const seg = SEGS[st.i];
   st.endAt = (st.endAt || Date.now()) + seg.dur;
   st.remainMs = seg.dur;
@@ -517,8 +529,9 @@ function onTick() {
     const el = seg.dur - rem;
     // 2:00 striker A → 30 s glove/pad swap → 2:00 striker B
     if (!st.swFired && el >= 120 * S) { st.swFired = true; bell('switch'); speak('Switch! Drop the gloves, grab the pads. Thirty seconds.'); persist(); paint(); }
-    if (!st.sw2Fired && el >= 150 * S) { st.sw2Fired = true; bell('work'); speak('Go! Second striker, twenty reps.'); persist(); paint(); }
+    if (!st.sw2Fired && el >= 150 * S) { st.sw2Fired = true; bell('work'); speak(`${pick(CHEER.switchGo)} Twenty reps!`); persist(); paint(); }
   }
+  if (!seg.water && !seg.sw && !st.pushFired && rem <= 10 * S && rem > 8 * S) { st.pushFired = true; speak(pick(CHEER.push)); persist(); }
   const sec = Math.ceil(rem / 1000);
   if (sec !== lastTickSec && sec <= 3 && sec >= 1) { lastTickSec = sec; bell('tick'); }
   if (rem <= 0) { advance(); return; }

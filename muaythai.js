@@ -147,16 +147,23 @@ const COMBOS = {
 
 // Variable core — rotates daily.
 const CORES = [
-  { name: 'Plank Hold', reps: 'max hold', bullets: ['Straight line, glutes tight', 'Don’t let the hips sag'] },
-  { name: 'Hollow-Body Hold', reps: 'max hold', bullets: ['Low back pressed to the floor', 'Arms and legs long'] },
-  { name: 'Russian Twists', reps: '×40 total', bullets: ['Feet up, shoulder-to-shoulder', 'Controlled — no bouncing'] },
-  { name: 'Leg Raises', reps: '×20', bullets: ['Slow up, slower down', 'Low back stays glued down'] },
-  { name: 'Side Plank', reps: 'switch halfway', bullets: ['Hips tall', 'Top arm to the ceiling'] },
-  { name: 'Sit-Up Ladder', reps: 'max reps', bullets: ['Count them — beat it next week', 'Full range, no neck pulling'] },
-  { name: 'Dead Bug', reps: '×20 total', bullets: ['Opposite arm/leg reach', 'Exhale hard every rep'] },
+  { name: 'Plank Hold', reps: 'max hold', img: 'Plank', bullets: ['Straight line, glutes tight', 'Don’t let the hips sag'] },
+  { name: 'Hollow-Body Hold', reps: 'max hold', img: 'Dead_Bug', bullets: ['Low back pressed to the floor', 'Arms and legs long'] },
+  { name: 'Russian Twists', reps: '×40 total', img: 'Russian_Twist', bullets: ['Feet up, shoulder-to-shoulder', 'Controlled — no bouncing'] },
+  { name: 'Leg Raises', reps: '×20', img: 'Flat_Bench_Lying_Leg_Raise', bullets: ['Slow up, slower down', 'Low back stays glued down'] },
+  { name: 'Side Plank', reps: 'switch halfway', img: 'Side_Bridge', bullets: ['Hips tall', 'Top arm to the ceiling'] },
+  { name: 'Sit-Up Ladder', reps: 'max reps', img: '3_4_Sit-Up', bullets: ['Count them — beat it next week', 'Full range, no neck pulling'] },
+  { name: 'Dead Bug', reps: '×20 total', img: 'Dead_Bug', bullets: ['Opposite arm/leg reach', 'Exhale hard every rep'] },
 ];
 
 const S = 1000, M = 60000;
+
+// Faded photo backdrops: free-exercise-db stills (verified) + YouTube technique-
+// video thumbnails (real internet exercise images; onerror falls back to emoji).
+const dbImg = (id) => `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${id}/0.jpg`;
+const ytImg = (id) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+const PUNCH_THUMBS = ['CuqdEnm9hxE', '7OrcBffPmE0', 'L2P3pNYOr3E', 'Qz29_dtpHdw'];
+const KICK_THUMBS  = ['wwc4cnvkwnk', '2tiH-1bMP44'];
 
 // Build the class. Each card: {group, name, reps, bullets|steps, dur, bg, sw?, water?, waterAfter?}
 function buildSegments(lvlKey) {
@@ -164,41 +171,44 @@ function buildSegments(lvlKey) {
   const cards = [];
 
   // Warm-up — mobility first (no rest), then rope (water after), then shadowbox.
-  cards.push({ group: 'Warm-up', name: 'Dynamic Mobility', reps: 'flow, no rest', dur: 3 * M, bg: '🤸',
+  cards.push({ group: 'Warm-up', name: 'Dynamic Mobility', reps: 'flow, no rest', dur: 3 * M, bg: '🤸', bgImg: dbImg('Standing_Hip_Circles'),
     bullets: ['Leg swings · hip circles · ankle rolls', 'Arm circles · neck easy', 'Walking lunge + twist'] });
-  cards.push({ group: 'Warm-up', name: 'Skip Rope', reps: 'steady rhythm', dur: 3 * M, bg: '➰', waterAfter: true,
+  cards.push({ group: 'Warm-up', name: 'Skip Rope', reps: 'steady rhythm', dur: 3 * M, bg: '➰', bgImg: dbImg('Rope_Jumping'), waterAfter: true,
     bullets: ['Balls of the feet', 'Wrists spin the rope', 'Mix in the Thai two-foot bounce'] });
-  cards.push({ group: 'Warm-up', name: 'Shadowbox', reps: 'light combos', dur: 2 * M, bg: '👤',
+  cards.push({ group: 'Warm-up', name: 'Shadowbox', reps: 'light combos', dur: 2 * M, bg: '👤', bgImg: ytImg('J4j3AOVWuHE'),
     bullets: ['Move the WHOLE round', 'Stance · rhythm march · checks', 'Light combos from your level'] });
 
   // Conditioning — 4 different exercises, rep targets, straight through. Water after the last.
   const cond = hard
-    ? [['Burpees', '×12', '🤸'], ['Jump Squats', '×15', '🦵'], ['Push-Ups', '×15', '🫸'], ['Mountain Climbers', '×30 total', '⛰️']]
-    : [['Squats', '×20', '🦵'], ['Push-Ups', '×12', '🫸'], ['Jumping Jacks', '×30', '⭐'], ['Mountain Climbers', '×20 total', '⛰️']];
-  cond.forEach(([n, r, bg], i) => cards.push({ group: 'Conditioning', name: n, reps: r + ' · no rest', dur: 60 * S, bg,
+    ? [['Burpees', '×12', '🤸', ytImg('qLBImHhCXSw')], ['Jump Squats', '×15', '🦵', dbImg('Freehand_Jump_Squat')], ['Push-Ups', '×15', '🫸', dbImg('Pushups')], ['Mountain Climbers', '×30 total', '⛰️', dbImg('Mountain_Climbers')]]
+    : [['Squats', '×20', '🦵', dbImg('Bodyweight_Squat')], ['Push-Ups', '×12', '🫸', dbImg('Pushups')], ['Jumping Jacks', '×30', '⭐', ytImg('uLVt6u15L98')], ['Mountain Climbers', '×20 total', '⛰️', dbImg('Mountain_Climbers')]];
+  cond.forEach(([n, r, bg, bgImg], i) => cards.push({ group: 'Conditioning', name: n, reps: r + ' · no rest', dur: 60 * S, bg, bgImg,
     waterAfter: i === cond.length - 1,
     bullets: n === 'Push-Ups' ? ['Rigid plank, elbows ~45°', 'Chest to fist height'] :
              n === 'Burpees' ? ['Chest to floor', 'Jump with feet together'] :
              ['Hard pace, clean reps', 'Straight into the next one'] }));
 
-  // Partner combos — ×20 reps each, 🔁 switch bell at 2:00 (half). Water after combos 2 & 4.
+  // Partner combos — 2:00 striker A → 🧤 30 s glove/pad swap → 2:00 striker B.
+  // Kick-flavoured combos get kick-video backdrops, punch combos get boxing ones.
   COMBOS[lvlKey].forEach((c, i) => {
-    cards.push({ group: 'Combos', name: `Combo ${i + 1}: ${c.name}`, reps: '×20 each · 🔁 switch bell at 2:00',
-      dur: 4 * M, sw: true, bg: '🥊', steps: c.steps, waterAfter: i === 1 || i === 3 });
+    const kicky = /Kick|Knee|Teep/i.test(c.name);
+    cards.push({ group: 'Combos', name: `Combo ${i + 1}: ${c.name}`, reps: '×20 each · 🧤 30 s swap at 2:00',
+      dur: 4 * M + 30 * S, sw: true, bg: '🥊', steps: c.steps, waterAfter: i === 1 || i === 3,
+      bgImg: ytImg(kicky ? KICK_THUMBS[i % KICK_THUMBS.length] : PUNCH_THUMBS[i % PUNCH_THUMBS.length]) });
   });
 
   // Power strikes — 50 each, full strength. Water after the punches.
-  cards.push({ group: 'Power', name: 'Power Kicks — LEFT', reps: '×50 full strength', dur: 150 * S, bg: '🦵',
+  cards.push({ group: 'Power', name: 'Power Kicks — LEFT', reps: '×50 full strength', dur: 150 * S, bg: '🦵', bgImg: ytImg('2tiH-1bMP44'),
     bullets: ['Full pivot EVERY kick', 'Sets of 5–10, partner counts', 'Shin through the pad'] });
-  cards.push({ group: 'Power', name: 'Power Kicks — RIGHT', reps: '×50 full strength', dur: 150 * S, bg: '🦵',
+  cards.push({ group: 'Power', name: 'Power Kicks — RIGHT', reps: '×50 full strength', dur: 150 * S, bg: '🦵', bgImg: ytImg('wwc4cnvkwnk'),
     bullets: ['Same standard — no arm-only swings', 'Breathe out sharp on impact', 'Last 10 = hardest 10'] });
-  cards.push({ group: 'Power', name: 'Power Punches', reps: '×50 per side, full strength', dur: 90 * S, bg: '🥊', waterAfter: true,
+  cards.push({ group: 'Power', name: 'Power Punches', reps: '×50 per side, full strength', dur: 90 * S, bg: '🥊', bgImg: ytImg('7OrcBffPmE0'), waterAfter: true,
     bullets: ['Straight 1-2s, full rotation', 'Sprint the last 20 seconds', 'Hands back to guard every rep'] });
 
   // Core — variable, rotates daily.
   const core = CORES[Math.floor(Date.now() / 86400000) % CORES.length];
   for (let r = 1; r <= 2; r++) {
-    cards.push({ group: 'Core', name: `${core.name} — round ${r}/2`, reps: core.reps, dur: 60 * S, bg: '🧱', bullets: core.bullets });
+    cards.push({ group: 'Core', name: `${core.name} — round ${r}/2`, reps: core.reps, dur: 60 * S, bg: '🧱', bgImg: core.img ? dbImg(core.img) : null, bullets: core.bullets });
   }
 
   // 💧 water breaks exactly where marked (rope → conditioning end → combo 2 → combo 4 → power punches).
@@ -230,7 +240,7 @@ let SEGS = buildSegments(lvl);
 let st = loadJSON(ST_KEY, null);
 if (!st || st.lvl !== lvl || st.n !== SEGS.length) st = freshState();
 function freshState() {
-  return { lvl, n: SEGS.length, i: 0, running: false, remainMs: SEGS[0].dur, endAt: null, totalMs: 0, totalAnchor: null, swFired: false, done: false };
+  return { lvl, n: SEGS.length, i: 0, running: false, remainMs: SEGS[0].dur, endAt: null, totalMs: 0, totalAnchor: null, swFired: false, sw2Fired: false, done: false };
 }
 function persist() { saveJSON(ST_KEY, st); }
 
@@ -271,6 +281,38 @@ function bell(kind) {
 }
 
 // ============================================================
+// Voice coach — reads each exercise + instructions (toggleable 🔊/🔇)
+// ============================================================
+const VOICE_KEY = 'rtc_mt_voice_v1';
+let voiceOn = loadJSON(VOICE_KEY, true);
+const SIDE_WORD = { L: 'Left', R: 'Right', D: 'Defense', '•': '' };
+function speak(text) {
+  if (!voiceOn || !('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.02; u.pitch = 1; u.lang = 'en-US';
+    // let the bell ring first
+    setTimeout(() => { try { speechSynthesis.speak(u); } catch {} }, 650);
+  } catch {}
+}
+function announce(seg) {
+  if (!seg) return;
+  if (seg.water) { speak(`Water break. ${seg.bullets && seg.bullets[1] ? seg.bullets[1] : ''}`); return; }
+  let text = `${seg.name}. ${seg.reps || ''}. `;
+  if (seg.steps) text += seg.steps.map((sp) => `${SIDE_WORD[sp.s] || ''} ${sp.m}: ${sp.t}`).join('. ');
+  else if (seg.bullets) text += seg.bullets.join('. ');
+  speak(text);
+}
+function toggleVoice() {
+  voiceOn = !voiceOn;
+  saveJSON(VOICE_KEY, voiceOn);
+  if (!voiceOn) { try { speechSynthesis.cancel(); } catch {} }
+  else speak('Voice coach on.');
+  paint();
+}
+
+// ============================================================
 // Wake lock
 // ============================================================
 let wakeLock = null;
@@ -295,6 +337,7 @@ function startClass() {
   st.totalAnchor = Date.now();
   persist(); startTick(); requestWake();
   bell('work');
+  announce(SEGS[st.i]);
   document.body.classList.add('mt-live');
   paint();
 }
@@ -313,11 +356,11 @@ function resetClass() {
 }
 function goTo(i, ringBell) {
   st.i = Math.max(0, Math.min(SEGS.length - 1, i));
-  st.swFired = false; st.done = false;
+  st.swFired = false; st.sw2Fired = false; st.done = false;
   st.remainMs = SEGS[st.i].dur;
   if (st.running) st.endAt = Date.now() + st.remainMs;
   persist();
-  if (ringBell) bell(SEGS[st.i].water ? 'water' : 'work');
+  if (ringBell) { bell(SEGS[st.i].water ? 'water' : 'work'); announce(SEGS[st.i]); }
   paint();
 }
 function advance() {
@@ -327,23 +370,30 @@ function advance() {
     st.totalAnchor = null; st.endAt = null; st.remainMs = 0;
     persist(); stopTick(); releaseWake();
     bell('done');
+    speak('Class complete. Great work! Stretch, water, and save it to the tracker.');
     document.body.classList.remove('mt-live');
     paint();
     return;
   }
-  st.i += 1; st.swFired = false;
+  st.i += 1; st.swFired = false; st.sw2Fired = false;
   const seg = SEGS[st.i];
   st.endAt = (st.endAt || Date.now()) + seg.dur;
   st.remainMs = seg.dur;
   persist();
   bell(seg.water ? 'water' : 'work');
+  announce(seg);
   paint();
 }
 function onTick() {
   if (!st.running) return;
   const rem = st.endAt - Date.now();
   const seg = SEGS[st.i];
-  if (seg.sw && !st.swFired && rem <= seg.dur / 2) { st.swFired = true; bell('switch'); persist(); paint(); }
+  if (seg.sw) {
+    const el = seg.dur - rem;
+    // 2:00 striker A → 30 s glove/pad swap → 2:00 striker B
+    if (!st.swFired && el >= 120 * S) { st.swFired = true; bell('switch'); speak('Switch! Drop the gloves, grab the pads. Thirty seconds.'); persist(); paint(); }
+    if (!st.sw2Fired && el >= 150 * S) { st.sw2Fired = true; bell('work'); speak('Go! Second striker, twenty reps.'); persist(); paint(); }
+  }
   const sec = Math.ceil(rem / 1000);
   if (sec !== lastTickSec && sec <= 3 && sec >= 1) { lastTickSec = sec; bell('tick'); }
   if (rem <= 0) { advance(); return; }
@@ -391,8 +441,15 @@ function paintClock() {
   if (bar) bar.style.width = `${Math.max(0, Math.min(100, (1 - rem / seg.dur) * 100))}%`;
   const ph = document.getElementById('mtv-phase');
   if (ph) {
-    ph.textContent = st.done ? 'DONE' : seg.water ? '💧 WATER' : seg.sw ? (st.swFired ? '🔁 B STRIKES' : '🥊 A STRIKES') : 'WORK';
-    ph.className = 'mtv-phase ' + (seg.water ? 'is-rest' : 'is-work');
+    let label = 'WORK';
+    if (st.done) label = 'DONE';
+    else if (seg.water) label = '💧 WATER';
+    else if (seg.sw) {
+      const el = seg.dur - rem;
+      label = el < 120 * S ? '🥊 A STRIKES' : el < 150 * S ? '🧤 SWAP GEAR' : '🥊 B STRIKES';
+    }
+    ph.textContent = label;
+    ph.className = 'mtv-phase ' + (seg.water || label === '🧤 SWAP GEAR' ? 'is-rest' : 'is-work');
   }
 }
 
@@ -415,6 +472,7 @@ function paint() {
     <div class="mtv ${st.done ? 'mtv-done' : ''} ${seg.water ? 'mtv-water' : ''}">
       <div class="mtv-main">
         <div class="mtv-bg" aria-hidden="true">${st.done ? '🏆' : seg.bg || '🥋'}</div>
+        ${seg.bgImg && !st.done ? `<img class="mtv-bgimg" src="${esc(seg.bgImg)}" alt="" loading="lazy" onerror="this.remove()" />` : ''}
         <div class="mtv-group">${esc(seg.group)}${seg.water ? '' : ` · ${cardNo}/${nonWater.length}`}${st.done ? ' · CLASS COMPLETE 🏁' : ''}</div>
         <div class="mtv-name">${st.done ? 'Great work! 🙌' : esc(seg.name)}</div>
         <div class="mtv-reps">${st.done ? `total ${fmt(totalElapsed())}` : esc(seg.reps || '')}</div>
@@ -440,6 +498,7 @@ function paint() {
           <button type="button" id="mt-prev" aria-label="Rewind">⏮</button>
           <button type="button" id="mt-toggle" aria-label="Play/Pause">${st.running ? '⏸' : '▶'}</button>
           <button type="button" id="mt-skip" aria-label="Skip">⏭</button>
+          <button type="button" id="mt-voice" aria-label="Voice on/off" class="${voiceOn ? '' : 'mt-voice-off'}">${voiceOn ? '🔊' : '🔇'}</button>
         </div>
         <div class="mtv-mainwrap"><span class="mtv-mainlbl">CLASS</span><span class="mtv-mainclock" id="mtv-mainclock">${fmt(totalElapsed())}</span></div>
       </div>
@@ -475,6 +534,7 @@ root.addEventListener('click', (e) => {
     return;
   }
   if (e.target.closest('#mt-toggle')) { st.running ? pauseClass() : startClass(); return; }
+  if (e.target.closest('#mt-voice'))  { toggleVoice(); return; }
   if (e.target.closest('#mt-prev'))   { ensureAudio(); goTo(st.i - 1, true); return; }
   if (e.target.closest('#mt-skip'))   { ensureAudio(); st.i >= SEGS.length - 1 ? advance() : goTo(st.i + 1, true); return; }
   if (e.target.closest('#mt-reset'))  { resetClass(); return; }

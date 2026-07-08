@@ -212,7 +212,7 @@ function buildSegments(lvlKey) {
   // Core — variable, rotates daily.
   const core = CORES[Math.floor(Date.now() / 86400000) % CORES.length];
   for (let r = 1; r <= 2; r++) {
-    cards.push({ group: 'Core', name: `${core.name} — round ${r}/2`, reps: core.reps, dur: 60 * S, bg: '🧱', bgImg: core.img ? dbImg(core.img) : null, bullets: core.bullets });
+    cards.push({ group: 'Core', name: `${core.name} — round ${r}/2`, baseName: core.name, reps: core.reps, dur: 60 * S, bg: '🧱', bgImg: core.img ? dbImg(core.img) : null, bullets: core.bullets });
   }
 
   // 💧 water breaks exactly where marked (rope → conditioning end → combo 2 → combo 4 → power punches).
@@ -352,11 +352,65 @@ function speak(text) {
     setTimeout(() => { try { speechSynthesis.speak(u); } catch {} }, 650);
   } catch {}
 }
+// Spoken coach scripts — written as flowing speech, NOT the on-screen bullets.
+// Keyed by card name / combo sequence. TTS reads sentences far more naturally
+// than fragments.
+const SPOKEN = {
+  'Dynamic Mobility': 'Dynamic mobility, three minutes. Leg swings, hip circles, ankle rolls, arm circles, and walking lunges with a twist. Keep it flowing, no rest.',
+  'Skip Rope': 'Skip rope, three minutes. Stay on the balls of your feet and let the wrists spin the rope. Find a steady rhythm.',
+  'Shadowbox': 'Shadowbox, two minutes. Move the whole round. Stance, rhythm, checks, and light combos from your level.',
+  'Squats': 'Squats, twenty reps. Clean and quick, heels down, then straight into the next exercise.',
+  'Push-Ups': 'Push ups. Rigid plank, elbows at forty-five degrees, chest down to fist height.',
+  'Jumping Jacks': 'Jumping jacks, thirty reps at a hard pace.',
+  'Mountain Climbers': 'Mountain climbers. Drive the knees, keep the hips low.',
+  'Burpees': 'Burpees, twelve reps. Chest to the floor, jump with both feet together.',
+  'Jump Squats': 'Jump squats, fifteen reps. Explode up and land soft.',
+  'Power Kicks — LEFT': 'Power kicks, left leg. Fifty kicks at full strength. Full pivot on every single one. Partner counts sets of five.',
+  'Power Kicks — RIGHT': 'Power kicks, right leg. Fifty more, full strength. Breathe out sharp on every impact. The last ten are the hardest ten.',
+  'Power Punches': 'Power punches. Fifty per side, full rotation on every shot, and sprint the last twenty seconds.',
+  'Plank Hold': 'Core time. Plank hold. Straight line, squeeze the glutes, and just breathe.',
+  'Hollow-Body Hold': 'Core time. Hollow body hold. Press the lower back into the floor, arms and legs long.',
+  'Russian Twists': 'Core time. Russian twists, forty total. Feet up, turn shoulder to shoulder, nice and controlled.',
+  'Leg Raises': 'Core time. Leg raises, twenty reps. Slow up, even slower down.',
+  'Side Plank': 'Core time. Side plank. Hips tall, top arm to the ceiling. Switch sides halfway.',
+  'Sit-Up Ladder': 'Core time. Sit up ladder. As many clean sit ups as you can. Count them, and beat that number next week.',
+  'Dead Bug': 'Core time. Dead bug, twenty total. Opposite arm and leg, exhale hard on every rep.',
+  // Combos — keyed by sequence (subName)
+  '1 – 2': 'This one is jab, cross. The bread and butter. Snap the jab out and bring it straight back to your chin, then turn the rear foot and drive the cross through with your hip. Reset tall after every rep.',
+  '1 – 1 – 2': 'Double jab into the cross. The first jab finds the range. Step in behind the second one, then let the cross go with a full turn.',
+  '1 – 2 + Lead Teep': 'Jab, cross, then the lead teep. Set the distance with your hands and push them away with the teep. Knee comes up first, drive through the hip, and bring the foot back under you.',
+  '1 – 2 + Body Kick': 'Jab, cross, and finish with the right body kick. The punches blind them and half-turn your hips. Step out forty-five degrees, pivot, and swing the shin through the pad.',
+  '1 – 2 – 3': 'Jab, cross, lead hook. Pivot the lead foot as the hook comes around and keep that elbow at ninety degrees. Guard stays tall between punches.',
+  '1 – 2 + Switch Kick': 'Jab, cross, then the switch kick. After the cross, a small scissor hop swaps your feet — fire the lead leg kick instantly, no pause after the switch.',
+  'Slip → 2 – 3 + Low Kick': 'Defense first on this one. Your partner feeds a slow jab. Slip outside it, eyes on target. Counter with the cross, wheel the hook around, and chop the low kick into the thigh pad.',
+  '1 – 2 – 5 – 2': 'Jab, cross, lead uppercut, cross. Dip the knees for the uppercut and drive it up the middle, then finish with one more clean cross.',
+  '1 – 2 – 3 + Rear Knee': 'Jab, cross, hook, and drive the rear knee. Grab the pad, pull it down, and spear the hips through. Rise onto the ball of your standing foot.',
+  '1 – 2 + Elbow': 'Jab, cross, then step in and slash the horizontal elbow across the pad, palm facing down. Elbows are short range — really close the distance.',
+  'Teep + 2 – 3 + Low Kick': 'Lead teep to make space, then close it back down. Cross, hook, and finish with the low kick downstairs.',
+  'Check → 2 + Body Kick': 'Your partner feeds a light kick. Check it — knee up and out, stay upright. The moment your foot lands, counter with the cross and the same-side body kick.',
+  '1 – 2 – 3 – 2 + Body Kick': 'Long flow. Jab, cross, hook, cross again, and land the body kick as they cover up. Full rotation on every punch. Breathe through it.',
+  '1 – 2 + Body Kick ×2': 'Jab, cross, then a double body kick on the same side. First kick light and fast. Re-pivot, and make the second one full power.',
+  'Catch → Sweep → 2': 'Catch and sweep. Scoop the fed body kick under your arm, kick out the standing leg with control, and land the cross as they recover. Look after your partner on the sweep.',
+  '1 – 6 – 3 + Low Kick': 'Jab, rear uppercut up the middle, hook around the guard, and chop the low kick on your way out.',
+  'Clinch → 3 Knees → Push + Kick': 'Clinch work. Collar tie, posture tall. Three knees, pulling the pad down into every one. Then shove off and kick as they exit.',
+  '2 – 3 + Spinning Backfist': 'Cross, hook, spinning backfist. The hook turns you halfway — keep spinning, look over your shoulder first, then whip the back of the fist through.',
+  '1 – 2 + Question-Mark Kick': 'Jab, cross, question mark kick. Chamber it like a teep, really sell the fake, then whip it over the guard to the head pad.',
+  '3 – 2 + Spinning Elbow': 'Hook, cross, spinning elbow. The punches square them up and start your rotation. Step across, look, and throw the elbow through the pad.',
+  'Teep-Fake → Superman + Low Kick': 'Teep fake into the superman punch. Lift the knee to sell it, kick the leg back as the cross launches, land forward, and chop the low kick.',
+  '1 – 2 + Flying Knee': 'Jab, cross, flying knee. Step-hop off the rear leg, drive the knee up as you rise, and frame with your arms for balance.',
+  'Free Flow — All 8 Limbs': 'Free flow. The holder calls anything from any level. React, keep breathing, stay in your stance. Quality over speed.',
+};
+
 function announce(seg) {
   if (!seg) return;
-  if (seg.water) { speak(`Water break. ${seg.bullets && seg.bullets[1] ? seg.bullets[1] : ''}`); return; }
+  if (seg.water) { speak(`Water break, forty-five seconds. Sip, shake it out, gloves back on. ${seg.bullets && seg.bullets[1] ? seg.bullets[1].replace('Next:', 'Next up:') : ''}`); return; }
+  // Combos: "Combo N. Twenty reps each, then switch." + flowing script
+  if (seg.subName && SPOKEN[seg.subName]) { speak(`${seg.name}. Twenty reps each, then switch. ${SPOKEN[seg.subName]}`); return; }
+  const base = seg.baseName || seg.name;
+  if (SPOKEN[base]) { speak(SPOKEN[base]); return; }
+  // fallback: smooth out the bullets into sentences
   let text = `${seg.name}. ${seg.reps || ''}. `;
-  if (seg.steps) text += seg.steps.map((sp) => `${SIDE_WORD[sp.s] || ''} ${sp.m}: ${sp.t}`).join('. ');
+  if (seg.steps) text += seg.steps.map((sp) => `${SIDE_WORD[sp.s] || ''} ${sp.m}, ${sp.t}`).join('. ');
   else if (seg.bullets) text += seg.bullets.join('. ');
   speak(text);
 }

@@ -4714,3 +4714,15 @@ body.auth-page {
 }
 .mtv-water .mtv-bgimg { opacity: 0.1; }
 .mt-voice-off { opacity: 0.45; }
+
+/* ---- Muay Thai: looping video backdrop ---- */
+.mtv-video {
+  position: absolute; inset: 0; overflow: hidden; z-index: 0;
+  opacity: 0.3; pointer-events: none;
+}
+.mtv-video iframe {
+  position: absolute; top: 50%; left: 50%;
+  width: 140%; height: 140%;
+  transform: translate(-50%, -50%);
+  border: 0;
+}

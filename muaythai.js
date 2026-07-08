@@ -31,64 +31,64 @@ const LEVELS = [
 // southpaw) · 'D' defense/dodge · '•' note. m: move, t: tip.
 const COMBOS = {
   l1: [
-    { name: '1 – 2', steps: [
+    { name: '1 – 2', vid: 'CuqdEnm9hxE', steps: [
       { s: 'L', m: 'Jab', t: 'snap out, straight back to the chin' },
       { s: 'R', m: 'Cross', t: 'pivot the rear foot, hip through' },
       { s: '•', m: 'Reset', t: 'guard tall before the next rep' } ] },
-    { name: '1 – 1 – 2', steps: [
+    { name: '1 – 1 – 2', vid: 'CuqdEnm9hxE', steps: [
       { s: 'L', m: 'Jab', t: 'range-finder' },
       { s: 'L', m: 'Jab', t: 'step in behind it' },
       { s: 'R', m: 'Cross', t: 'full rotation, chin behind the shoulder' } ] },
-    { name: '1 – 2 + Lead Teep', steps: [
+    { name: '1 – 2 + Lead Teep', vid: 'f8WYkvROi0I', steps: [
       { s: 'L', m: 'Jab', t: 'set the distance' },
       { s: 'R', m: 'Cross', t: 'full hip' },
       { s: 'L', m: 'Teep', t: 'knee up FIRST, push through the hip, re-chamber' } ] },
-    { name: '1 – 2 + Body Kick', steps: [
+    { name: '1 – 2 + Body Kick', vid: 'wwc4cnvkwnk', steps: [
       { s: 'L', m: 'Jab', t: 'blinds the kick' },
       { s: 'R', m: 'Cross', t: 'turns the hips halfway' },
       { s: 'R', m: 'Middle Kick', t: 'step out 45°, pivot, SHIN through the pad' } ] },
   ],
   l2: [
-    { name: '1 – 2 – 3', steps: [
+    { name: '1 – 2 – 3', vid: '7OrcBffPmE0', steps: [
       { s: 'L', m: 'Jab', t: 'snap' },
       { s: 'R', m: 'Cross', t: 'drive off the rear foot' },
       { s: 'L', m: 'Hook', t: 'pivot the lead foot, elbow stays ~90°' } ] },
-    { name: '1 – 2 + Switch Kick', steps: [
+    { name: '1 – 2 + Switch Kick', vid: 'MAI-Pqn4kis', steps: [
       { s: 'L', m: 'Jab', t: 'stay tall' },
       { s: 'R', m: 'Cross', t: 'full hip' },
       { s: '•', m: 'Switch', t: 'small scissor-hop — feet swap' },
       { s: 'L', m: 'Middle Kick', t: 'fire instantly, no pause after the switch' } ] },
-    { name: 'Slip → 2 – 3 + Low Kick', steps: [
+    { name: 'Slip → 2 – 3 + Low Kick', vid: 'Qz29_dtpHdw', steps: [
       { s: 'D', m: 'Slip', t: 'holder feeds a jab — slip outside, eyes on target' },
       { s: 'R', m: 'Cross', t: 'counter straight down the middle' },
       { s: 'L', m: 'Hook', t: 'wheel it around their guard' },
       { s: 'R', m: 'Low Kick', t: 'chop the thigh pad, slight downward angle' } ] },
-    { name: '1 – 2 – 5 – 2', steps: [
+    { name: '1 – 2 – 5 – 2', vid: 'L2P3pNYOr3E', steps: [
       { s: 'L', m: 'Jab', t: 'range' },
       { s: 'R', m: 'Cross', t: 'hips through' },
       { s: 'L', m: 'Uppercut', t: 'dip the knees, drive UP the middle' },
       { s: 'R', m: 'Cross', t: 'finish clean, back to guard' } ] },
   ],
   l3: [
-    { name: '1 – 2 – 3 + Rear Knee', steps: [
+    { name: '1 – 2 – 3 + Rear Knee', vid: 'Q0igBbuN9f0', steps: [
       { s: 'L', m: 'Jab', t: 'enter' },
       { s: 'R', m: 'Cross', t: 'commit the hips' },
       { s: 'L', m: 'Hook', t: 'pivot' },
       { s: 'R', m: 'Straight Knee', t: 'grab the pad, hips SPEAR through (khao trong)' } ] },
-    { name: '1 – 2 + Elbow', steps: [
+    { name: '1 – 2 + Elbow', vid: 'mnjzRshvSpk', steps: [
       { s: 'L', m: 'Jab', t: 'close the gap' },
       { s: 'R', m: 'Cross', t: 'step IN — elbows are short range' },
       { s: 'R', m: 'Horizontal Elbow', t: 'sok tat slashes across, palm down' } ] },
-    { name: 'Teep + 2 – 3 + Low Kick', steps: [
+    { name: 'Teep + 2 – 3 + Low Kick', vid: 'f8WYkvROi0I', steps: [
       { s: 'L', m: 'Teep', t: 'make the space' },
       { s: 'R', m: 'Cross', t: 'close it again' },
       { s: 'L', m: 'Hook', t: 'keep them turning' },
       { s: 'R', m: 'Low Kick', t: 'finish downstairs' } ] },
-    { name: 'Check → 2 + Body Kick', steps: [
+    { name: 'Check → 2 + Body Kick', vid: '2tiH-1bMP44', steps: [
       { s: 'D', m: 'Check', t: 'holder feeds a light kick — knee up & out, stay UPRIGHT' },
       { s: 'R', m: 'Cross', t: 'counter immediately off the check' },
       { s: 'R', m: 'Middle Kick', t: 'same-side kick while they reset' } ] },
-    { name: '1 – 2 – 3 – 2 + Body Kick', steps: [
+    { name: '1 – 2 – 3 – 2 + Body Kick', vid: 'L2P3pNYOr3E', steps: [
       { s: 'L', m: 'Jab', t: 'breathe through the flow' },
       { s: 'R', m: 'Cross', t: 'full rotation' },
       { s: 'L', m: 'Hook', t: 'pivot' },
@@ -96,49 +96,49 @@ const COMBOS = {
       { s: 'R', m: 'Middle Kick', t: 'lands as they cover up' } ] },
   ],
   l4: [
-    { name: '1 – 2 + Body Kick ×2', steps: [
+    { name: '1 – 2 + Body Kick ×2', vid: 'wwc4cnvkwnk', steps: [
       { s: 'L', m: 'Jab', t: 'enter' },
       { s: 'R', m: 'Cross', t: 'turn them' },
       { s: 'R', m: 'Middle Kick', t: 'first one light and fast' },
       { s: 'R', m: 'Middle Kick', t: 're-pivot, second one FULL power' } ] },
-    { name: 'Catch → Sweep → 2', steps: [
+    { name: 'Catch → Sweep → 2', vid: '2tiH-1bMP44', steps: [
       { s: 'D', m: 'Catch', t: 'scoop the fed body kick under your arm' },
       { s: 'D', m: 'Sweep', t: 'kick out the standing leg — CONTROL your partner' },
       { s: 'R', m: 'Cross', t: 'land it as they recover balance' } ] },
-    { name: '1 – 6 – 3 + Low Kick', steps: [
+    { name: '1 – 6 – 3 + Low Kick', vid: 'WMhyO-vcjQI', steps: [
       { s: 'L', m: 'Jab', t: 'blind them' },
       { s: 'R', m: 'Uppercut', t: 'splits the middle (6)' },
       { s: 'L', m: 'Hook', t: 'wheels around' },
       { s: 'R', m: 'Low Kick', t: 'chop the leg on your exit' } ] },
-    { name: 'Clinch → 3 Knees → Push + Kick', steps: [
+    { name: 'Clinch → 3 Knees → Push + Kick', vid: 'Q0igBbuN9f0', steps: [
       { s: '•', m: 'Clinch Entry', t: 'collar tie, posture TALL, chin tucked' },
       { s: 'R', m: 'Knee', t: 'pull the pad DOWN into it' },
       { s: 'L', m: 'Knee', t: 'alternate, hips deliver' },
       { s: 'R', m: 'Knee', t: 'third one hardest' },
       { s: 'R', m: 'Middle Kick', t: 'shove off, kick as they exit' } ] },
-    { name: '2 – 3 + Spinning Backfist', steps: [
+    { name: '2 – 3 + Spinning Backfist', vid: 'JYt_fCaVUtU', steps: [
       { s: 'R', m: 'Cross', t: 'squares them up' },
       { s: 'L', m: 'Hook', t: 'turns you halfway — keep spinning' },
       { s: 'R', m: 'Spinning Backfist', t: 'LOOK over the shoulder first, then whip it' } ] },
   ],
   l5: [
-    { name: '1 – 2 + Question-Mark Kick', steps: [
+    { name: '1 – 2 + Question-Mark Kick', vid: 'ZLiGKESGnZo', steps: [
       { s: 'L', m: 'Jab', t: 'set up' },
       { s: 'R', m: 'Cross', t: 'make them cover' },
       { s: 'R', m: 'Q-Mark Kick', t: 'chamber like a teep — SELL it — whip over the guard' } ] },
-    { name: '3 – 2 + Spinning Elbow', steps: [
+    { name: '3 – 2 + Spinning Elbow', vid: 'uMyIsRH1hoo', steps: [
       { s: 'L', m: 'Hook', t: 'squares them' },
       { s: 'R', m: 'Cross', t: 'starts your rotation' },
       { s: 'R', m: 'Spinning Elbow', t: 'step across, look, sok klap through the pad' } ] },
-    { name: 'Teep-Fake → Superman + Low Kick', steps: [
+    { name: 'Teep-Fake → Superman + Low Kick', vid: 'FKNWcW7cEz0', steps: [
       { s: 'R', m: 'Teep Fake', t: 'lift the knee — sell it' },
       { s: 'R', m: 'Superman Punch', t: 'kick the leg BACK as the cross launches' },
       { s: 'R', m: 'Low Kick', t: 'land forward into stance, chop the exit' } ] },
-    { name: '1 – 2 + Flying Knee', steps: [
+    { name: '1 – 2 + Flying Knee', vid: 'WMhyO-vcjQI', steps: [
       { s: 'L', m: 'Jab', t: 'measure' },
       { s: 'R', m: 'Cross', t: 'drop their eyes' },
       { s: 'R', m: 'Flying Knee', t: 'step-hop off the rear leg, frame with the arms (khao loi)' } ] },
-    { name: 'Free Flow — All 8 Limbs', steps: [
+    { name: 'Free Flow — All 8 Limbs', vid: 'Qz29_dtpHdw', steps: [
       { s: '•', m: 'Holder calls', t: 'anything from L1–L5' },
       { s: '•', m: 'React & flow', t: 'breathe, stay in stance' },
       { s: '•', m: 'Quality', t: 'over speed — always' } ] },
@@ -161,7 +161,7 @@ const S = 1000, M = 60000;
 // Faded photo backdrops: free-exercise-db stills (verified) + YouTube technique-
 // video thumbnails (real internet exercise images; onerror falls back to emoji).
 const dbImg = (id) => `https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/${id}/0.jpg`;
-const ytImg = (id) => `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+const ytImg = (id) => `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
 const PUNCH_THUMBS = ['CuqdEnm9hxE', '7OrcBffPmE0', 'L2P3pNYOr3E', 'Qz29_dtpHdw'];
 const KICK_THUMBS  = ['wwc4cnvkwnk', '2tiH-1bMP44'];
 
@@ -175,14 +175,14 @@ function buildSegments(lvlKey) {
     bullets: ['Leg swings · hip circles · ankle rolls', 'Arm circles · neck easy', 'Walking lunge + twist'] });
   cards.push({ group: 'Warm-up', name: 'Skip Rope', reps: 'steady rhythm', dur: 3 * M, bg: '➰', bgImg: dbImg('Rope_Jumping'), waterAfter: true,
     bullets: ['Balls of the feet', 'Wrists spin the rope', 'Mix in the Thai two-foot bounce'] });
-  cards.push({ group: 'Warm-up', name: 'Shadowbox', reps: 'light combos', dur: 2 * M, bg: '👤', bgImg: ytImg('J4j3AOVWuHE'),
+  cards.push({ group: 'Warm-up', name: 'Shadowbox', reps: 'light combos', dur: 2 * M, bg: '👤', vid: 'J4j3AOVWuHE', bgImg: ytImg('J4j3AOVWuHE'),
     bullets: ['Move the WHOLE round', 'Stance · rhythm march · checks', 'Light combos from your level'] });
 
   // Conditioning — 4 different exercises, rep targets, straight through. Water after the last.
   const cond = hard
-    ? [['Burpees', '×12', '🤸', ytImg('qLBImHhCXSw')], ['Jump Squats', '×15', '🦵', dbImg('Freehand_Jump_Squat')], ['Push-Ups', '×15', '🫸', dbImg('Pushups')], ['Mountain Climbers', '×30 total', '⛰️', dbImg('Mountain_Climbers')]]
-    : [['Squats', '×20', '🦵', dbImg('Bodyweight_Squat')], ['Push-Ups', '×12', '🫸', dbImg('Pushups')], ['Jumping Jacks', '×30', '⭐', ytImg('uLVt6u15L98')], ['Mountain Climbers', '×20 total', '⛰️', dbImg('Mountain_Climbers')]];
-  cond.forEach(([n, r, bg, bgImg], i) => cards.push({ group: 'Conditioning', name: n, reps: r + ' · no rest', dur: 60 * S, bg, bgImg,
+    ? [['Burpees', '×12', '🤸', ytImg('qLBImHhCXSw'), 'qLBImHhCXSw'], ['Jump Squats', '×15', '🦵', dbImg('Freehand_Jump_Squat')], ['Push-Ups', '×15', '🫸', dbImg('Pushups')], ['Mountain Climbers', '×30 total', '⛰️', dbImg('Mountain_Climbers')]]
+    : [['Squats', '×20', '🦵', dbImg('Bodyweight_Squat')], ['Push-Ups', '×12', '🫸', dbImg('Pushups')], ['Jumping Jacks', '×30', '⭐', ytImg('uLVt6u15L98'), 'uLVt6u15L98'], ['Mountain Climbers', '×20 total', '⛰️', dbImg('Mountain_Climbers')]];
+  cond.forEach(([n, r, bg, bgImg, vid], i) => cards.push({ group: 'Conditioning', name: n, reps: r + ' · no rest', dur: 60 * S, bg, bgImg, vid,
     waterAfter: i === cond.length - 1,
     bullets: n === 'Push-Ups' ? ['Rigid plank, elbows ~45°', 'Chest to fist height'] :
              n === 'Burpees' ? ['Chest to floor', 'Jump with feet together'] :
@@ -192,17 +192,18 @@ function buildSegments(lvlKey) {
   // Kick-flavoured combos get kick-video backdrops, punch combos get boxing ones.
   COMBOS[lvlKey].forEach((c, i) => {
     const kicky = /Kick|Knee|Teep/i.test(c.name);
+    const vid = c.vid || (kicky ? KICK_THUMBS[i % KICK_THUMBS.length] : PUNCH_THUMBS[i % PUNCH_THUMBS.length]);
     cards.push({ group: 'Combos', name: `Combo ${i + 1}: ${c.name}`, reps: '×20 each · 🧤 30 s swap at 2:00',
       dur: 4 * M + 30 * S, sw: true, bg: '🥊', steps: c.steps, waterAfter: i === 1 || i === 3,
-      bgImg: ytImg(kicky ? KICK_THUMBS[i % KICK_THUMBS.length] : PUNCH_THUMBS[i % PUNCH_THUMBS.length]) });
+      vid, bgImg: ytImg(vid) });
   });
 
   // Power strikes — 50 each, full strength. Water after the punches.
-  cards.push({ group: 'Power', name: 'Power Kicks — LEFT', reps: '×50 full strength', dur: 150 * S, bg: '🦵', bgImg: ytImg('2tiH-1bMP44'),
+  cards.push({ group: 'Power', name: 'Power Kicks — LEFT', reps: '×50 full strength', dur: 150 * S, bg: '🦵', vid: '2tiH-1bMP44', bgImg: ytImg('2tiH-1bMP44'),
     bullets: ['Full pivot EVERY kick', 'Sets of 5–10, partner counts', 'Shin through the pad'] });
-  cards.push({ group: 'Power', name: 'Power Kicks — RIGHT', reps: '×50 full strength', dur: 150 * S, bg: '🦵', bgImg: ytImg('wwc4cnvkwnk'),
+  cards.push({ group: 'Power', name: 'Power Kicks — RIGHT', reps: '×50 full strength', dur: 150 * S, bg: '🦵', vid: 'wwc4cnvkwnk', bgImg: ytImg('wwc4cnvkwnk'),
     bullets: ['Same standard — no arm-only swings', 'Breathe out sharp on impact', 'Last 10 = hardest 10'] });
-  cards.push({ group: 'Power', name: 'Power Punches', reps: '×50 per side, full strength', dur: 90 * S, bg: '🥊', bgImg: ytImg('7OrcBffPmE0'), waterAfter: true,
+  cards.push({ group: 'Power', name: 'Power Punches', reps: '×50 per side, full strength', dur: 90 * S, bg: '🥊', vid: '7OrcBffPmE0', bgImg: ytImg('7OrcBffPmE0'), waterAfter: true,
     bullets: ['Straight 1-2s, full rotation', 'Sprint the last 20 seconds', 'Hands back to guard every rep'] });
 
   // Core — variable, rotates daily.
@@ -310,6 +311,19 @@ function toggleVoice() {
   if (!voiceOn) { try { speechSynthesis.cancel(); } catch {} }
   else speak('Voice coach on.');
   paint();
+}
+
+// Looping technique-video background (muted YouTube embed) with 🎬 toggle.
+const VIDEO_KEY = 'rtc_mt_video_v1';
+let videoOn = loadJSON(VIDEO_KEY, true);
+function toggleVideo() { videoOn = !videoOn; saveJSON(VIDEO_KEY, videoOn); paint(); }
+function videoHTML(seg) {
+  if (!videoOn || !seg.vid || st.done) return '';
+  return `
+    <div class="mtv-video" aria-hidden="true">
+      <iframe src="https://www.youtube-nocookie.com/embed/${esc(seg.vid)}?autoplay=1&mute=1&controls=0&loop=1&playlist=${esc(seg.vid)}&playsinline=1&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1"
+        frameborder="0" allow="autoplay; encrypted-media" tabindex="-1" title=""></iframe>
+    </div>`;
 }
 
 // ============================================================
@@ -472,7 +486,8 @@ function paint() {
     <div class="mtv ${st.done ? 'mtv-done' : ''} ${seg.water ? 'mtv-water' : ''}">
       <div class="mtv-main">
         <div class="mtv-bg" aria-hidden="true">${st.done ? '🏆' : seg.bg || '🥋'}</div>
-        ${seg.bgImg && !st.done ? `<img class="mtv-bgimg" src="${esc(seg.bgImg)}" alt="" loading="lazy" onerror="this.remove()" />` : ''}
+        ${!(videoOn && seg.vid) && seg.bgImg && !st.done ? `<img class="mtv-bgimg" src="${esc(seg.bgImg)}" alt="" loading="lazy" onerror="if(!this.dataset.f){this.dataset.f=1;this.src=this.src.replace('maxresdefault','hqdefault');}else{this.remove();}" />` : ''}
+        ${videoHTML(seg)}
         <div class="mtv-group">${esc(seg.group)}${seg.water ? '' : ` · ${cardNo}/${nonWater.length}`}${st.done ? ' · CLASS COMPLETE 🏁' : ''}</div>
         <div class="mtv-name">${st.done ? 'Great work! 🙌' : esc(seg.name)}</div>
         <div class="mtv-reps">${st.done ? `total ${fmt(totalElapsed())}` : esc(seg.reps || '')}</div>
@@ -499,6 +514,7 @@ function paint() {
           <button type="button" id="mt-toggle" aria-label="Play/Pause">${st.running ? '⏸' : '▶'}</button>
           <button type="button" id="mt-skip" aria-label="Skip">⏭</button>
           <button type="button" id="mt-voice" aria-label="Voice on/off" class="${voiceOn ? '' : 'mt-voice-off'}">${voiceOn ? '🔊' : '🔇'}</button>
+          <button type="button" id="mt-video" aria-label="Video background on/off" class="${videoOn ? '' : 'mt-voice-off'}">🎬</button>
         </div>
         <div class="mtv-mainwrap"><span class="mtv-mainlbl">CLASS</span><span class="mtv-mainclock" id="mtv-mainclock">${fmt(totalElapsed())}</span></div>
       </div>
@@ -535,6 +551,7 @@ root.addEventListener('click', (e) => {
   }
   if (e.target.closest('#mt-toggle')) { st.running ? pauseClass() : startClass(); return; }
   if (e.target.closest('#mt-voice'))  { toggleVoice(); return; }
+  if (e.target.closest('#mt-video'))  { toggleVideo(); return; }
   if (e.target.closest('#mt-prev'))   { ensureAudio(); goTo(st.i - 1, true); return; }
   if (e.target.closest('#mt-skip'))   { ensureAudio(); st.i >= SEGS.length - 1 ? advance() : goTo(st.i + 1, true); return; }
   if (e.target.closest('#mt-reset'))  { resetClass(); return; }

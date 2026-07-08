@@ -553,11 +553,12 @@ function paint() {
       <div class="mt-voicepick">
         <span>🗣️ Voice</span>
         <select id="mt-voice-sel">
-          ${voices.map((v) => `<option value="${esc(v.name)}" ${pickVoice() && pickVoice().name === v.name ? 'selected' : ''}>${esc(v.name.replace(/\s*\(.+?\)\s*/g, ' ').trim())}${/(enhanced|premium|natural|neural)/i.test(v.name) ? ' ★' : ''}</option>`).join('')}
+          ${voices.map((v) => `<option value="${esc(v.name)}" ${pickVoice() && pickVoice().name === v.name ? 'selected' : ''}>${esc(v.name)}${/(enhanced|premium|natural|neural)/i.test(v.name) ? ' ★' : ''}</option>`).join('')}
         </select>
+        <button type="button" class="ghost-btn" id="mt-voice-rescan" title="Rescan voices">🔄</button>
         <button type="button" class="ghost-btn" id="mt-voice-test">Test</button>
       </div>
-      <div class="mt-voicenote">Robotic voice? On iPhone: Settings → Accessibility → Spoken Content → Voices → English → download an <b>Enhanced</b> voice (★), then pick it here.</div>` : ''}
+      <div class="mt-voicenote"><b>${voices.length} voices detected</b> (★ = enhanced). Downloaded a voice but it's not listed? iOS only hands new voices to the app at launch — <b>fully close the app (swipe it away) and reopen</b>, then 🔄. Still missing → restart the phone once. Download at: Settings → Accessibility → Spoken Content → Voices → English.</div>` : ''}
     </div>
 
     <div class="mtv ${st.done ? 'mtv-done' : ''} ${seg.water ? 'mtv-water' : ''}">
@@ -641,6 +642,13 @@ root.addEventListener('click', (e) => {
   if (e.target.closest('#mt-voice'))  { toggleVoice(); return; }
   if (e.target.closest('#mt-video'))  { toggleVideo(); return; }
   if (e.target.closest('#mt-voice-test')) { voiceOn = true; saveJSON(VOICE_KEY, true); speak('One. Two. Left teep. Switch! Drop the gloves, grab the pads.'); return; }
+  if (e.target.closest('#mt-voice-rescan')) {
+    const before = voices.length;
+    refreshVoices();
+    paint();
+    toast(voices.length > before ? `🔄 Found ${voices.length - before} new voice${voices.length - before === 1 ? '' : 's'}!` : `🔄 ${voices.length} voices — none new. Fully close & reopen the app.`);
+    return;
+  }
   if (e.target.closest('#mt-prev'))   { unlockAudio(); goTo(st.i - 1, true); return; }
   if (e.target.closest('#mt-skip'))   { unlockAudio(); st.i >= SEGS.length - 1 ? advance() : goTo(st.i + 1, true); return; }
   if (e.target.closest('#mt-reset'))  { resetClass(); return; }

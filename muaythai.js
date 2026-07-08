@@ -340,16 +340,36 @@ function pickVoice() {
     (v.localService ? 1 : 0);
   return voices.slice().sort((a, b) => score(b) - score(a))[0];
 }
-function speak(text) {
+// User-calibrated speaking speed (0.7 slow → 1.3 fast), multiplied into every line.
+const RATE_KEY = 'rtc_mt_rate_v1';
+let voiceRate = loadJSON(RATE_KEY, 0.95);
+
+function makeUtter(text, opts) {
+  const u = new SpeechSynthesisUtterance(text);
+  const v = pickVoice();
+  if (v) u.voice = v;
+  u.rate = Math.max(0.5, Math.min(2, (opts && opts.rate ? opts.rate : 1) * voiceRate));
+  u.pitch = opts && opts.pitch ? opts.pitch : 1;
+  return u;
+}
+function speak(text, opts) {
   if (!voiceOn || !('speechSynthesis' in window)) return;
   try {
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    const v = pickVoice();
-    if (v) u.voice = v;
-    u.rate = 0.95; u.pitch = 1;
+    const u = makeUtter(text, opts);
     // let the bell ring first
     setTimeout(() => { try { speechSynthesis.speak(u); } catch {} }, 650);
+  } catch {}
+}
+// Multiple utterances with different emotion (pitch/rate) queue back-to-back:
+// excited cheer first, then the calm instruction voice.
+function speakParts(parts) {
+  if (!voiceOn || !('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    setTimeout(() => {
+      try { parts.forEach((p) => speechSynthesis.speak(makeUtter(p.t, p))); } catch {}
+    }, 650);
   } catch {}
 }
 // Spoken coach scripts — written as flowing speech, NOT the on-screen bullets.
@@ -403,34 +423,50 @@ const SPOKEN = {
 
 // Motivation pools — a random one is woven into each announcement so the
 // coach sounds alive, not looped.
+// Elongated spellings + exclamations give the TTS real intonation; cheers are
+// spoken higher-pitched and a touch faster than the calm instruction voice.
 const CHEER = {
-  go: ['Let’s go!', 'Here we go!', 'Let’s get it!', 'Time to work!', 'Bring the energy!', 'All right, let’s roll!', 'Stay sharp!', 'Let’s move!'],
-  switchGo: ['Your turn — let’s see it!', 'Switch done — go get it!', 'Fresh striker, let’s go!', 'Show them how it’s done!'],
-  water: ['Nice work, you two!', 'Good round! Breathe.', 'That’s the pace — quick breather.', 'Strong work! Shake it out.'],
-  push: ['Ten seconds — push!', 'Last ten — empty the tank!', 'Ten to go — finish strong!'],
-  done: ['You two rock! Same energy next time.', 'Awesome work today. That’s how it’s done!', 'Great class — be proud of that one!'],
+  go: ['Heeeere we goooo!', 'Let’s goooo!', 'Let’s get it, team!', 'Tiiiime to work!', 'Bring the energy, let’s roll!', 'Okaaay — let’s move!', 'Come on, come on, let’s go!'],
+  switchGo: ['Fresh striker — let’s goooo!', 'Your turn! Let’s seeee it!', 'Switch done — go get it!', 'Show them how it’s dooone!'],
+  water: ['Niiiice work, you two!', 'Wheew! Good round — breathe.', 'Strong work! Shake it out.', 'Beauuutiful! Quick breather.'],
+  push: ['Ten seconds — puuuush!', 'Last ten! Empty the taaaank!', 'Ten to go — finish stroooong!'],
+  done: ['Yooooou two ROCK! Same energy next time!', 'Whooooo! Awesome work today!', 'That’s a wraaaap — what a class!'],
 };
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const EXCITED = { pitch: 1.3, rate: 1.08 };
+const CALM = { pitch: 1.0, rate: 1.0 };
 
 function announce(seg) {
   if (!seg) return;
-  if (seg.water) { speak(`${pick(CHEER.water)} Water break, forty-five seconds. Sip, shake it out, gloves back on. ${seg.bullets && seg.bullets[1] ? seg.bullets[1].replace('Next:', 'Next up:') : ''}`); return; }
+  if (seg.water) {
+    speakParts([
+      { t: pick(CHEER.water), ...EXCITED },
+      { t: `Water break, forty-five seconds. Sip, shake it out, gloves back on. ${seg.bullets && seg.bullets[1] ? seg.bullets[1].replace('Next:', 'Next up:') : ''}`, ...CALM },
+    ]);
+    return;
+  }
   const cheer = pick(CHEER.go);
-  // Combos: "Combo N. Twenty reps each, then switch." + flowing script
-  if (seg.subName && SPOKEN[seg.subName]) { speak(`${seg.name}. ${cheer} Twenty reps each, then switch. ${SPOKEN[seg.subName]}`); return; }
+  // Combos: "Combo N" + excited cheer + calm flowing script
+  if (seg.subName && SPOKEN[seg.subName]) {
+    speakParts([
+      { t: `${seg.name}. ${cheer}`, ...EXCITED },
+      { t: `Twenty reps each, then switch. ${SPOKEN[seg.subName]}`, ...CALM },
+    ]);
+    return;
+  }
   const base = seg.baseName || seg.name;
-  if (SPOKEN[base]) { speak(`${cheer} ${SPOKEN[base]}`); return; }
+  if (SPOKEN[base]) { speakParts([{ t: cheer, ...EXCITED }, { t: SPOKEN[base], ...CALM }]); return; }
   // fallback: smooth out the bullets into sentences
-  let text = `${cheer} ${seg.name}. ${seg.reps || ''}. `;
+  let text = `${seg.name}. ${seg.reps || ''}. `;
   if (seg.steps) text += seg.steps.map((sp) => `${SIDE_WORD[sp.s] || ''} ${sp.m}, ${sp.t}`).join('. ');
   else if (seg.bullets) text += seg.bullets.join('. ');
-  speak(text);
+  speakParts([{ t: cheer, ...EXCITED }, { t: text, ...CALM }]);
 }
 function toggleVoice() {
   voiceOn = !voiceOn;
   saveJSON(VOICE_KEY, voiceOn);
   if (!voiceOn) { try { speechSynthesis.cancel(); } catch {} }
-  else speak('Voice coach on.');
+  else speak('Voice coach on!', EXCITED);
   paint();
 }
 
@@ -507,7 +543,7 @@ function advance() {
     st.totalAnchor = null; st.endAt = null; st.remainMs = 0;
     persist(); stopTick(); releaseWake();
     bell('done');
-    speak(`Class complete. ${pick(CHEER.done)} Stretch, water, and save it to the tracker.`);
+    speakParts([{ t: `Class complete! ${pick(CHEER.done)}`, ...EXCITED }, { t: 'Stretch, water, and save it to the tracker.', ...CALM }]);
     document.body.classList.remove('mt-live');
     paint();
     return;
@@ -528,10 +564,10 @@ function onTick() {
   if (seg.sw) {
     const el = seg.dur - rem;
     // 2:00 striker A → 30 s glove/pad swap → 2:00 striker B
-    if (!st.swFired && el >= 120 * S) { st.swFired = true; bell('switch'); speak('Switch! Drop the gloves, grab the pads. Thirty seconds.'); persist(); paint(); }
-    if (!st.sw2Fired && el >= 150 * S) { st.sw2Fired = true; bell('work'); speak(`${pick(CHEER.switchGo)} Twenty reps!`); persist(); paint(); }
+    if (!st.swFired && el >= 120 * S) { st.swFired = true; bell('switch'); speakParts([{ t: 'Swiiitch!', ...EXCITED }, { t: 'Drop the gloves, grab the pads. Thirty seconds.', ...CALM }]); persist(); paint(); }
+    if (!st.sw2Fired && el >= 150 * S) { st.sw2Fired = true; bell('work'); speak(`${pick(CHEER.switchGo)} Twenty reps!`, EXCITED); persist(); paint(); }
   }
-  if (!seg.water && !seg.sw && !st.pushFired && rem <= 10 * S && rem > 8 * S) { st.pushFired = true; speak(pick(CHEER.push)); persist(); }
+  if (!seg.water && !seg.sw && !st.pushFired && rem <= 10 * S && rem > 8 * S) { st.pushFired = true; speak(pick(CHEER.push), { pitch: 1.35, rate: 1.12 }); persist(); }
   const sec = Math.ceil(rem / 1000);
   if (sec !== lastTickSec && sec <= 3 && sec >= 1) { lastTickSec = sec; bell('tick'); }
   if (rem <= 0) { advance(); return; }
@@ -625,6 +661,12 @@ function paint() {
         <button type="button" class="ghost-btn" id="mt-voice-rescan" title="Rescan voices">🔄</button>
         <button type="button" class="ghost-btn" id="mt-voice-test">Test</button>
       </div>
+      <div class="mt-ratepick">
+        <span>🐢</span>
+        <input type="range" id="mt-rate" min="0.7" max="1.3" step="0.05" value="${voiceRate}" />
+        <span>🐇</span>
+        <b id="mt-rate-val">${Math.round(voiceRate * 100)}%</b>
+      </div>
       <div class="mt-voicenote"><b>${voices.length} voices detected</b> (★ = enhanced). Downloaded a voice but it's not listed? iOS only hands new voices to the app at launch — <b>fully close the app (swipe it away) and reopen</b>, then 🔄. Still missing → restart the phone once. Download at: Settings → Accessibility → Spoken Content → Voices → English.</div>` : ''}
     </div>
 
@@ -686,12 +728,26 @@ function paint() {
   paintClock();
 }
 
+root.addEventListener('input', (e) => {
+  if (e.target.id === 'mt-rate') {
+    voiceRate = parseFloat(e.target.value);
+    const v = document.getElementById('mt-rate-val');
+    if (v) v.textContent = `${Math.round(voiceRate * 100)}%`;
+  }
+});
 root.addEventListener('change', (e) => {
+  if (e.target.id === 'mt-rate') {
+    voiceRate = parseFloat(e.target.value);
+    saveJSON(RATE_KEY, voiceRate);
+    voiceOn = true; saveJSON(VOICE_KEY, true);
+    speak('This is my talking speed. Jab, cross, and the lead teep.');
+    return;
+  }
   if (e.target.id === 'mt-voice-sel') {
     voiceName = e.target.value;
     saveJSON(VOICE_NAME_KEY, voiceName);
     voiceOn = true; saveJSON(VOICE_KEY, true);
-    speak('This is your coach voice.');
+    speak('Heeey! This is your coach voice.', EXCITED);
   }
 });
 
@@ -708,7 +764,7 @@ root.addEventListener('click', (e) => {
   if (e.target.closest('#mt-toggle')) { st.running ? pauseClass() : startClass(); return; }
   if (e.target.closest('#mt-voice'))  { toggleVoice(); return; }
   if (e.target.closest('#mt-video'))  { toggleVideo(); return; }
-  if (e.target.closest('#mt-voice-test')) { voiceOn = true; saveJSON(VOICE_KEY, true); speak('One. Two. Left teep. Switch! Drop the gloves, grab the pads.'); return; }
+  if (e.target.closest('#mt-voice-test')) { voiceOn = true; saveJSON(VOICE_KEY, true); speakParts([{ t: 'Heeeere we goooo!', ...EXCITED }, { t: 'One. Two. Left teep. Switch! Drop the gloves, grab the pads.', ...CALM }]); return; }
   if (e.target.closest('#mt-voice-rescan')) {
     const before = voices.length;
     refreshVoices();

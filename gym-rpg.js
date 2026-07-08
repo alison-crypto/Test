@@ -20,6 +20,7 @@
   const XP_KEY    = 'rtc_gym_xp_him_v1';
   const TIMER_KEY = 'rtc_gym_timer_him_v1';
   const DIFF_KEY  = 'rtc_gym_diff_him_v1';
+  const UNIT_KEY  = 'rtc_gym_unit_him_v1';
 
   const loadJSON = (k, f) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? f : v; } catch { return f; } };
   const saveJSON = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
@@ -101,7 +102,15 @@
     return { done, total: ex.length };
   }
 
-  // ---- lb↔kg converter (many gyms use pounds) ----
+  // ---- logging unit (kg or lb) — many gyms load in pounds ----
+  // The standards are in kg; when you log in lb we read your numbers as lb and
+  // convert for the level check, and show every goal in lb too.
+  let unit = loadJSON(UNIT_KEY, 'kg');
+  const LB = 2.20462;
+  const uw = (kg) => unit === 'lb' ? kg * LB : kg;                       // kg → display unit
+  const fmtW = (kg) => unit === 'lb' ? Math.round(kg * LB) : (Math.round(kg * 2) / 2); // rounded for display
+
+  // ---- lb↔kg converter (quick tool) ----
   let convVal = '', convUnit = 'lb';
   function convResult() {
     const n = parseFloat(convVal);
@@ -167,22 +176,23 @@
   function tierDisp(s, t) {
     const v = s[t];
     if (s.rep) return v;
-    if (s.perhand) return `${v}kg/hd×${s.r}`;
-    return `${v}kg×${s.r}`;
+    if (s.perhand) return `${fmtW(v)}${unit}/hd×${s.r}`;
+    return `${fmtW(v)}${unit}×${s.r}`;
   }
   function nameFor(exId) { const el = document.querySelector(`.exercise[data-ex="${exId}"] .ex-name`); return el ? el.textContent.trim() : exId; }
+  // w = your logged best, read in the current unit; compare to kg standards in that unit.
   function levelName(exId, w) {
     const s = STANDARDS[exId];
     if (!s || s.rep || w == null) return null;
-    return w >= s.eli ? 'Elite' : w >= s.adv ? 'Advanced' : w >= s.int ? 'Intermediate' : w >= s.beg ? 'Beginner' : 'Building';
+    return w >= uw(s.eli) ? 'Elite' : w >= uw(s.adv) ? 'Advanced' : w >= uw(s.int) ? 'Intermediate' : w >= uw(s.beg) ? 'Beginner' : 'Building';
   }
   function nextGoal(exId, w) {
     const s = STANDARDS[exId];
     if (!s || s.rep) return null;
-    if (w == null || w < s.beg) return `${s.beg}kg (Beg)`;
-    if (w < s.int) return `${s.int}kg (Int)`;
-    if (w < s.adv) return `${s.adv}kg (Adv)`;
-    if (w < s.eli) return `${s.eli}kg (Elite)`;
+    if (w == null || w < uw(s.beg)) return `${fmtW(s.beg)}${unit} (Beg)`;
+    if (w < uw(s.int)) return `${fmtW(s.int)}${unit} (Int)`;
+    if (w < uw(s.adv)) return `${fmtW(s.adv)}${unit} (Adv)`;
+    if (w < uw(s.eli)) return `${fmtW(s.eli)}${unit} (Elite)`;
     return 'maxed 💪';
   }
   function paintGoals() {
@@ -197,8 +207,7 @@
       let you = '';
       if (!s.rep && b[card.dataset.ex]) {
         const w = b[card.dataset.ex].w;
-        const lvl = w >= s.adv ? 'Advanced' : w >= s.int ? 'Intermediate' : w >= s.beg ? 'Beginner' : 'building';
-        you = `<span class="grpg-goal-you">you ${w}kg · ${lvl}</span>`;
+        you = `<span class="grpg-goal-you">you ${w}${unit} · ${levelName(card.dataset.ex, w) || 'building'}</span>`;
       }
       goals.innerHTML = `
         <span class="grpg-goal-lbl">Goals</span>
@@ -245,13 +254,13 @@
       const s = STANDARDS[exId], best = b[exId];
       const name = nameFor(exId);
       if (s.rep) {
-        const bestStr = best ? `${best.w}kg×${best.r}` : '—';
+        const bestStr = best ? `${best.w}${unit}×${best.r}` : '—';
         return `<tr><td>${esc(name)}</td><td class="rec-best">${esc(bestStr)}</td><td><span class="grpg-lv lv-build">reps</span></td><td class="rec-tgt">${esc(s.adv)}</td></tr>`;
       }
       const w = best ? best.w : null;
       const lvl = w != null ? levelName(exId, w) : '—';
       const cls = LVL_CLASS[lvl] || '';
-      const bestStr = best ? `${best.w}kg×${best.r}` : '—';
+      const bestStr = best ? `${best.w}${unit}×${best.r}` : '—';
       return `<tr><td>${esc(name)}</td><td class="rec-best">${esc(bestStr)}</td><td>${lvl === '—' ? '—' : `<span class="grpg-lv ${cls}">${lvl}</span>`}</td><td class="rec-tgt">${esc(nextGoal(exId, w))}</td></tr>`;
     }).join('');
     const recent = (xp.log || []).slice(0, 6).map((e) => `<li><span>${esc(e.label)}</span><b>+${e.pts}</b></li>`).join('')
@@ -290,6 +299,12 @@
           <button type="button" class="race-btn" id="grpg-reset">Reset</button>
         </div>
       </div>
+      <div class="grpg-unit">
+        <span class="grpg-unit-lbl">Log weights in</span>
+        <button type="button" class="grpg-unit-btn ${unit === 'kg' ? 'on' : ''}" data-unit="kg">kg</button>
+        <button type="button" class="grpg-unit-btn ${unit === 'lb' ? 'on' : ''}" data-unit="lb">lb</button>
+        <span class="grpg-unit-note">goals show in ${unit}; your logged numbers are read as ${unit}</span>
+      </div>
       ${convHTML()}
       <div class="race-preset">
         <span class="race-preset-lbl">Difficulty →</span>
@@ -317,6 +332,8 @@
     if (e.target.closest('#grpg-pause')) return pauseTimer();
     if (e.target.closest('#grpg-reset')) return resetTimer();
     if (e.target.closest('#grpg-conv-unit')) { convUnit = convUnit === 'lb' ? 'kg' : 'lb'; render(); return; }
+    const u = e.target.closest('[data-unit]');
+    if (u) { unit = u.dataset.unit; saveJSON(UNIT_KEY, unit); render(); paintGoals(); return; }
     const d = e.target.closest('[data-diff]');
     if (d) { diff = d.dataset.diff; saveJSON(DIFF_KEY, diff); render(); paintGoals(); }
   });

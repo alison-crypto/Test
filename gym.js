@@ -6,6 +6,11 @@ const NOTES_KEY = STORAGE_KEY + '_notes';
 const TRAINING_HISTORY_KEY = 'rtc_tracker_training_v1';
 const EXPORT_LABEL = cfg.exportLabel || 'Gym session';
 const IS_HER = (EXPORT_LABEL || '').toLowerCase().startsWith('darlene');
+const PERSON = IS_HER ? 'her' : 'him';
+// Per-person logging unit (set on the gym page's kg/lb toggle). Numbers are stored
+// as-typed; this is just the label so PRs/inputs read in the right unit.
+let LOG_UNIT = 'kg';
+try { LOG_UNIT = JSON.parse(localStorage.getItem('rtc_gym_unit_' + PERSON + '_v1')) || 'kg'; } catch (e) {}
 let currentDay = cfg.defaultDay;
 
 function ytSearchUrl(name) {
@@ -76,7 +81,7 @@ document.querySelectorAll('.exercise').forEach((ex) => {
   if (info && prs[exId]) {
     const badge = document.createElement('div');
     badge.className = 'ex-pr';
-    badge.textContent = `🏆 PR ${prs[exId].weight}×${prs[exId].reps}`;
+    badge.textContent = `🏆 PR ${prs[exId].weight}${LOG_UNIT}×${prs[exId].reps}`;
     badge.title = `Best logged set, ${prs[exId].date}`;
     info.appendChild(badge);
   }
@@ -134,7 +139,7 @@ document.querySelectorAll('.exercise').forEach((ex) => {
     row.className = 'set-row';
     row.innerHTML = `
       <span class="set-label">Set ${i}</span>
-      <input class="set-input" type="text" inputmode="decimal" placeholder="weight" data-field="w${i}" />
+      <input class="set-input" type="text" inputmode="decimal" placeholder="${LOG_UNIT}" data-field="w${i}" />
       <span class="set-unit">×</span>
       <input class="set-input" type="text" inputmode="numeric" placeholder="reps" data-field="r${i}" />
     `;

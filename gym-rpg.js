@@ -220,6 +220,17 @@
     });
   }
 
+  // Keep gym.js's own PR badges + weight placeholders in the chosen unit live
+  // (they read the unit once at page load; refresh them when the toggle flips).
+  function syncGymLabels() {
+    document.querySelectorAll('.set-input[data-field^="w"]').forEach((i) => { i.placeholder = unit; });
+    const b = bests();
+    document.querySelectorAll('.exercise[data-ex]').forEach((card) => {
+      const badge = card.querySelector('.ex-pr'), rec = b[card.dataset.ex];
+      if (badge && rec) badge.textContent = `🏆 PR ${rec.w}${unit}×${rec.r}`;
+    });
+  }
+
   // ---- toast ----
   function toast(msg) { const t = document.createElement('div'); t.className = 't-toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2800); }
 
@@ -333,7 +344,7 @@
     if (e.target.closest('#grpg-reset')) return resetTimer();
     if (e.target.closest('#grpg-conv-unit')) { convUnit = convUnit === 'lb' ? 'kg' : 'lb'; render(); return; }
     const u = e.target.closest('[data-unit]');
-    if (u) { unit = u.dataset.unit; saveJSON(UNIT_KEY, unit); render(); paintGoals(); return; }
+    if (u) { unit = u.dataset.unit; saveJSON(UNIT_KEY, unit); render(); paintGoals(); syncGymLabels(); return; }
     const d = e.target.closest('[data-diff]');
     if (d) { diff = d.dataset.diff; saveJSON(DIFF_KEY, diff); render(); paintGoals(); }
   });

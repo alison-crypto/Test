@@ -63,6 +63,13 @@ const BODY_KEY     = 'rtc_tracker_body_v1';
 const MEAL_KEY     = 'rtc_tracker_meals_v1';
 const TRAINING_KEY = 'rtc_tracker_training_v1';
 
+// Per-person lifting unit (set on the gym page's kg/lb toggle). Weights are stored
+// as-typed; this only labels them so PRs read in the right unit.
+function unitFor(person) {
+  try { return JSON.parse(localStorage.getItem('rtc_gym_unit_' + person + '_v1')) || 'kg'; }
+  catch (e) { return 'kg'; }
+}
+
 // ============================================================
 // Storage helpers
 // ============================================================
@@ -527,10 +534,11 @@ function renderTraining() {
     return;
   }
   trainList.innerHTML = entries.map((s) => {
+    const u = unitFor(s.person);
     const setsHtml = (s.exercises || []).map((ex) => {
       const setStr = (ex.sets || [])
         .filter((x) => x.w || x.r)
-        .map((x) => `${x.w || '?'}×${x.r || '?'}`)
+        .map((x) => `${x.w ? x.w + u : '?'}×${x.r || '?'}`)
         .join(' · ') || '<em>(no data)</em>';
       return `
         <li>
@@ -669,7 +677,7 @@ function renderPRs() {
     if (!entries.length) return `<p class="t-empty">No ${person === 'him' ? "Alison's" : "Darlene's"} PRs yet.</p>`;
     return `
       <table class="t-pr-table">
-        <thead><tr><th>Exercise</th><th>Top kg</th><th>Reps</th><th>Date</th></tr></thead>
+        <thead><tr><th>Exercise</th><th>Top ${esc(unitFor(person))}</th><th>Reps</th><th>Date</th></tr></thead>
         <tbody>
           ${entries.map(([name, p]) => `
             <tr>

@@ -4615,3 +4615,25 @@ body.auth-page {
   border-radius: 7px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer;
 }
 .lib-send-her { border-color: #ec4899 !important; color: #ec4899 !important; }
+
+/* ---- Muay Thai class (muaythai.html) ---- */
+.mt-phase { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; min-height: 14px; }
+.mt-phase.is-work { color: var(--danger); }
+.mt-phase.is-rest { color: var(--success); }
+.mt-seg-label { font-size: 13px; font-weight: 700; color: var(--text); text-align: center; min-height: 17px; }
+.mt-seg {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; margin-bottom: 8px;
+  background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--border);
+  border-radius: 10px; box-shadow: var(--shadow); cursor: pointer;
+}
+.mt-seg.active { border-left-color: var(--gym-accent); background: var(--accent-soft); }
+.mt-seg.past { opacity: 0.55; border-left-color: var(--success); }
+.mt-seg-time { flex-shrink: 0; width: 62px; font-size: 13px; font-weight: 800; color: var(--gym-accent); font-variant-numeric: tabular-nums; }
+.mt-seg-time span { display: block; font-size: 9px; font-weight: 600; color: var(--muted); }
+.mt-seg-body { flex: 1; min-width: 0; }
+.mt-seg-name { font-size: 13.5px; font-weight: 700; color: var(--text); }
+.mt-sw { font-size: 9.5px; font-weight: 700; color: var(--warn); }
+.mt-seg-detail { font-size: 11px; color: var(--muted-strong); margin-top: 2px; line-height: 1.45; }
+.mt-seg-mark { flex-shrink: 0; font-size: 14px; font-weight: 800; color: var(--success); width: 18px; text-align: center; }
+.tile-muaythai { background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%); }

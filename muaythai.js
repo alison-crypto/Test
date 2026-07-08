@@ -285,14 +285,40 @@ function bell(kind) {
 // Voice coach — reads each exercise + instructions (toggleable 🔊/🔇)
 // ============================================================
 const VOICE_KEY = 'rtc_mt_voice_v1';
+const VOICE_NAME_KEY = 'rtc_mt_voicename_v1';
 let voiceOn = loadJSON(VOICE_KEY, true);
+let voiceName = loadJSON(VOICE_NAME_KEY, null);
+let voices = [];
 const SIDE_WORD = { L: 'Left', R: 'Right', D: 'Defense', '•': '' };
+
+// Prefer the good system voices (iOS "Enhanced/Premium" downloads) over the
+// robotic default. User can override with the picker.
+function refreshVoices() {
+  try { voices = speechSynthesis.getVoices().filter((v) => v.lang && v.lang.toLowerCase().startsWith('en')); }
+  catch { voices = []; }
+}
+if ('speechSynthesis' in window) {
+  refreshVoices();
+  try { speechSynthesis.onvoiceschanged = () => { refreshVoices(); paint(); }; } catch {}
+}
+function pickVoice() {
+  if (!voices.length) return null;
+  if (voiceName) { const v = voices.find((x) => x.name === voiceName); if (v) return v; }
+  const score = (v) =>
+    (/(enhanced|premium|natural|neural)/i.test(v.name) ? 8 : 0) +
+    (/(samantha|ava|zoe|karen|serena|daniel|moira|allison)/i.test(v.name) ? 2 : 0) +
+    (v.lang === 'en-US' ? 1 : 0) +
+    (v.localService ? 1 : 0);
+  return voices.slice().sort((a, b) => score(b) - score(a))[0];
+}
 function speak(text) {
   if (!voiceOn || !('speechSynthesis' in window)) return;
   try {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.rate = 1.02; u.pitch = 1; u.lang = 'en-US';
+    const v = pickVoice();
+    if (v) u.voice = v;
+    u.rate = 0.95; u.pitch = 1;
     // let the bell ring first
     setTimeout(() => { try { speechSynthesis.speak(u); } catch {} }, 650);
   } catch {}
@@ -313,9 +339,11 @@ function toggleVoice() {
   paint();
 }
 
-// Looping technique-video background (muted YouTube embed) with 🎬 toggle.
-const VIDEO_KEY = 'rtc_mt_video_v1';
-let videoOn = loadJSON(VIDEO_KEY, true);
+// Looping technique-video background — EXPERIMENTAL: YouTube blocks autoplay
+// inside iframes on most phones, so this is off by default; cards use the sharp
+// photo + a ▶ demo button instead. 🎬 tries embeds for devices that allow it.
+const VIDEO_KEY = 'rtc_mt_video_v2';
+let videoOn = loadJSON(VIDEO_KEY, false);
 function toggleVideo() { videoOn = !videoOn; saveJSON(VIDEO_KEY, videoOn); paint(); }
 function videoHTML(seg) {
   if (!videoOn || !seg.vid || st.done) return '';
@@ -481,6 +509,15 @@ function paint() {
       </div>
       <div class="lib-blurb"><b>${esc(LEVELS.find((L) => L.key === lvl).name)}</b> · ${COMBOS[lvl].length} combos ×20 each · power strikes ×50 · ~${Math.round(SEGS.reduce((a, s) => a + s.dur, 0) / 60000)} min.
       Turn the phone <b>sideways 📱→🖥️</b> and prop it up — big screen mode kicks in. Sound ON: the bell runs the class.</div>
+      ${('speechSynthesis' in window) ? `
+      <div class="mt-voicepick">
+        <span>🗣️ Voice</span>
+        <select id="mt-voice-sel">
+          ${voices.map((v) => `<option value="${esc(v.name)}" ${pickVoice() && pickVoice().name === v.name ? 'selected' : ''}>${esc(v.name.replace(/\s*\(.+?\)\s*/g, ' ').trim())}${/(enhanced|premium|natural|neural)/i.test(v.name) ? ' ★' : ''}</option>`).join('')}
+        </select>
+        <button type="button" class="ghost-btn" id="mt-voice-test">Test</button>
+      </div>
+      <div class="mt-voicenote">Robotic voice? On iPhone: Settings → Accessibility → Spoken Content → Voices → English → download an <b>Enhanced</b> voice (★), then pick it here.</div>` : ''}
     </div>
 
     <div class="mtv ${st.done ? 'mtv-done' : ''} ${seg.water ? 'mtv-water' : ''}">
@@ -490,7 +527,8 @@ function paint() {
         ${videoHTML(seg)}
         <div class="mtv-group">${esc(seg.group)}${seg.water ? '' : ` · ${cardNo}/${nonWater.length}`}${st.done ? ' · CLASS COMPLETE 🏁' : ''}</div>
         <div class="mtv-name">${st.done ? 'Great work! 🙌' : esc(seg.name)}</div>
-        <div class="mtv-reps">${st.done ? `total ${fmt(totalElapsed())}` : esc(seg.reps || '')}</div>
+        <div class="mtv-reps">${st.done ? `total ${fmt(totalElapsed())}` : esc(seg.reps || '')}
+          ${seg.vid && !st.done ? `<a class="mtv-watch" href="https://www.youtube.com/watch?v=${esc(seg.vid)}" target="_blank" rel="noopener">▶ demo</a>` : ''}</div>
         ${seg.steps && !st.done ? `
           <div class="mtv-steps">
             ${seg.steps.map((sp) => `
@@ -539,6 +577,15 @@ function paint() {
   paintClock();
 }
 
+root.addEventListener('change', (e) => {
+  if (e.target.id === 'mt-voice-sel') {
+    voiceName = e.target.value;
+    saveJSON(VOICE_NAME_KEY, voiceName);
+    voiceOn = true; saveJSON(VOICE_KEY, true);
+    speak('This is your coach voice.');
+  }
+});
+
 root.addEventListener('click', (e) => {
   const lvlBtn = e.target.closest('[data-lvl]');
   if (lvlBtn) {
@@ -552,6 +599,7 @@ root.addEventListener('click', (e) => {
   if (e.target.closest('#mt-toggle')) { st.running ? pauseClass() : startClass(); return; }
   if (e.target.closest('#mt-voice'))  { toggleVoice(); return; }
   if (e.target.closest('#mt-video'))  { toggleVideo(); return; }
+  if (e.target.closest('#mt-voice-test')) { voiceOn = true; saveJSON(VOICE_KEY, true); speak('One. Two. Left teep. Switch! Drop the gloves, grab the pads.'); return; }
   if (e.target.closest('#mt-prev'))   { ensureAudio(); goTo(st.i - 1, true); return; }
   if (e.target.closest('#mt-skip'))   { ensureAudio(); st.i >= SEGS.length - 1 ? advance() : goTo(st.i + 1, true); return; }
   if (e.target.closest('#mt-reset'))  { resetClass(); return; }

@@ -4637,3 +4637,50 @@ body.auth-page {
 .mt-seg-detail { font-size: 11px; color: var(--muted-strong); margin-top: 2px; line-height: 1.45; }
 .mt-seg-mark { flex-shrink: 0; font-size: 14px; font-weight: 800; color: var(--success); width: 18px; text-align: center; }
 .tile-muaythai { background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%); }
+
+/* ---- Muay Thai class-screen player (landscape TV mode) ---- */
+.mtv {
+  display: flex; gap: 10px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  box-shadow: var(--shadow); overflow: hidden;
+  min-height: 340px; margin: 8px 0 12px;
+}
+.mtv-water { border-color: #30b0c7; }
+.mtv-done { border-color: var(--success); }
+.mtv-main { flex: 3; min-width: 0; padding: 16px 18px; display: flex; flex-direction: column; position: relative; }
+.mtv-group { font-size: clamp(11px, 1.8vw, 16px); font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); }
+.mtv-name { font-size: clamp(26px, 6vw, 58px); font-weight: 900; color: var(--text); line-height: 1.08; margin-top: 6px; }
+.mtv-reps { font-size: clamp(15px, 3vw, 28px); font-weight: 800; color: var(--gym-accent); margin-top: 6px; }
+.mtv-bullets { margin: 12px 0 0; padding-left: 22px; }
+.mtv-bullets li { font-size: clamp(14px, 2.6vw, 24px); color: var(--muted-strong); line-height: 1.5; margin-bottom: 4px; }
+.mtv-next { margin-top: auto; padding-top: 10px; font-size: clamp(11px, 1.8vw, 16px); font-weight: 700; color: var(--muted); }
+.mtv-barwrap { height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 10px; }
+.mtv-barfill { height: 100%; width: 0%; background: var(--gym-accent); transition: width 0.25s linear; }
+.mtv-water .mtv-barfill { background: #30b0c7; }
+
+.mtv-side { flex: 1; min-width: 130px; display: flex; flex-direction: column; border-left: 1px solid var(--border); background: var(--card-2); }
+.mtv-segwrap { flex: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px; }
+.mtv-phase { font-size: clamp(10px, 1.6vw, 15px); font-weight: 900; letter-spacing: 0.5px; }
+.mtv-phase.is-work { color: var(--danger); }
+.mtv-phase.is-rest { color: #30b0c7; }
+.mtv-segclock { font-size: clamp(40px, 9vw, 96px); font-weight: 900; font-variant-numeric: tabular-nums; color: var(--text); line-height: 1; }
+.mtv-ctrl { display: flex; gap: 6px; padding: 8px; justify-content: center; border-top: 1px solid var(--border); }
+.mtv-ctrl button {
+  flex: 1; max-width: 74px; padding: 10px 0; font-size: clamp(16px, 2.6vw, 24px);
+  border: 1px solid var(--border); border-radius: 10px; background: var(--card); color: var(--text);
+  font-family: inherit; cursor: pointer;
+}
+.mtv-ctrl button:active { transform: scale(0.94); }
+.mtv-mainwrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 1px solid var(--border); padding: 6px; }
+.mtv-mainlbl { font-size: clamp(8px, 1.2vw, 11px); font-weight: 800; letter-spacing: 0.6px; color: var(--muted); }
+.mtv-mainclock { font-size: clamp(18px, 3.4vw, 34px); font-weight: 800; font-variant-numeric: tabular-nums; color: var(--gym-accent); line-height: 1.1; }
+
+.mt-seg-water { border-left-color: #30b0c7 !important; }
+
+/* Landscape = full class-screen: hide chrome, fill the viewport */
+@media (orientation: landscape) and (max-height: 520px) {
+  body.workouts-body:has(.mtv) { padding: 6px; max-width: none; }
+  body:has(.mtv) .workouts-header, body:has(.mtv) .workouts-footer,
+  body:has(.mtv) .mt-setup, body:has(.mtv) #rtc-auth-pill { display: none; }
+  .mtv { min-height: calc(100dvh - 12px); margin: 0; }
+}

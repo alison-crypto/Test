@@ -18,8 +18,17 @@ const DB_URL       = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db
 const IMG_BASE_URL = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
 const DB_CACHE_KEY = 'rtc_exercise_db_v1';
 const BASKET_KEY   = 'rtc_library_basket_v1';
-const CUSTOM_KEY   = 'rtc_custom_gym_him_v1';
+const CUSTOM_KEY   = 'rtc_custom_workouts_v2';   // { him:[{id,name,exercises}], her:[...] }
 const OVERRIDES_KEY = 'rtc_gym_image_overrides_v1';
+
+// Edit round-trip: library.html?edit=<workoutId>&person=<him|her> re-opens a
+// workout in the basket; Send then updates it in place.
+let editing = null;
+(function () {
+  const p = new URLSearchParams(location.search);
+  const id = p.get('edit'), person = p.get('person');
+  if (id && (person === 'him' || person === 'her')) editing = { id, person };
+})();
 
 const PAGE_SIZE = 48;
 
@@ -53,6 +62,9 @@ const MODES = [
   { key: 'home', label: '🏠 Home' },
   { key: 'swim', label: '🏊 Swim' },
   { key: 'boxing', label: '🥊 Boxing' },
+  { key: 'muaythai', label: '🦵 Muay Thai' },
+  { key: 'basketball', label: '🏀 Basketball' },
+  { key: 'volleyball', label: '🏐 Volleyball' },
   { key: 'anatomy', label: '🧠 Anatomy' },
 ];
 
@@ -135,16 +147,20 @@ function basketHTML() {
       </span>
       <button type="button" class="lib-bk-del" data-i="${i}" aria-label="Remove">✕</button>
     </div>`).join('');
+  const sendRow = editing
+    ? `<button type="button" class="ghost-btn gym-save-tracker" id="lib-bk-update">✓ Update workout</button>`
+    : `<button type="button" class="ghost-btn gym-save-tracker" id="lib-bk-send-him">→ Alison 💪</button>
+       <button type="button" class="ghost-btn gym-save-tracker lib-send-her" id="lib-bk-send-her">→ Darlene 💖</button>`;
   return `
     <div class="lib-basket ${basketOpen ? 'open' : ''}">
       <button type="button" class="lib-bk-head" id="lib-bk-toggle">
-        🧺 Custom workout · ${basket.length} exercise${basket.length === 1 ? '' : 's'} <span class="lib-bk-caret">${basketOpen ? '▾' : '▴'}</span>
+        🧺 ${editing ? `Editing “${esc(editing.name || 'Custom')}”` : 'Custom workout'} · ${basket.length} exercise${basket.length === 1 ? '' : 's'} <span class="lib-bk-caret">${basketOpen ? '▾' : '▴'}</span>
       </button>
       ${basketOpen ? `
         <div class="lib-bk-list">${items}</div>
         <div class="lib-bk-actions">
           <button type="button" class="ghost-btn ghost-btn-danger" id="lib-bk-clear">Clear</button>
-          <button type="button" class="ghost-btn gym-save-tracker" id="lib-bk-send">Send to Alison's Gym</button>
+          ${sendRow}
         </div>` : ''}
     </div>`;
 }
@@ -276,22 +292,38 @@ function toggleAddCurated(name, imgId) {
   render();
 }
 
-function importToGym() {
+function importToGym(person, existingId) {
   if (!basket.length) return;
-  const custom = {
-    updated: new Date().toISOString().slice(0, 10),
-    exercises: basket.map((b) => ({ name: b.name, sets: b.sets, dbId: b.dbId })),
-  };
-  saveJSON(CUSTOM_KEY, custom);
+  const store = loadJSON(CUSTOM_KEY, { him: [], her: [] });
+  store.him = store.him || []; store.her = store.her || [];
+  const exercises = basket.map((b) => ({ name: b.name, sets: b.sets, dbId: b.dbId || null }));
+
+  let w = existingId ? store[person].find((x) => x.id === existingId) : null;
+  if (w) {
+    const name = prompt('Workout name:', w.name || 'Custom');
+    if (name === null) return;
+    w.name = (name.trim() || 'Custom').slice(0, 24);
+    w.exercises = exercises;
+  } else {
+    const name = prompt('Name this workout:', 'Custom');
+    if (name === null) return;
+    w = { id: 'w' + Date.now().toString(36), name: (name.trim() || 'Custom').slice(0, 24), exercises };
+    store[person].push(w);
+  }
+  saveJSON(CUSTOM_KEY, store);
+
   // Pin the exact image for each pick in the gym's override store (when known).
   const overrides = loadJSON(OVERRIDES_KEY, {});
-  basket.forEach((b, i) => {
-    if (b.dbId) overrides['him_cust_' + i] = b.dbId;
-    else delete overrides['him_cust_' + i];
+  exercises.forEach((ex, i) => {
+    const key = `${person}_cust_${w.id}_${i}`;
+    if (ex.dbId) overrides[key] = ex.dbId; else delete overrides[key];
   });
   saveJSON(OVERRIDES_KEY, overrides);
-  toast(`✓ Sent ${basket.length} exercises — open Alison's Gym → Custom`);
-  setTimeout(() => { location.href = 'gym-alison.html'; }, 1200);
+
+  basket = []; saveJSON(BASKET_KEY, basket);
+  const who = person === 'her' ? "Darlene's" : "Alison's";
+  toast(`✓ ${existingId ? 'Updated' : 'Created'} “${w.name}” in ${who} Gym`);
+  setTimeout(() => { location.href = person === 'her' ? 'gym-darlene.html' : 'gym-alison.html'; }, 1100);
 }
 
 // ============================================================
@@ -312,7 +344,9 @@ root.addEventListener('click', (e) => {
     if (confirm('Clear the whole custom workout?')) { basket = []; saveJSON(BASKET_KEY, basket); render(); }
     return;
   }
-  if (e.target.closest('#lib-bk-send')) { importToGym(); return; }
+  if (e.target.closest('#lib-bk-send-him')) { importToGym('him'); return; }
+  if (e.target.closest('#lib-bk-send-her')) { importToGym('her'); return; }
+  if (e.target.closest('#lib-bk-update')) { importToGym(editing.person, editing.id); return; }
   const adj = e.target.closest('.lib-bk-adj');
   if (adj) {
     const b = basket[Number(adj.dataset.i)];
@@ -343,6 +377,22 @@ root.addEventListener('input', (e) => {
 // ============================================================
 // Init
 // ============================================================
-loadDB().then(render).catch(() => {
+loadDB().then(() => {
+  // Edit mode: load the target workout into the basket (replacing it) so the
+  // user can add/remove/re-order, then "Update workout" writes it back.
+  if (editing) {
+    const store = loadJSON(CUSTOM_KEY, { him: [], her: [] });
+    const w = (store[editing.person] || []).find((x) => x.id === editing.id);
+    if (w) {
+      editing.name = w.name;
+      basket = w.exercises.map((ex) => ({ dbId: ex.dbId || null, name: ex.name, sets: ex.sets || 3 }));
+      saveJSON(BASKET_KEY, basket);
+      basketOpen = true;
+    } else {
+      editing = null;
+    }
+  }
+  render();
+}).catch(() => {
   root.innerHTML = '<div class="lib-loading">Could not load the exercise database — check your connection and reload.</div>';
 });

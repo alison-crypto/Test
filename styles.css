@@ -4741,3 +4741,11 @@ body.auth-page {
   font-size: clamp(11px, 1.8vw, 16px); font-weight: 800; text-decoration: none;
   color: #fff; background: var(--danger); border-radius: 999px; vertical-align: middle;
 }
+
+/* ---- Muay Thai: swap mini-clock + compact combo title ---- */
+.mtv-mini {
+  font-size: clamp(20px, 4.5vw, 44px); font-weight: 900; color: #30b0c7;
+  font-variant-numeric: tabular-nums; line-height: 1.1;
+}
+.mtv-name-sm { font-size: clamp(18px, 3.4vw, 34px); color: var(--muted-strong); }
+.mtv-name-sm + .mtv-reps { margin-top: 2px; }

@@ -193,7 +193,10 @@ function buildSegments(lvlKey) {
   COMBOS[lvlKey].forEach((c, i) => {
     const kicky = /Kick|Knee|Teep/i.test(c.name);
     const vid = c.vid || (kicky ? KICK_THUMBS[i % KICK_THUMBS.length] : PUNCH_THUMBS[i % PUNCH_THUMBS.length]);
-    cards.push({ group: 'Combos', name: `Combo ${i + 1}: ${c.name}`, reps: '×20 each · 🧤 30 s swap at 2:00',
+    // Clean screen: big title is just "Combo N" (small size) — the steps below
+    // ARE the combo; the sequence shows only in the portrait list (subName).
+    cards.push({ group: 'Combos', name: `Combo ${i + 1}`, subName: c.name, small: true,
+      reps: '×20 each · 🧤 30 s swap at 2:00',
       dur: 4 * M + 30 * S, sw: true, bg: '🥊', steps: c.steps, waterAfter: i === 1 || i === 3,
       vid, bgImg: ytImg(vid) });
   });
@@ -270,15 +273,41 @@ function tone(freq, at, dur, vol) {
     o.start(at); o.stop(at + dur + 0.05);
   } catch {}
 }
-function bell(kind) {
+// Real boxing-bell sample (bell.wav) played as MEDIA — audible even with the
+// iPhone silent switch on, and immune to WebAudio suspension. A small pool of
+// <audio> elements is "unlocked" on the first user tap so later programmatic
+// rings are allowed. WebAudio stays only for the subtle last-3-seconds ticks.
+const bellPool = [0, 1, 2].map(() => { const a = new Audio('bell.wav'); a.preload = 'auto'; return a; });
+let audioUnlocked = false;
+function unlockAudio() {
   ensureAudio();
-  if (!actx) return;
-  const now = actx.currentTime;
-  if (kind === 'work')   { [0, 0.22, 0.44].forEach((d) => tone(880, now + d, 0.18, 0.5)); try { navigator.vibrate && navigator.vibrate([150, 80, 150, 80, 150]); } catch {} }
-  if (kind === 'switch') { [0, 0.25].forEach((d) => tone(660, now + d, 0.22, 0.5)); try { navigator.vibrate && navigator.vibrate([250, 100, 250]); } catch {} }
-  if (kind === 'water')  { tone(440, now, 0.6, 0.5); try { navigator.vibrate && navigator.vibrate(400); } catch {} }
-  if (kind === 'tick')   { tone(660, now, 0.09, 0.35); }
-  if (kind === 'done')   { [[880, 0], [1100, 0.2], [1320, 0.4]].forEach(([f, d]) => tone(f, now + d, 0.3, 0.5)); try { navigator.vibrate && navigator.vibrate([200, 100, 200, 100, 500]); } catch {} }
+  try { if (actx && actx.state === 'suspended') actx.resume().catch(() => {}); } catch {}
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  bellPool.forEach((a) => {
+    try {
+      a.muted = true;
+      const p = a.play();
+      if (p) p.then(() => { a.pause(); a.currentTime = 0; a.muted = false; }).catch(() => { a.muted = false; });
+    } catch {}
+  });
+}
+function ring(times) {
+  for (let i = 0; i < times; i++) {
+    setTimeout(() => {
+      const a = bellPool[i % bellPool.length];
+      try { a.currentTime = 0; a.play().catch(() => {}); } catch {}
+    }, i * 400);
+  }
+  try { navigator.vibrate && navigator.vibrate(times === 1 ? 300 : times === 2 ? [180, 120, 180] : [180, 120, 180, 120, 400]); } catch {}
+}
+function bell(kind) {
+  unlockAudio();
+  if (kind === 'work')   ring(2);   // 🛎️🛎️ round / timer starts
+  if (kind === 'switch') ring(1);   // 🛎️ freeze — swap gloves & pads
+  if (kind === 'water')  ring(1);   // 🛎️ water break
+  if (kind === 'done')   ring(3);   // 🛎️🛎️🛎️ class complete
+  if (kind === 'tick') { try { if (actx && actx.state === 'suspended') actx.resume().catch(() => {}); } catch {} if (actx) tone(660, actx.currentTime, 0.09, 0.35); }
 }
 
 // ============================================================
@@ -373,7 +402,7 @@ function stopTick() { if (tickId) { clearInterval(tickId); tickId = null; } }
 
 function startClass() {
   if (st.running || st.done) return;
-  ensureAudio();
+  unlockAudio();
   st.running = true;
   st.endAt = Date.now() + st.remainMs;
   st.totalAnchor = Date.now();
@@ -477,7 +506,18 @@ function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<
 function paintClock() {
   const seg = SEGS[st.i];
   const rem = segRemain();
-  const sc = document.getElementById('mtv-segclock'); if (sc) sc.textContent = st.done ? '🏁' : fmt(rem);
+  // Combos: A's 2:00 counts down → clock FREEZES at 2:00 while a 30 s mini
+  // clock runs the gear swap → B's 2:00 counts down.
+  let showRem = rem, mini = null;
+  if (seg.sw && !st.done) {
+    const el = seg.dur - rem;
+    if (el < 120 * S) showRem = 120 * S - el;
+    else if (el < 150 * S) { showRem = 120 * S; mini = 150 * S - el; }
+    else showRem = rem;
+  }
+  const sc = document.getElementById('mtv-segclock'); if (sc) sc.textContent = st.done ? '🏁' : fmt(showRem);
+  const mn = document.getElementById('mtv-mini');
+  if (mn) { mn.hidden = mini == null; if (mini != null) mn.textContent = '🧤 ' + fmt(mini); }
   const mc = document.getElementById('mtv-mainclock'); if (mc) mc.textContent = fmt(totalElapsed());
   const bar = document.getElementById('mtv-bar');
   if (bar) bar.style.width = `${Math.max(0, Math.min(100, (1 - rem / seg.dur) * 100))}%`;
@@ -526,7 +566,7 @@ function paint() {
         ${!(videoOn && seg.vid) && seg.bgImg && !st.done ? `<img class="mtv-bgimg" src="${esc(seg.bgImg)}" alt="" loading="lazy" onerror="if(!this.dataset.f){this.dataset.f=1;this.src=this.src.replace('maxresdefault','hqdefault');}else{this.remove();}" />` : ''}
         ${videoHTML(seg)}
         <div class="mtv-group">${esc(seg.group)}${seg.water ? '' : ` · ${cardNo}/${nonWater.length}`}${st.done ? ' · CLASS COMPLETE 🏁' : ''}</div>
-        <div class="mtv-name">${st.done ? 'Great work! 🙌' : esc(seg.name)}</div>
+        <div class="mtv-name ${seg.small && !st.done ? 'mtv-name-sm' : ''}">${st.done ? 'Great work! 🙌' : esc(seg.name)}</div>
         <div class="mtv-reps">${st.done ? `total ${fmt(totalElapsed())}` : esc(seg.reps || '')}
           ${seg.vid && !st.done ? `<a class="mtv-watch" href="https://www.youtube.com/watch?v=${esc(seg.vid)}" target="_blank" rel="noopener">▶ demo</a>` : ''}</div>
         ${seg.steps && !st.done ? `
@@ -546,6 +586,7 @@ function paint() {
         <div class="mtv-segwrap">
           <div class="mtv-phase" id="mtv-phase"></div>
           <div class="mtv-segclock" id="mtv-segclock">${fmt(segRemain())}</div>
+          <div class="mtv-mini" id="mtv-mini" hidden>🧤 0:30</div>
         </div>
         <div class="mtv-ctrl">
           <button type="button" id="mt-prev" aria-label="Rewind">⏮</button>
@@ -568,7 +609,7 @@ function paint() {
         <div class="mt-seg ${i === st.i && !st.done ? 'active' : ''} ${st.done || i < st.i ? 'past' : ''} ${s.water ? 'mt-seg-water' : ''}" data-i="${i}">
           <div class="mt-seg-time">${fmt(s.dur)}</div>
           <div class="mt-seg-body">
-            <div class="mt-seg-name">${esc(s.name)}${s.sw ? ' <span class="mt-sw">🔁</span>' : ''}</div>
+            <div class="mt-seg-name">${esc(s.name)}${s.subName ? ` · ${esc(s.subName)}` : ''}${s.sw ? ' <span class="mt-sw">🔁</span>' : ''}</div>
             <div class="mt-seg-detail">${esc(s.reps || '')}</div>
           </div>
           <div class="mt-seg-mark">${st.done || i < st.i ? '✓' : i === st.i ? '▶' : ''}</div>
@@ -600,12 +641,12 @@ root.addEventListener('click', (e) => {
   if (e.target.closest('#mt-voice'))  { toggleVoice(); return; }
   if (e.target.closest('#mt-video'))  { toggleVideo(); return; }
   if (e.target.closest('#mt-voice-test')) { voiceOn = true; saveJSON(VOICE_KEY, true); speak('One. Two. Left teep. Switch! Drop the gloves, grab the pads.'); return; }
-  if (e.target.closest('#mt-prev'))   { ensureAudio(); goTo(st.i - 1, true); return; }
-  if (e.target.closest('#mt-skip'))   { ensureAudio(); st.i >= SEGS.length - 1 ? advance() : goTo(st.i + 1, true); return; }
+  if (e.target.closest('#mt-prev'))   { unlockAudio(); goTo(st.i - 1, true); return; }
+  if (e.target.closest('#mt-skip'))   { unlockAudio(); st.i >= SEGS.length - 1 ? advance() : goTo(st.i + 1, true); return; }
   if (e.target.closest('#mt-reset'))  { resetClass(); return; }
   if (e.target.closest('#mt-save'))   { saveToTracker(); return; }
   const segCard = e.target.closest('.mt-seg');
-  if (segCard) { ensureAudio(); goTo(Number(segCard.dataset.i), true); return; }
+  if (segCard) { unlockAudio(); goTo(Number(segCard.dataset.i), true); return; }
 });
 
 // resume a running class after reload

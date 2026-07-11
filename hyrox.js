@@ -408,11 +408,18 @@ function segCard(seg) {
   const st = segTime(seg.id);
   const chosen = swaps[seg.id] || 0;
   const working = seg.subs[chosen] || seg.subs[0];
+  const swapped = chosen > 0;
+  // A swap fully transforms the card: name, demo video, and notes all follow
+  // the chosen alternative — the station only remains as a small "replaces" tag.
+  const displayName = swapped ? working : seg.name;
+  const workLine = swapped ? `↩ replaces ${seg.name} — same target & aim` : `▶ ${working}`;
+  const subText = swapped ? 'Substitute movement — match the station’s distance/reps and chase the same time.' : seg.sub;
+  const videoQ = swapped ? encodeURIComponent(working + ' exercise technique') : seg.video;
   const e = log[seg.id] || {};
   const best = bestFor(seg);
   const tt = targetTime(seg);
   const full = isFullClear(seg);
-  const video = `<a class="race-seg-demo" href="https://www.youtube.com/results?search_query=${seg.video}" target="_blank" rel="noopener" title="Demo">📹</a>`;
+  const video = `<a class="race-seg-demo" href="https://www.youtube.com/results?search_query=${videoQ}" target="_blank" rel="noopener" title="Demo">📹</a>`;
 
   let result = '';
   if (done) {
@@ -437,10 +444,10 @@ function segCard(seg) {
       <div class="race-seg-top">
         ${imgSlotHTML(seg, chosen)}
         <div class="race-seg-body">
-          <div class="race-seg-name">${esc(seg.name)}</div>
+          <div class="race-seg-name">${esc(displayName)}${swapped ? ' <span class="race-swapped-tag">swapped</span>' : ''}</div>
           ${distLineHTML(seg)}
-          <div class="race-seg-working">▶ ${esc(working)}</div>
-          <div class="race-seg-sub">${esc(seg.sub)}</div>
+          <div class="race-seg-working">${esc(workLine)}</div>
+          <div class="race-seg-sub">${esc(subText)}</div>
         </div>
         <div class="race-seg-tools">
           ${video}
@@ -632,7 +639,9 @@ function saveToTracker() {
   const total = finishMs() ?? elapsedMs();
   const exercises = logged.map((s) => {
     const st = segTime(s.id), e = log[s.id] || {};
-    return { exId: 'hx_' + s.id, name: s.name, target: `${targetAmount(s)} ${s.unit}`,
+    const ch = swaps[s.id] || 0;
+    const name = ch > 0 ? `${s.subs[ch]} (for ${s.name})` : s.name;
+    return { exId: 'hx_' + s.id, name, target: `${targetAmount(s)} ${s.unit}`,
       done: sim.splits[s.id] != null, sets: [{ w: e.w || '', r: st != null ? fmtClock(st) : (e.r || '') }] };
   });
   try {

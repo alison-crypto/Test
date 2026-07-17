@@ -12,8 +12,8 @@ const WEEK = {
   mon: { type: 'MOD',  train: 'Gym: Lower A · 5K run after work' },
   tue: { type: 'MOD',  train: 'RTC functional 6am · Upper A after work' },
   wed: { type: 'MOD',  train: 'Gym: Lower B · 5K run after work' },
-  thu: { type: 'EASY', train: 'Gym: Upper B · swim after work' },
-  fri: { type: 'HIGH', train: 'Boxing 6am · carb-load for Saturday' },
+  thu: { type: 'MOD',  train: 'Boxing / Muay Thai · after work' },
+  fri: { type: 'HIGH', train: 'Gym: Upper B · carb-load for Saturday' },
   sat: { type: 'PEAK', train: 'HYROX race sim · morning' },
   sun: { type: 'EASY', train: 'Swim (morning) · volleyball 6pm' },
 };

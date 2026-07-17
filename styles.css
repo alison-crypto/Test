@@ -4762,3 +4762,12 @@ body.auth-page {
   font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px;
   color: #fff; background: var(--warn); border-radius: 999px;
 }
+
+/* ---- Training week card (schedule page) ---- */
+.tw-card { margin: 10px 0; padding: 12px 14px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+.tw-head { font-size: 14px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+.tw-row { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; border-top: 1px solid var(--border-2); font-size: 12px; }
+.tw-row b { width: 34px; flex-shrink: 0; color: var(--text); }
+.tw-row span { flex: 1; color: var(--muted-strong); }
+.tw-row i { font-style: normal; font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px; color: #fff; }
+.tw-mod { background: #5e5ce6; } .tw-high { background: #ff9500; } .tw-peak { background: #ff2d55; } .tw-easy { background: #34c759; }

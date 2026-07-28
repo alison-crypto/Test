@@ -18,9 +18,12 @@ const WEEK = {
   sun: { type: 'EASY', train: 'Rest day — maybe pool with Darlene' },
 };
 
+// EASY/MOD trimmed ~275 kcal (Jul 28) — scale showed +3.8 lb fat over 9 weeks
+// (~230 kcal/day surplus). Cuts come from carbs + pre-bed PB; protein held high.
+// Fri HIGH / Sat PEAK stay full — Hyrox fueling.
 const MACROS = {
-  EASY: { kcal: 2955, p: 223, c: 207, f: 137 },
-  MOD:  { kcal: 2955, p: 218, c: 284, f: 105 },
+  EASY: { kcal: 2680, p: 220, c: 178, f: 121 },
+  MOD:  { kcal: 2700, p: 217, c: 218, f: 104 },
   HIGH: { kcal: 3167, p: 207, c: 369, f: 96 },
   PEAK: { kcal: 3380, p: 217, c: 405, f: 98 },
 };
@@ -29,17 +32,17 @@ const MEALS = {
   EASY: [
     { time: '5:30 AM',  name: 'Pre-workout', items: ['Ghost ½ scoop', 'Creatine 5g'] },
     { time: '7:15 AM',  name: 'Breakfast',   items: ['3 eggs', '1 scoop whey', '45g oats', '15g chia', '120g berries'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['150g chicken', '150g rice', '200g veg', '1 avocado', '1 tbsp olive oil'] },
+    { time: '12:15 PM', name: 'Lunch',       items: ['150g chicken', '100g rice', '200g veg', '1 avocado', '1 tbsp olive oil'] },
     { time: '3:30 PM',  name: 'Snack',       items: ['90g turkey', '40g cheese', '1 apple', '35g almonds'] },
-    { time: '6:30 PM',  name: 'Dinner',      items: ['150g beef', '200g potato', '150g broccoli', '1 tbsp olive oil'] },
-    { time: '8:00 PM',  name: 'Pre-bed',     items: ['150g Greek yogurt', '2 tbsp peanut butter'] },
+    { time: '6:30 PM',  name: 'Dinner',      items: ['150g beef', '140g potato', '150g broccoli', '1 tbsp olive oil'] },
+    { time: '8:00 PM',  name: 'Pre-bed',     items: ['200g Greek yogurt', 'cinnamon'] },
   ],
   MOD: [
     { time: '5:30 AM',  name: 'Pre-workout', items: ['Ghost ½ scoop', 'Creatine 5g'] },
     { time: '7:15 AM',  name: 'Breakfast',   items: ['3 eggs', '1 scoop whey', '70g oats', '120g berries'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['150g chicken', '190g rice', '200g veg', '½ avocado', '1 tbsp olive oil'] },
-    { time: '3:30 PM',  name: 'Snack',       items: ['90g turkey', '40g cheese', '1 apple', '40g dates', '25g almonds'] },
-    { time: '6:30 PM',  name: 'Dinner', fuel: 'Carb-loaded → recovery + tops off glycogen for tomorrow', items: ['150g beef', '230g potato', '150g broccoli', '1 tbsp olive oil'] },
+    { time: '12:15 PM', name: 'Lunch',       items: ['150g chicken', '130g rice', '200g veg', '½ avocado', '1 tbsp olive oil'] },
+    { time: '3:30 PM',  name: 'Snack',       items: ['90g turkey', '40g cheese', '1 apple', '25g almonds'] },
+    { time: '6:30 PM',  name: 'Dinner', fuel: 'Post-double-session — recovery + tops off glycogen', items: ['150g beef', '160g potato', '150g broccoli', '1 tbsp olive oil'] },
     { time: '8:00 PM',  name: 'Pre-bed',     items: ['150g Greek yogurt', '1 banana'] },
   ],
   HIGH: [

@@ -18,48 +18,47 @@ const WEEK = {
   sun: { type: 'EASY', train: 'Rest day — maybe pool with Darlene' },
 };
 
-// EASY/MOD trimmed ~275 kcal (Jul 28) — scale showed +3.8 lb fat over 9 weeks
-// (~230 kcal/day surplus). Cuts come from carbs + pre-bed PB; protein held high.
-// Fri HIGH / Sat PEAK stay full — Hyrox fueling.
+// CUT PHASE (Aug → mid-Oct, set Jul 28): 16:8 fasting, eating window
+// 8:30am–4:30pm. ~350 kcal/day deficit → ~0.7 lb/week → ~199-200 lb at race
+// time. Protein held ~205g+ to keep muscle. Shake/MRE-first for practicality.
+// Tue/Thu Lower-gym evenings: protein bar or shake after is the ONE allowed
+// exception outside the window. Saturday PEAK = no fasting, fuel the race.
+// After the race: hold maintenance briefly, then clean bulk.
 const MACROS = {
-  EASY: { kcal: 2680, p: 220, c: 178, f: 121 },
-  MOD:  { kcal: 2700, p: 217, c: 218, f: 104 },
-  HIGH: { kcal: 3167, p: 207, c: 369, f: 96 },
-  PEAK: { kcal: 3380, p: 217, c: 405, f: 98 },
+  EASY: { kcal: 2250, p: 205, c: 190, f: 70 },
+  MOD:  { kcal: 2350, p: 210, c: 215, f: 68 },
+  HIGH: { kcal: 2700, p: 205, c: 300, f: 75 },
+  PEAK: { kcal: 3000, p: 210, c: 340, f: 80 },
 };
 
+// 16:8 layout — fasted from 4:30pm to 8:30am. Pre-workout (Ghost/creatine/
+// black coffee) doesn't break the fast. Shake/MRE-first so meals are fast and
+// light on the stomach. PEAK (Saturday) ignores the fast — race fuel wins.
 const MEALS = {
   EASY: [
-    { time: '5:30 AM',  name: 'Pre-workout', items: ['Ghost ½ scoop', 'Creatine 5g'] },
-    { time: '7:15 AM',  name: 'Breakfast',   items: ['3 eggs', '1 scoop whey', '45g oats', '15g chia', '120g berries'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['150g chicken', '100g rice', '200g veg', '1 avocado', '1 tbsp olive oil'] },
-    { time: '3:30 PM',  name: 'Snack',       items: ['90g turkey', '40g cheese', '1 apple', '35g almonds'] },
-    { time: '6:30 PM',  name: 'Dinner',      items: ['150g beef', '140g potato', '150g broccoli', '1 tbsp olive oil'] },
-    { time: '8:00 PM',  name: 'Pre-bed',     items: ['200g Greek yogurt', 'cinnamon'] },
+    { time: '5:20 AM',  name: 'Pre-workout', fuel: 'Fasted — Ghost + creatine + black coffee don\'t break the fast. Rest Sunday: just creatine + coffee, sleep in', items: ['Ghost ½ scoop', 'Creatine 5g', 'Black coffee'] },
+    { time: '8:30 AM',  name: 'Breakfast', tag: 'MRE', fuel: 'Window opens — post-workout shake, 90 min after the AM lift', items: ['1 MRE (4 scoops)', '1 banana'] },
+    { time: '12:15 PM', name: 'Lunch',       items: ['200g chicken', '150g rice', '200g veg', '1 tbsp olive oil'] },
+    { time: '4:00 PM',  name: 'Pre-gym meal', tag: 'SHAKE', fuel: 'Last meal — window closes 4:30. After: water, tea, black coffee only', items: ['2 scoops whey', '50g oats (blend in)', '200g Greek yogurt', '1 tbsp peanut butter', '1 apple'] },
   ],
   MOD: [
-    { time: '5:30 AM',  name: 'Pre-workout', items: ['Ghost ½ scoop', 'Creatine 5g'] },
-    { time: '7:15 AM',  name: 'Breakfast',   items: ['3 eggs', '1 scoop whey', '70g oats', '120g berries'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['150g chicken', '130g rice', '200g veg', '½ avocado', '1 tbsp olive oil'] },
-    { time: '3:30 PM',  name: 'Snack',       items: ['90g turkey', '40g cheese', '1 apple', '25g almonds'] },
-    { time: '6:30 PM',  name: 'Dinner', fuel: 'Post-double-session — recovery + tops off glycogen', items: ['150g beef', '160g potato', '150g broccoli', '1 tbsp olive oil'] },
-    { time: '8:00 PM',  name: 'Pre-bed',     items: ['150g Greek yogurt', '1 banana'] },
+    { time: '5:20 AM',  name: 'Pre-workout', fuel: 'Fasted — Ghost + creatine + black coffee don\'t break the fast', items: ['Ghost ½ scoop', 'Creatine 5g', 'Black coffee'] },
+    { time: '8:30 AM',  name: 'Breakfast', tag: 'MRE', fuel: 'Window opens — recovery after the RTC/Muay Thai session', items: ['1 MRE (4 scoops)', '1 banana'] },
+    { time: '12:15 PM', name: 'Lunch',       items: ['200g chicken', '180g rice', '200g veg', '1 tbsp olive oil'] },
+    { time: '4:00 PM',  name: 'Pre-gym meal', tag: 'SHAKE', fuel: 'Fuels the 5pm Lower session — window closes 4:30', items: ['2 scoops whey', '60g oats (blend in)', '150g Greek yogurt', '1 banana'] },
+    { time: '6:30 PM',  name: 'Post-Lower shake', tag: 'LEG DAY ONLY', fuel: 'The one allowed exception — protein only, ONLY after a Lower gym session (skip if you ran instead)', items: ['Protein bar OR 1 scoop whey in water'] },
   ],
   HIGH: [
-    { time: '5:30 AM',  name: 'Pre-workout', items: ['Ghost full scoop', '1 banana', 'Creatine 5g'] },
-    { time: '7:15 AM',  name: 'Breakfast', tag: 'MRE', items: ['1 MRE (4 scoops)', '1 banana', '25g almonds'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['120g chicken', '180g rice', '200g veg', 'small avocado', '1 tbsp olive oil'] },
-    { time: '3:30 PM',  name: 'Snack', tag: 'MRE', items: ['1 MRE', '1 apple', '15g almonds'] },
-    { time: '6:30 PM',  name: 'Dinner',      items: ['100g beef', '220g potato', '150g broccoli', '1 tbsp olive oil'] },
-    { time: '8:00 PM',  name: 'Pre-bed',     items: ['150g Greek yogurt', '1 banana', '1 tbsp peanut butter'] },
+    { time: '5:20 AM',  name: 'Pre-workout', fuel: 'Fasted — Ghost + creatine + black coffee don\'t break the fast', items: ['Ghost full scoop', 'Creatine 5g', 'Black coffee'] },
+    { time: '8:30 AM',  name: 'Breakfast', tag: 'MRE', fuel: 'Carb-load starts — glycogen for tomorrow\'s Hyrox circuit', items: ['1 MRE (4 scoops)', '1 banana', '30g dates'] },
+    { time: '12:15 PM', name: 'Lunch',       items: ['200g chicken', '250g rice', '200g veg', '1 tbsp olive oil'] },
+    { time: '4:00 PM',  name: 'Pre-swim meal', tag: 'SHAKE', fuel: 'Big carb finish — window closes 4:30, wake up race-ready', items: ['2 scoops whey', '80g oats (blend in)', '40g dates', '1 banana'] },
   ],
   PEAK: [
-    { time: '5:30 AM',  name: 'Pre-workout', items: ['Ghost full scoop', '1 large banana', 'Creatine 5g'] },
-    { time: '7:15 AM',  name: 'Breakfast', tag: 'MRE', items: ['1 MRE (4 scoops)', '1 banana', '25g almonds'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['130g chicken', '200g rice', '200g veg', 'small avocado', '1 tbsp olive oil'] },
-    { time: '3:30 PM',  name: 'Snack', tag: 'MRE', items: ['1 MRE', '1 apple', '20g almonds'] },
-    { time: '6:30 PM',  name: 'Dinner',      items: ['120g beef', '350g potato', '150g broccoli', '1 tbsp olive oil'] },
-    { time: '8:00 PM',  name: 'Pre-bed',     items: ['150g Greek yogurt', '1 banana', '1 tbsp peanut butter'] },
+    { time: '6:30 AM',  name: 'Race breakfast', tag: 'NO FAST TODAY', fuel: 'Race day — fasting loses, fuel wins. Eat ~1.5-2h before the circuit', items: ['1 MRE (4 scoops)', '1 banana', '30g dates', 'Creatine 5g'] },
+    { time: '11:30 AM', name: 'Post-race lunch', fuel: 'Recovery — refill what the circuit burned', items: ['200g chicken', '250g rice', '200g veg', '1 tbsp olive oil'] },
+    { time: '3:30 PM',  name: 'Snack',       items: ['200g Greek yogurt', '1 apple', '25g almonds'] },
+    { time: '6:30 PM',  name: 'Dinner',      items: ['150g beef', '300g potato', '150g broccoli', '1 tbsp olive oil'] },
   ],
 };
 

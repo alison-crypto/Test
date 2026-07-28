@@ -37,14 +37,14 @@ const MACROS = {
 const MEALS = {
   EASY: [
     { time: '5:20 AM',  name: 'Pre-workout', fuel: 'Fasted — Ghost + creatine + black coffee don\'t break the fast. Rest Sunday: just creatine + coffee, sleep in', items: ['Ghost ½ scoop', 'Creatine 5g', 'Black coffee'] },
-    { time: '8:30 AM',  name: 'Breakfast', tag: 'MRE', fuel: 'Window opens — post-workout shake, 90 min after the AM lift', items: ['1 MRE (4 scoops)', '1 banana'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['200g chicken', '150g rice', '200g veg', '1 tbsp olive oil'] },
-    { time: '4:00 PM',  name: 'Pre-gym meal', tag: 'SHAKE', fuel: 'Last meal — window closes 4:30. After: water, tea, black coffee only', items: ['2 scoops whey', '50g oats (blend in)', '200g Greek yogurt', '1 tbsp peanut butter', '1 apple'] },
+    { time: '8:30 AM',  name: 'Breakfast', tag: 'MRE', fuel: 'Window opens — post-workout shake, 90 min after the AM lift · real-food swap: 4 boiled eggs + 1 scoop whey + 1 banana', items: ['1 MRE (4 scoops)', '1 banana'] },
+    { time: '12:15 PM', name: 'Lunch',       items: ['200g chicken', '150g rice', '200g veg', '1 tbsp olive oil (or ½ avocado)'] },
+    { time: '4:00 PM',  name: 'Pre-gym meal', tag: 'SHAKE', fuel: 'Last meal — window closes 4:30. After: water, tea, black coffee only', items: ['2 scoops whey', '50g oats (blend in)', '200g Greek yogurt', '1 tbsp peanut butter (or 20g almonds)', '1 apple'] },
   ],
   MOD: [
     { time: '5:20 AM',  name: 'Pre-workout', fuel: 'Fasted — Ghost + creatine + black coffee don\'t break the fast', items: ['Ghost ½ scoop', 'Creatine 5g', 'Black coffee'] },
-    { time: '8:30 AM',  name: 'Breakfast', tag: 'MRE', fuel: 'Window opens — recovery after the RTC/Muay Thai session', items: ['1 MRE (4 scoops)', '1 banana'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['200g chicken', '180g rice', '200g veg', '1 tbsp olive oil'] },
+    { time: '8:30 AM',  name: 'Breakfast', tag: 'MRE', fuel: 'Window opens — recovery after the RTC/Muay Thai session · real-food swap: 4 boiled eggs + 1 scoop whey + 1 banana', items: ['1 MRE (4 scoops)', '1 banana'] },
+    { time: '12:15 PM', name: 'Lunch',       items: ['200g chicken', '180g rice', '200g veg', '1 tbsp olive oil (or ½ avocado)'] },
     { time: '4:00 PM',  name: 'Pre-gym meal', tag: 'SHAKE', fuel: 'Fuels the 5pm Lower session — window closes 4:30', items: ['2 scoops whey', '60g oats (blend in)', '150g Greek yogurt', '1 banana'] },
     { time: '6:30 PM',  name: 'Post-Lower shake', tag: 'LEG DAY ONLY', fuel: 'The one allowed exception — protein only, ONLY after a Lower gym session (skip if you ran instead)', items: ['Protein bar OR 1 scoop whey in water'] },
   ],

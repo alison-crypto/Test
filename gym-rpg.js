@@ -171,6 +171,9 @@
     him_uB_lat:      { r: 15, perhand: true, beg: 6, int: 12, adv: 18, eli: 26 },
     him_uB_curl:     { r: 10, beg: 25,   int: 40,   adv: 55,    eli: 75, wr: '≈110 strict curl' },
     him_uB_triext:   { r: 12, beg: 20,   int: 35,   adv: 50,    eli: 70 },
+    him_uC_facepull: { r: 15, beg: 15,   int: 30,   adv: 45,    eli: 60 },
+    him_uC_hammer:   { r: 10, perhand: true, beg: 8, int: 14, adv: 20, eli: 26 },
+    him_uC_fly:      { r: 12, beg: 15,   int: 30,   adv: 45,    eli: 60 },
   };
   const DIFF_TIER = { beginner: 'beg', intermediate: 'int', advanced: 'adv', elite: 'eli' };
   function tierDisp(s, t) {

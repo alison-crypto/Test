@@ -244,7 +244,7 @@ function load() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return;
     const state = JSON.parse(raw);
-    if (state.day) {
+    if (state.day && document.getElementById('day-' + state.day)) {
       currentDay = state.day;
       switchDay(currentDay, false);
     }

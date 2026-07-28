@@ -91,6 +91,21 @@ const SUBSTITUTES = {
     { name: 'Machine Row',            reason: 'Form-locked' },
     { name: 'TRX Inverted Row',       reason: 'Bodyweight / no machine' },
   ],
+  him_uC_facepull: [
+    { name: 'Band Pull-Apart',        reason: 'No cable needed' },
+    { name: 'Rear-Delt Fly Machine',  reason: 'Form-locked rear delts' },
+    { name: 'Bent-Over Reverse Fly',  reason: 'Dumbbells only' },
+  ],
+  him_uC_hammer: [
+    { name: 'Cross-Body Hammer Curl', reason: 'More brachialis' },
+    { name: 'Rope Hammer Curl',       reason: 'Cable constant tension' },
+    { name: 'Reverse Curl',           reason: 'Forearm emphasis' },
+  ],
+  him_uC_fly: [
+    { name: 'Pec-Deck Fly',           reason: 'Form-locked' },
+    { name: 'Flat DB Fly',            reason: 'No cables needed' },
+    { name: 'Push-Up (slow tempo)',   reason: 'Bodyweight finisher' },
+  ],
   him_uB_lat: [
     { name: 'Cable Lateral Raise',    reason: 'Constant tension' },
     { name: 'Machine Lateral Raise',  reason: 'Form-locked' },

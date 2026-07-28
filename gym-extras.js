@@ -127,6 +127,8 @@ const CURATED = {
   him_uB_incline: 'Incline_Dumbbell_Press', him_uB_pullup: 'Pullups',
   him_uB_row: 'Seated_Cable_Rows', him_uB_lat: 'Side_Lateral_Raise',
   him_uB_curl: 'EZ-Bar_Curl', him_uB_triext: 'Cable_Rope_Overhead_Triceps_Extension',
+  // Alison — Upper C
+  him_uC_facepull: 'Face_Pull', him_uC_hammer: 'Hammer_Curls', him_uC_fly: 'Cable_Crossover',
   // Hyrox — real matches, else null (no wrong picture)
   hx_c_push: 'Sled_Push', hx_c_pull: 'Sled_Row', hx_c_row: 'Rowing_Stationary',
   hx_c_carry: 'Farmers_Walk', hx_c_lunge: 'Dumbbell_Lunges',

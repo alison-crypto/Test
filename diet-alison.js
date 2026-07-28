@@ -9,13 +9,13 @@ const DAY_KEY   = 'rtc_diet_alison_day_v1';
 const CHECK_KEY = 'rtc_diet_alison_checks_v1';
 
 const WEEK = {
-  mon: { type: 'MOD',  train: 'Gym: Lower A · 5K run after work' },
-  tue: { type: 'MOD',  train: 'RTC functional 6am · Upper A after work' },
-  wed: { type: 'MOD',  train: 'Gym: Lower B · 5K run after work' },
-  thu: { type: 'MOD',  train: 'Boxing / Muay Thai · after work' },
-  fri: { type: 'HIGH', train: 'Gym: Upper B · carb-load for Saturday' },
-  sat: { type: 'PEAK', train: 'HYROX race sim · morning' },
-  sun: { type: 'EASY', train: 'Swim (morning) · volleyball 6pm' },
+  mon: { type: 'EASY', train: 'Upper A (am) · swim + sauna (pm)' },
+  tue: { type: 'MOD',  train: 'RTC functional (am) · Lower gym or run (pm)' },
+  wed: { type: 'EASY', train: 'Upper B (am) · swim + sauna (pm)' },
+  thu: { type: 'MOD',  train: 'Muay Thai w/ RTC (am) · Lower gym or run (pm)' },
+  fri: { type: 'HIGH', train: 'Upper C (am) · swim + sauna · carb-load' },
+  sat: { type: 'PEAK', train: 'HYROX circuit (600 m runs) · morning' },
+  sun: { type: 'EASY', train: 'Rest day — maybe pool with Darlene' },
 };
 
 const MACROS = {

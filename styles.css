@@ -4253,7 +4253,7 @@ body.auth-page {
 /* Per-station Start/Stop timer strip (independent of order) */
 .race-seg.running { border-color: var(--gym-accent); box-shadow: 0 0 0 2px var(--gym-accent), var(--shadow); }
 .race-seg-timer {
-  display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 10px; padding: 8px 10px;
   background: var(--card-2); border: 1px solid var(--border); border-radius: 10px;
 }
 .race-seg-timer.running { border-color: var(--gym-accent); }
@@ -4262,7 +4262,10 @@ body.auth-page {
   color: var(--text); font-variant-numeric: tabular-nums;
 }
 .race-seg-clock.over { color: var(--danger); }
-.race-seg-timer .race-split-meta { flex: 1; min-width: 0; }
+.race-seg-timer .race-seg-go { order: 2; margin-left: auto; }
+.race-seg-timer .race-seg-redo { order: 3; }
+/* result / aim text gets its own full-width line under clock + buttons */
+.race-seg-timer .race-split-meta { order: 4; flex: 1 0 100%; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
 .race-seg-aim { font-size: 12px; font-weight: 700; color: var(--muted-strong); font-variant-numeric: tabular-nums; }
 .race-seg-go {
   flex-shrink: 0; min-width: 88px; padding: 11px 12px; border-radius: 9px;
@@ -4272,12 +4275,24 @@ body.auth-page {
 .race-seg-go.stop { background: var(--danger); border-color: var(--danger); }
 .race-seg-go.resume { background: var(--card); color: var(--gym-accent); }
 .race-seg-go:active, .race-seg-redo:active { transform: scale(0.96); }
+.race-seg-redo.is-empty { visibility: hidden; }
 .race-seg-redo {
   flex-shrink: 0; width: 40px; height: 40px; border-radius: 9px;
   border: 1px solid var(--border); background: var(--card); color: var(--muted-strong);
   font-size: 17px; font-family: inherit; cursor: pointer;
 }
-.race-seg.done .race-seg-timer { opacity: 1; }
+/* done: dim the card's details but keep the result strip fully readable */
+.race-seg.done { opacity: 1; }
+.race-seg.done > :not(.race-seg-timer) { opacity: 0.62; }
+/* dial: live station line must stay inside the ring; long h:mm:ss clock shrinks */
+.race-dial-c .race-seg-live { display: flex; align-items: baseline; justify-content: center; gap: 4px; max-width: 104px;
+  font-size: 11px; color: var(--text); min-height: 14px; white-space: nowrap; }
+.race-seg-live .race-live-nm { overflow: hidden; text-overflow: ellipsis; min-width: 0; color: var(--muted-strong); font-weight: 600; }
+.race-seg-live b { flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.race-clock.long { font-size: 27px; }
+/* toasts on the race page: full text width, amber for automatic actions */
+.race-page .t-toast { width: max-content; max-width: calc(100vw - 32px); box-sizing: border-box; text-align: center; }
+.race-page .t-toast.warn { background: #ff9f0a; color: #1c1c1e; }
 
 .race-seg-inputs { display: flex; align-items: flex-end; gap: 6px; margin-top: 10px; }
 .race-seg-inputs label {

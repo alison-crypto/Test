@@ -27,13 +27,15 @@
 // backgrounding; a Wake Lock keeps the screen awake.
 //
 // Storage:
-//   rtc_hyrox_sim_v1       — live attempt { running, accumMs, lastStart, segs:{id:{acc,start,done}}, finishMs }
+//   rtc_hyrox_sim_v1       — live attempt { running, accumMs, lastStart, segs:{id:{acc,start,done}}, finishMs, edited:{id:true} }
 //   rtc_hyrox_log_v1       — { segId:{d,w,r} } structured log
 //   rtc_hyrox_tier_v1      — { segId: distance/weight target }
 //   rtc_hyrox_timetier_v1  — { segId: timeTierKey }
 //   rtc_hyrox_swaps_v1     — { segId: optionIndex }
 //   rtc_hyrox_pb_v1        — { ms, date } best finish
-//   rtc_hyrox_segpb_v2     — { segId: { amountKey: ms } } best split per distance
+//   rtc_hyrox_segpb_v3     — { segId: { amountKey: ms } } best station time per distance
+//                            (v3: station-only Start→Stop time; v2 held the old split
+//                            times that included walking/rest, kept but no longer read)
 //   rtc_hyrox_xp_v1        — { xp, prs, log[] }
 
 // ============================================================
@@ -158,7 +160,7 @@ const TIER_KEY     = 'rtc_hyrox_tier_v1';
 const TIMETIER_KEY = 'rtc_hyrox_timetier_v1';
 const SWAPS_KEY    = 'rtc_hyrox_swaps_v1';
 const PB_KEY       = 'rtc_hyrox_pb_v1';
-const SEGPB_KEY    = 'rtc_hyrox_segpb_v2';
+const SEGPB_KEY    = 'rtc_hyrox_segpb_v3';
 const XP_KEY       = 'rtc_hyrox_xp_v1';
 
 const DB_URL       = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json';
@@ -179,7 +181,8 @@ function todayStr() {
   return d.toISOString().slice(0, 10);
 }
 
-function freshSim() { return { date: todayStr(), running: false, accumMs: 0, lastStart: null, segs: {}, finishMs: null }; }
+// `splits: {}` stays only so an older app version loaded the same day can't crash on this object.
+function freshSim() { return { date: todayStr(), running: false, accumMs: 0, lastStart: null, segs: {}, finishMs: null, edited: {}, splits: {} }; }
 let sim = loadJSON(SIM_KEY, null);
 if (!sim || sim.date !== todayStr()) {
   sim = freshSim();
@@ -187,9 +190,10 @@ if (!sim || sim.date !== todayStr()) {
 } else if (!sim.segs) {
   // old in-order "cumulative split" format → keep today's main clock, drop the
   // order-dependent splits (they can't be turned into honest station times).
-  sim.segs = {}; sim.finishMs = null; delete sim.splits;
+  sim.segs = {}; sim.finishMs = null; sim.edited = {}; sim.splits = {};
   saveJSON(SIM_KEY, sim);
 }
+if (!sim.edited) sim.edited = {};
 const log      = loadJSON(LOG_KEY, {});
 const swaps    = loadJSON(SWAPS_KEY, {});
 let pb         = loadJSON(PB_KEY, null);
@@ -237,6 +241,15 @@ function finishMs() {
   return Math.max(sim.finishMs != null ? sim.finishMs : 0, workMs());
 }
 function shortName(seg) { return seg.name.split(' · ')[0]; }
+// tiny label for the dial (must fit inside the ring)
+const DIAL_NAME = { push: 'Sled Push', pull: 'Sled Pull', bbj: 'BBJ', row: 'Row', ski: 'Ski', carry: 'Farmers', lunge: 'Lunges', wb: 'Wall Balls' };
+function dialName(seg) { return DIAL_NAME[seg.id] || shortName(seg); }
+// A real station takes well over 10 s (even a 100 m run at world-record pace is
+// ~17 s), so anything shorter is a mis-tap / wrong card and is never recorded.
+const MIN_SEG_MS = 10000;
+// ignore a second tap on the same card's button this soon after the first
+const SEG_TAP_GUARD_MS = 700;
+let lastSegTap = { id: null, t: 0 };
 
 // ============================================================
 // Two dials: distance/weight tier + time tier
@@ -465,7 +478,9 @@ function segCard(seg) {
         <span class="race-seg-clock ${running && el > tt ? 'over' : ''}" data-segclock="${seg.id}">${fmtClock(el)}</span>
         ${meta}
         <button type="button" class="race-seg-go ${goCls}" data-seg="${seg.id}">${goLabel}</button>
-        ${el > 0 || done || running ? `<button type="button" class="race-seg-redo" data-seg="${seg.id}" title="Clear this station's time" aria-label="Clear time">↺</button>` : ''}
+        ${el > 0 || done || running
+          ? `<button type="button" class="race-seg-redo" data-seg="${seg.id}" title="Clear this station's time" aria-label="Clear time">↺</button>`
+          : `<button type="button" class="race-seg-redo is-empty" tabindex="-1" aria-hidden="true" disabled>↺</button>`}
       </div>`;
 
   const dPlace = seg.scale === 'weight' ? String(seg.dist) : (seg.unit === 'm' ? String(curTarget(seg)) : 'm');
@@ -564,10 +579,11 @@ function render() {
 
 const RING_CIRC = 2 * Math.PI * 52;
 function renderTimer() {
-  const clk = document.getElementById('race-clock'); if (clk) clk.textContent = fmtClock(elapsedMs());
+  const clk = document.getElementById('race-clock');
+  if (clk) { const t = fmtClock(allDone() ? finishMs() : elapsedMs()); clk.textContent = t; clk.classList.toggle('long', t.length > 5); }
   const live = document.getElementById('race-seg-live');
   const rs = runningSeg();
-  if (live) live.textContent = rs ? `▶ ${shortName(rs)} ${fmtClock(segElapsed(rs.id))}` : '';
+  if (live) live.innerHTML = rs ? `<span class="race-live-nm">▶ ${esc(dialName(rs))}</span><b>${fmtClock(segElapsed(rs.id))}</b>` : '';
   // live station clocks
   SEGMENTS.forEach((s) => {
     if (!segRunning(s.id)) return;
@@ -578,7 +594,11 @@ function renderTimer() {
     c.classList.toggle('over', ms > targetTime(s));
   });
   const go = document.getElementById('race-go');
-  if (go) { go.textContent = elapsedMs() > 0 ? '▶ Resume' : '▶ Start'; go.disabled = sim.running; }
+  if (go) {
+    const fin = allDone();
+    go.textContent = fin ? '🏁 Finished' : elapsedMs() > 0 ? '▶ Resume' : '▶ Start';
+    go.disabled = sim.running || fin;
+  }
   const pause = document.getElementById('race-pause'); if (pause) pause.disabled = !sim.running;
   const pt = document.getElementById('race-progress-text'); if (pt) pt.textContent = `${doneCount()} / ${SEGMENTS.length}`;
   const ring = document.getElementById('race-ring-fg');
@@ -594,10 +614,16 @@ function renderTimer() {
 // ============================================================
 // Timer control (+ Wake Lock)
 // ============================================================
-let tickId = null, wakeLock = null;
+let tickId = null, wakeLock = null, wakePending = false;
 async function requestWake() {
-  if (!('wakeLock' in navigator)) return;
-  try { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => { wakeLock = null; }); } catch {}
+  if (!('wakeLock' in navigator) || wakeLock || wakePending) return;
+  wakePending = true;
+  try {
+    const lock = await navigator.wakeLock.request('screen');
+    lock.addEventListener('release', () => { if (wakeLock === lock) wakeLock = null; });
+    // everything may have stopped while the request was pending
+    if (sim.running || runningSeg()) wakeLock = lock; else lock.release().catch(() => {});
+  } catch {} finally { wakePending = false; }
 }
 function releaseWake() { if (wakeLock) { try { wakeLock.release(); } catch {} wakeLock = null; } }
 function startTick() { if (!tickId) tickId = setInterval(renderTimer, 250); }
@@ -609,9 +635,9 @@ function syncTick() {
 }
 
 function startTimer() {
-  if (sim.running) return;
-  sim.running = true; sim.lastStart = Date.now(); startTick(); requestWake();
-  persistSim(); renderTimer();
+  if (sim.running || allDone()) return;
+  sim.running = true; sim.lastStart = Date.now();
+  syncTick(); persistSim(); renderTimer();
 }
 function pauseTimer() {
   if (!sim.running) return;
@@ -630,7 +656,11 @@ function startSeg(segId) {
   if (!seg || segRunning(segId)) return;
   // one station at a time — finish the one still running (forgot to tap Stop)
   const other = runningSeg();
-  if (other) { stopSeg(other.id); toast(`${shortName(other)} stopped at ${fmtClock(segElapsed(other.id))}`); }
+  if (other) {
+    const r = stopSeg(other.id);
+    if (r === 'done') toast(`${shortName(other)} auto-stopped at ${fmtClock(segElapsed(other.id))}`, 'warn', 4500);
+    else if (r === 'cancelled') toast(`${shortName(other)} was under 10 s — not counted`, 'warn', 4000);
+  }
   const st = sim.segs[segId] || (sim.segs[segId] = { acc: 0, start: null, done: false });
   st.start = Date.now(); st.done = false;
   sim.finishMs = null;
@@ -638,17 +668,28 @@ function startSeg(segId) {
   if (!sim.running) { sim.running = true; sim.lastStart = Date.now(); }
   syncTick(); persistSim(); render();
 }
+// returns 'done' | 'cancelled' (too short to be real) | null (wasn't running)
 function stopSeg(segId) {
   const st = sim.segs[segId];
-  if (!st || !st.start) return;
-  st.acc += Math.max(0, Date.now() - st.start); st.start = null; st.done = true;
-  // stopping = "I did the target": auto-fill the metric (edit down if less)
+  if (!st || !st.start) return null;
+  const total = st.acc + Math.max(0, Date.now() - st.start);
+  if (total < MIN_SEG_MS) {             // mis-tap / wrong card → not a result
+    delete sim.segs[segId];
+    persistSim();
+    return 'cancelled';
+  }
+  st.acc = total; st.start = null; st.done = true;
+  // stopping = "I did the target": write the CURRENT target (so last week's
+  // 600 m doesn't read as a partial at 800 m) unless you typed a value this
+  // session — then only blanks are filled. Edit down if you did less.
   const seg = SEGMENTS.find((s) => s.id === segId);
   if (seg) {
     const e = (log[segId] || (log[segId] = {}));
-    if (seg.scale === 'weight') { if (!e.w) e.w = String(curTarget(seg)); if (!e.d) e.d = String(seg.dist); }
-    else if (seg.unit === 'reps') { if (!e.r) e.r = String(targetAmount(seg)); }
-    else { if (!e.d) e.d = String(targetAmount(seg)); }
+    const keep = !!sim.edited[segId];
+    const put = (f, v) => { if (!keep || !e[f]) e[f] = String(v); };
+    if (seg.scale === 'weight') { put('w', curTarget(seg)); put('d', seg.dist); }
+    else if (seg.unit === 'reps') put('r', targetAmount(seg));
+    else put('d', targetAmount(seg));
     saveJSON(LOG_KEY, log);
   }
   // last station done → freeze the whole-session clock as the finish time
@@ -658,10 +699,16 @@ function stopSeg(segId) {
   }
   try { navigator.vibrate && navigator.vibrate(60); } catch {}
   persistSim();
+  return 'done';
 }
 function toggleSeg(segId) {
-  if (segRunning(segId)) { stopSeg(segId); syncTick(); render(); }
-  else startSeg(segId);
+  const now = Date.now();
+  if (lastSegTap.id === segId && now - lastSegTap.t < SEG_TAP_GUARD_MS) return;   // double tap
+  lastSegTap = { id: segId, t: now };
+  if (segRunning(segId)) {
+    if (stopSeg(segId) === 'cancelled') toast('Under 10 s — not counted. Tap Start to time it.', 'warn', 3500);
+    syncTick(); render();
+  } else startSeg(segId);
 }
 function clearSeg(segId) {
   const seg = SEGMENTS.find((s) => s.id === segId);
@@ -681,7 +728,7 @@ function saveToTracker() {
   SEGMENTS.forEach((seg) => {
     if (!isFullClear(seg)) return;
     const st = segTime(seg.id);
-    if (st == null) return;
+    if (st == null || st < MIN_SEG_MS) return;
     const key = amountKey(seg);
     const bucket = segPb[seg.id] || (segPb[seg.id] = {});
     if (bucket[key] == null || st < bucket[key]) {
@@ -752,7 +799,12 @@ function fallbackCopy(text) {
   const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
   try { document.execCommand('copy'); toast('✓ Copied'); } catch { toast('Copy failed'); } ta.remove();
 }
-function toast(msg) { const t = document.createElement('div'); t.className = 't-toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2800); }
+function toast(msg, kind, ms) {
+  const t = document.createElement('div');
+  t.className = 't-toast' + (kind ? ' ' + kind : '');
+  t.textContent = msg; document.body.appendChild(t);
+  setTimeout(() => t.remove(), ms || 2800);
+}
 
 // ============================================================
 // Rest timer
@@ -831,6 +883,7 @@ root.addEventListener('input', (e) => {
   const id = inp.dataset.seg;
   (log[id] || (log[id] = {}))[inp.dataset.f] = inp.value;
   saveJSON(LOG_KEY, log);
+  if (!sim.edited[id]) { sim.edited[id] = true; persistSim(); }
   const seg = SEGMENTS.find((s) => s.id === id);
   const card = inp.closest('.race-seg');
   if (seg && card && segDone(id)) {

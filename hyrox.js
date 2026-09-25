@@ -634,15 +634,22 @@ function syncTick() {
   else { stopTick(); releaseWake(); }
 }
 
+// an explicit Pause/Resume of the big clock is the user's call — a later
+// mis-tap undo must not override it
+function markMainTouched() {
+  const rs = runningSeg();
+  const u = rs && sim.segs[rs.id].undo;
+  if (u) u.mainTouched = true;
+}
 function startTimer() {
   if (sim.running || allDone()) return;
   sim.running = true; sim.lastStart = Date.now();
-  syncTick(); persistSim(); renderTimer();
+  markMainTouched(); syncTick(); persistSim(); renderTimer();
 }
 function pauseTimer() {
   if (!sim.running) return;
   sim.accumMs += Date.now() - sim.lastStart; sim.running = false; sim.lastStart = null;
-  syncTick(); persistSim(); renderTimer();
+  markMainTouched(); syncTick(); persistSim(); renderTimer();
 }
 function resetRace() {
   if (!confirm('Reset the clock and every station time for a fresh race? (Your targets, records + XP stay.)')) return;
@@ -660,20 +667,35 @@ function restoreMain(m) { sim.running = m.running; sim.accumMs = m.accumMs; sim.
 // backTo: undefined = the user tapped Stop (roll everything back);
 //         an id = another station is being started — roll back only if it's
 //         the very station this mis-tap interrupted, otherwise keep going.
+// the interrupted station can only be put back if nobody touched it since the
+// auto-stop (not cleared, resumed or restarted in the meantime)
+function otherIntact(u) {
+  const o = u && u.other;
+  const cur = o && sim.segs[o.id];
+  return !!(cur && cur.done && !cur.start && cur.acc === o.stoppedAcc);
+}
 function undoSideEffects(u, backTo) {
   if (!u) return null;
-  const otherBack = !!u.other && (backTo == null || backTo === u.other.id);
+  const otherBack = otherIntact(u) && (backTo == null || backTo === u.other.id);
   if (backTo != null && !otherBack) return null;
-  restoreMain(u.main);
+  if (!u.mainTouched) restoreMain(u.main);   // an explicit Pause/Resume since then wins
   sim.finishMs = u.finish;
   if (otherBack) { sim.segs[u.other.id] = u.other.st; return u.other.id; }
   return null;
+}
+// safety net: a finish exists exactly when all 16 are done, and the big clock
+// is stopped then
+function settle() {
+  if (allDone()) {
+    if (sim.finishMs == null) sim.finishMs = elapsedMs();
+    if (sim.running) { sim.accumMs = elapsedMs(); sim.running = false; sim.lastStart = null; }
+  } else if (sim.finishMs != null) sim.finishMs = null;
 }
 
 function startSeg(segId) {
   const seg = SEGMENTS.find((s) => s.id === segId);
   if (!seg || segRunning(segId)) return;
-  const prevMain = mainSnap(), prevFinish = sim.finishMs;
+  let prevMain = mainSnap(), prevFinish = sim.finishMs;
   // one station at a time — stop the one still running (forgot to tap Stop)
   const other = runningSeg();
   let autoStopped = null;
@@ -686,10 +708,18 @@ function startSeg(segId) {
       return;
     }
     if (r && r.kind === 'done') {
-      autoStopped = { id: other.id, st: before };
+      autoStopped = { id: other.id, st: before, stoppedAcc: sim.segs[other.id].acc };
       toast(`${shortName(other)} auto-stopped at ${fmtClock(segElapsed(other.id))}`, 'warn', 4500);
-    } else if (r && r.kind === 'cancelled') toast(`${shortName(other)} under 10 s — not counted`, 'warn', 4000);
-    else if (r && r.kind === 'reverted') toast(`${shortName(other)} resume undone — time unchanged`, 'warn', 4000);
+    } else if (r && (r.kind === 'cancelled' || r.kind === 'reverted')) {
+      toast(`${shortName(other)} ${r.kind === 'reverted' ? 'resume undone — time unchanged' : 'under 10 s — not counted'}`, 'warn', 4000);
+      // chained mis-taps: this start takes over the first mis-tap's "before"
+      // state, so undoing it still returns to how things were before any of them
+      if (r.undo) {
+        if (!r.undo.mainTouched) { prevMain = r.undo.main; }
+        prevFinish = r.undo.finish;
+        autoStopped = otherIntact(r.undo) ? r.undo.other : null;
+      }
+    }
   }
   const st = sim.segs[segId] || (sim.segs[segId] = { acc: 0, start: null, done: false });
   st.undo = { resumed: st.acc > 0, main: prevMain, finish: prevFinish, other: autoStopped };
@@ -708,14 +738,14 @@ function stopSeg(segId, backTo) {
   if (u && u.resumed && added < MIN_SEG_MS) {      // accidental Resume → time unchanged
     st.start = null; st.done = true; delete st.undo;
     const back = undoSideEffects(u, backTo);
-    persistSim();
-    return { kind: 'reverted', back };
+    settle(); persistSim();
+    return { kind: 'reverted', back, undo: u };
   }
   if (st.acc + added < MIN_SEG_MS) {               // mis-tap / wrong card → not a result
     delete sim.segs[segId];
     const back = undoSideEffects(u, backTo);
-    persistSim();
-    return { kind: 'cancelled', back };
+    settle(); persistSim();
+    return { kind: 'cancelled', back, undo: u };
   }
   st.acc += added; st.start = null; st.done = true; delete st.undo;
   // stopping = "I did the target": write the CURRENT target (so last week's
@@ -736,9 +766,10 @@ function stopSeg(segId, backTo) {
     sim.finishMs = elapsedMs();
     if (sim.running) { sim.accumMs = elapsedMs(); sim.running = false; sim.lastStart = null; }
   }
+  settle();
   try { navigator.vibrate && navigator.vibrate(60); } catch {}
   persistSim();
-  return { kind: 'done', back: null };
+  return { kind: 'done', back: null, undo: null };
 }
 function toggleSeg(segId) {
   const now = Date.now();
@@ -758,10 +789,15 @@ function toggleSeg(segId) {
 }
 function clearSeg(segId) {
   const seg = SEGMENTS.find((s) => s.id === segId);
-  if (!seg || !sim.segs[segId]) return;
+  const st = sim.segs[segId];
+  if (!seg || !st) return;
   if (!confirm(`Clear the time for ${seg.name}?`)) return;
   delete sim.segs[segId];
-  sim.finishMs = null;
+  // clearing a station that's running: put back what its Start changed
+  // (big clock, finish, the station it interrupted) — same as a quick Stop
+  const back = st.start && st.undo ? undoSideEffects(st.undo) : null;
+  settle();
+  if (back) { const b = SEGMENTS.find((s) => s.id === back); toast(`Cleared · ${shortName(b)} continues`, 'warn', 3500); }
   syncTick(); persistSim(); render();
 }
 

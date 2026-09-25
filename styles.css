@@ -4265,10 +4265,20 @@ body.auth-page {
 .race-seg-timer .race-seg-go { order: 2; margin-left: auto; }
 .race-seg-timer .race-seg-redo { order: 3; }
 /* result / aim text gets its own full-width line under clock + buttons */
-.race-seg-timer .race-split-meta { order: 4; flex: 1 0 100%; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.race-seg-timer .race-split-meta { order: 4; flex: 1 0 100%; min-width: 0; display: flex; flex-direction: row; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+/* result text readable at a glance (light mode needs darker shades on --card-2) */
+.race-seg-timer .race-cmp.good { color: #15803d; }
+.race-seg-timer .race-cmp.over { color: #c4001a; }
+.race-seg-timer .race-cmp.partial { color: #8a6100; }
+.race-seg-timer .race-cmp-t { color: var(--muted-strong); }
+@media (prefers-color-scheme: dark) {
+  .race-seg-timer .race-cmp.good { color: var(--success); }
+  .race-seg-timer .race-cmp.over { color: var(--danger); }
+  .race-seg-timer .race-cmp.partial { color: var(--warn); }
+}
 .race-seg-aim { font-size: 12px; font-weight: 700; color: var(--muted-strong); font-variant-numeric: tabular-nums; }
 .race-seg-go {
-  flex-shrink: 0; min-width: 88px; padding: 11px 12px; border-radius: 9px;
+  flex-shrink: 0; min-width: 100px; padding: 11px 12px; border-radius: 9px; text-align: center;
   border: 1px solid var(--gym-accent); background: var(--gym-accent); color: #fff;
   font-size: 14px; font-weight: 800; font-family: inherit; cursor: pointer;
 }
@@ -4291,7 +4301,7 @@ body.auth-page {
 .race-seg-live b { flex-shrink: 0; font-variant-numeric: tabular-nums; }
 .race-clock.long { font-size: 27px; }
 /* toasts on the race page: full text width, amber for automatic actions */
-.race-page .t-toast { width: max-content; max-width: calc(100vw - 32px); box-sizing: border-box; text-align: center; }
+.race-page .t-toast { width: max-content; max-width: calc(100vw - 32px); box-sizing: border-box; text-align: center; pointer-events: none; }
 .race-page .t-toast.warn { background: #ff9f0a; color: #1c1c1e; }
 
 .race-seg-inputs { display: flex; align-items: flex-end; gap: 6px; margin-top: 10px; }

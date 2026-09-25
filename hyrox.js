@@ -651,34 +651,73 @@ function resetRace() {
 }
 
 // ---- per-station Start / Stop ----
+// Every Start remembers what it changed (`undo`: the big clock, the frozen
+// finish, and any station it auto-stopped). A fresh station stopped under 10 s,
+// or a Resume stopped within 10 s, is a mis-tap: it's taken back and all of
+// that is put back — including the station you were really doing.
+function mainSnap() { return { running: sim.running, accumMs: sim.accumMs, lastStart: sim.lastStart }; }
+function restoreMain(m) { sim.running = m.running; sim.accumMs = m.accumMs; sim.lastStart = m.lastStart; }
+// backTo: undefined = the user tapped Stop (roll everything back);
+//         an id = another station is being started — roll back only if it's
+//         the very station this mis-tap interrupted, otherwise keep going.
+function undoSideEffects(u, backTo) {
+  if (!u) return null;
+  const otherBack = !!u.other && (backTo == null || backTo === u.other.id);
+  if (backTo != null && !otherBack) return null;
+  restoreMain(u.main);
+  sim.finishMs = u.finish;
+  if (otherBack) { sim.segs[u.other.id] = u.other.st; return u.other.id; }
+  return null;
+}
+
 function startSeg(segId) {
   const seg = SEGMENTS.find((s) => s.id === segId);
   if (!seg || segRunning(segId)) return;
-  // one station at a time — finish the one still running (forgot to tap Stop)
+  const prevMain = mainSnap(), prevFinish = sim.finishMs;
+  // one station at a time — stop the one still running (forgot to tap Stop)
   const other = runningSeg();
+  let autoStopped = null;
   if (other) {
-    const r = stopSeg(other.id);
-    if (r === 'done') toast(`${shortName(other)} auto-stopped at ${fmtClock(segElapsed(other.id))}`, 'warn', 4500);
-    else if (r === 'cancelled') toast(`${shortName(other)} was under 10 s — not counted`, 'warn', 4000);
+    const { undo: _ignored, ...before } = sim.segs[other.id];
+    const r = stopSeg(other.id, segId);
+    if (r && r.back === segId) {       // `other` was a mis-tap → back to this station
+      toast(`${shortName(other)} ${r.kind === 'reverted' ? 'resume undone' : 'under 10 s — not counted'} · ${shortName(seg)} continues`, 'warn', 4000);
+      syncTick(); persistSim(); render();
+      return;
+    }
+    if (r && r.kind === 'done') {
+      autoStopped = { id: other.id, st: before };
+      toast(`${shortName(other)} auto-stopped at ${fmtClock(segElapsed(other.id))}`, 'warn', 4500);
+    } else if (r && r.kind === 'cancelled') toast(`${shortName(other)} under 10 s — not counted`, 'warn', 4000);
+    else if (r && r.kind === 'reverted') toast(`${shortName(other)} resume undone — time unchanged`, 'warn', 4000);
   }
   const st = sim.segs[segId] || (sim.segs[segId] = { acc: 0, start: null, done: false });
+  st.undo = { resumed: st.acc > 0, main: prevMain, finish: prevFinish, other: autoStopped };
   st.start = Date.now(); st.done = false;
   sim.finishMs = null;
   // starting a station starts / resumes the whole-session clock
   if (!sim.running) { sim.running = true; sim.lastStart = Date.now(); }
   syncTick(); persistSim(); render();
 }
-// returns 'done' | 'cancelled' (too short to be real) | null (wasn't running)
-function stopSeg(segId) {
+// returns { kind: 'done' | 'cancelled' | 'reverted', back: id-of-restored-station|null } or null if not running
+function stopSeg(segId, backTo) {
   const st = sim.segs[segId];
   if (!st || !st.start) return null;
-  const total = st.acc + Math.max(0, Date.now() - st.start);
-  if (total < MIN_SEG_MS) {             // mis-tap / wrong card → not a result
-    delete sim.segs[segId];
+  const added = Math.max(0, Date.now() - st.start);
+  const u = st.undo;
+  if (u && u.resumed && added < MIN_SEG_MS) {      // accidental Resume → time unchanged
+    st.start = null; st.done = true; delete st.undo;
+    const back = undoSideEffects(u, backTo);
     persistSim();
-    return 'cancelled';
+    return { kind: 'reverted', back };
   }
-  st.acc = total; st.start = null; st.done = true;
+  if (st.acc + added < MIN_SEG_MS) {               // mis-tap / wrong card → not a result
+    delete sim.segs[segId];
+    const back = undoSideEffects(u, backTo);
+    persistSim();
+    return { kind: 'cancelled', back };
+  }
+  st.acc += added; st.start = null; st.done = true; delete st.undo;
   // stopping = "I did the target": write the CURRENT target (so last week's
   // 600 m doesn't read as a partial at 800 m) unless you typed a value this
   // session — then only blanks are filled. Edit down if you did less.
@@ -699,14 +738,21 @@ function stopSeg(segId) {
   }
   try { navigator.vibrate && navigator.vibrate(60); } catch {}
   persistSim();
-  return 'done';
+  return { kind: 'done', back: null };
 }
 function toggleSeg(segId) {
   const now = Date.now();
-  if (lastSegTap.id === segId && now - lastSegTap.t < SEG_TAP_GUARD_MS) return;   // double tap
+  // sliding guard: taps on the same card closer than 0.7 s apart are ignored,
+  // and every ignored tap extends it — mashing Stop can never turn into Resume
+  const recent = lastSegTap.id === segId && now - lastSegTap.t < SEG_TAP_GUARD_MS;
   lastSegTap = { id: segId, t: now };
+  if (recent) return;
   if (segRunning(segId)) {
-    if (stopSeg(segId) === 'cancelled') toast('Under 10 s — not counted. Tap Start to time it.', 'warn', 3500);
+    const r = stopSeg(segId);
+    const back = r && r.back ? SEGMENTS.find((s) => s.id === r.back) : null;
+    const tail = back ? ` · ${shortName(back)} continues` : '';
+    if (r && r.kind === 'cancelled') toast(`Under 10 s — not counted${tail}`, 'warn', 3500);
+    else if (r && r.kind === 'reverted') toast(`Resume undone — time unchanged${tail}`, 'warn', 3500);
     syncTick(); render();
   } else startSeg(segId);
 }
@@ -800,10 +846,14 @@ function fallbackCopy(text) {
   try { document.execCommand('copy'); toast('✓ Copied'); } catch { toast('Copy failed'); } ta.remove();
 }
 function toast(msg, kind, ms) {
+  const life = ms || 2800;
   const t = document.createElement('div');
   t.className = 't-toast' + (kind ? ' ' + kind : '');
-  t.textContent = msg; document.body.appendChild(t);
-  setTimeout(() => t.remove(), ms || 2800);
+  t.textContent = msg;
+  // fade out just before removal, however long this toast lives
+  t.style.animationDelay = `0s, ${Math.max(0, life - 300)}ms`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), life);
 }
 
 // ============================================================

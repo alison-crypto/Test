@@ -14,7 +14,7 @@ const WEEK = {
   wed: { type: 'EASY', train: 'Upper B (am) · swim + sauna (pm)' },
   thu: { type: 'MOD',  train: 'Muay Thai w/ RTC (am) · Lower gym or run (pm)' },
   fri: { type: 'HIGH', train: 'Upper C (am) · swim + sauna · carb-load' },
-  sat: { type: 'PEAK', train: 'HYROX circuit (600 m runs) · morning' },
+  sat: { type: 'PEAK', train: 'HYROX circuit (1 km runs) · morning' },
   sun: { type: 'EASY', train: 'Rest day — maybe pool with Darlene' },
 };
 

@@ -4825,3 +4825,7 @@ body.auth-page {
 .tw-row span { flex: 1; color: var(--muted-strong); }
 .tw-row i { font-style: normal; font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 999px; color: #fff; }
 .tw-mod { background: #5e5ce6; } .tw-high { background: #ff9500; } .tw-peak { background: #ff2d55; } .tw-easy { background: #34c759; }
+
+/* Hyrox: 'All runs' distance row */
+.race-runset { margin-top: -4px; }
+.race-runset-btn.active { background: var(--gym-accent); border-color: var(--gym-accent); color: #fff; }

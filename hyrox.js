@@ -205,6 +205,14 @@ SEGMENTS.forEach((s) => {
   if (tiers[s.id] == null) tiers[s.id] = s.scale === 'weight' ? s.startW : s.start;
   if (timeTier[s.id] == null) timeTier[s.id] = 'amateur';
 });
+// one-time: Saturday runs move up to the full 1 km (Sep 2026) — still adjustable
+const RUNS1K_KEY = 'rtc_hyrox_runs1k_v1';
+try {
+  if (!localStorage.getItem(RUNS1K_KEY)) {
+    SEGMENTS.forEach((s) => { if (s.kind === 'run' || s.kind === 'bike') tiers[s.id] = s.race; });
+    localStorage.setItem(RUNS1K_KEY, '1');
+  }
+} catch {}
 saveJSON(TIER_KEY, tiers);
 saveJSON(TIMETIER_KEY, timeTier);
 
@@ -281,6 +289,14 @@ function stepTarget(segId, dir) {
   else tiers[segId] = Math.max(seg.step, Math.min(seg.race, curTarget(seg) + dir * seg.step));
   saveJSON(TIER_KEY, tiers);
   render();
+}
+// set every run (treadmill + bike stand-ins) to one distance in a tap
+const RUN_DISTS = [500, 600, 800, 1000];
+function runSegs() { return SEGMENTS.filter((s) => s.kind === 'run' || s.kind === 'bike'); }
+function setAllRuns(m) {
+  runSegs().forEach((s) => { tiers[s.id] = Math.max(s.step, Math.min(s.race, m)); });
+  saveJSON(TIER_KEY, tiers); render();
+  toast(`All runs → ${m >= 1000 ? m / 1000 + ' km' : m + ' m'}`);
 }
 function selectTimeTier(segId, key) { timeTier[segId] = key; saveJSON(TIMETIER_KEY, timeTier); render(); }
 
@@ -530,6 +546,13 @@ function render() {
       <button type="button" class="race-preset-btn" data-preset="amateur">Amateur</button>
       <button type="button" class="race-preset-btn" data-preset="intermediate">Inter</button>
       <button type="button" class="race-preset-btn" data-preset="competition">Comp</button>
+    </div>
+    <div class="race-preset race-runset">
+      <span class="race-preset-lbl">All runs&nbsp;→</span>
+      ${RUN_DISTS.map((m) => {
+        const on = runSegs().every((s) => curTarget(s) === m);
+        return `<button type="button" class="race-preset-btn race-runset-btn ${on ? 'active' : ''}" data-runs="${m}">${m >= 1000 ? m / 1000 + ' km' : m + ' m'}</button>`;
+      }).join('')}
     </div>
 
     ${coinHTML()}
@@ -941,6 +964,8 @@ function closeRest() { if (restState && restState.iv) clearInterval(restState.iv
 // Events (delegated)
 // ============================================================
 root.addEventListener('click', (e) => {
+  const runset = e.target.closest('.race-runset-btn');
+  if (runset) { setAllRuns(parseInt(runset.dataset.runs, 10)); return; }
   const preset = e.target.closest('.race-preset-btn');
   if (preset) { applyPreset(preset.dataset.preset); return; }
   const step = e.target.closest('.race-step-btn');

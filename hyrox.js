@@ -3,8 +3,9 @@
 // 8 × 1 km runs interleaved with 8 stations, in the OFFICIAL competition order
 // (Run → Ski → Run → Sled Push → Run → Sled Pull → Run → Burpee Broad Jumps →
 // Run → Row → Run → Farmers Carry → Run → Lunges → Run → Wall Balls). Kit the Y
-// lacks (sled/wall/sandbags) shows the real target plus a working substitute;
-// every station has a ▾ Swap menu (which also swaps the card image).
+// lacks (sled/wall/sandbags): every slot's ▾ menu offers the official station
+// plus 3 researched replacement cards (hyrox-options.js), each a full card
+// with its own dial, race-equivalent target, time table, cues and picture.
 //
 // TIMERS: every card has its OWN Start/Stop timer that measures only that
 // station, so the gym can be done in any order (machine taken → do another one
@@ -31,7 +32,7 @@
 //   rtc_hyrox_log_v1       — { segId:{d,w,r} } structured log
 //   rtc_hyrox_tier_v1      — { segId: distance/weight target }
 //   rtc_hyrox_timetier_v1  — { segId: timeTierKey }
-//   rtc_hyrox_swaps_v1     — { segId: optionIndex }
+//   rtc_hyrox_swaps_v2     — { segId: version } 0 = official station, 1–3 = replacement cards (hyrox-options.js)
 //   rtc_hyrox_pb_v1        — { ms, date } best finish
 //   rtc_hyrox_segpb_v3     — { segId: { amountKey: ms } } best station time per distance
 //                            (v3: station-only Start→Stop time; v2 held the old split
@@ -45,14 +46,8 @@
 // faster; beginners run/walk ~8–9/km). Times scale linearly with distance.
 // ============================================================
 const T = (m, s) => (m * 60 + s) * 1000;
-const RUN_TIMES   = { beginner: T(9, 0),  amateur: T(7, 30), intermediate: T(6, 0),  competition: T(5, 0),  elite: T(3, 45), wr: T(2, 45) };
-const SKI_TIMES   = { beginner: T(6, 0),  amateur: T(5, 15), intermediate: T(4, 45), competition: T(4, 0),  elite: T(3, 30), wr: T(3, 0) };
-const ROW_TIMES   = { beginner: T(5, 45), amateur: T(5, 10), intermediate: T(4, 45), competition: T(4, 10), elite: T(3, 45), wr: T(3, 0) };
-const BBJ_TIMES   = { beginner: T(6, 30), amateur: T(5, 30), intermediate: T(5, 0),  competition: T(4, 0),  elite: T(3, 15), wr: T(2, 45) };
-const CARRY_TIMES = { beginner: T(3, 0),  amateur: T(2, 40), intermediate: T(2, 20), competition: T(2, 0),  elite: T(1, 40), wr: T(1, 20) };
-const LUNGE_TIMES = { beginner: T(5, 30), amateur: T(5, 0),  intermediate: T(4, 30), competition: T(3, 45), elite: T(3, 0),  wr: T(2, 30) };
-const WB_TIMES    = { beginner: T(7, 30), amateur: T(6, 30), intermediate: T(6, 0),  competition: T(4, 30), elite: T(3, 30), wr: T(3, 15) };
-const SLED_TIMES  = { beginner: T(2, 30), amateur: T(2, 10), intermediate: T(1, 50), competition: T(1, 30), elite: T(1, 10), wr: T(0, 50) };
+// Official Men's Open six-tier times now live in hyrox-options.js
+// (HX_OPTIONS[x].officialTimes), next to the three replacement cards.
 
 const TIME_TIERS = [
   { key: 'beginner', label: 'Beg' },
@@ -63,86 +58,83 @@ const TIME_TIERS = [
   { key: 'wr', label: '🌍WR' },
 ];
 
-const BIKE_SUBS = ['Bike ~4–5 min hard (~2.5–3 km)', 'Row 1 km hard', 'Treadmill 1 km if free'];
-
-// scale: 'amount' (distance/reps scale start→race) | 'weight' (weight scales, distance fixed)
+// 16 slots in race order. Every slot has 4 versions (the ▾ menu): option 0 is
+// the official station below; options 1–3 are the researched replacement
+// cards from hyrox-options.js, each with its own dial, target and time table.
+// `hx` = which option set a slot uses; `defOpt` = default version (the YMCA has
+// no sled, so sled slots default to a replacement; runs 3–8 to the air bike).
+function runSlot(id, n, sub, defOpt) {
+  return { id, hx: 'run', kind: 'run', icon: '🏃', name: `Run ${n} · 1 km`, img: 'Running_Treadmill', video: 'treadmill+running+form',
+    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, sub, defOpt };
+}
 const SEGMENTS = [
-  { id: 'run1', kind: 'run', icon: '🏃', name: 'Run 1 · 1 km', img: 'Running_Treadmill', video: 'treadmill+running+form',
-    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Treadmill — steady & controlled, this is the easy one.',
-    subs: ['Treadmill', 'Outdoor', 'Bike ~4–5 min hard'] },
-  { id: 'ski', kind: 'station', icon: '🎿', num: 1, name: 'SkiErg', img: 'Straight-Arm_Pulldown', video: 'skierg+technique+hyrox',
-    scale: 'amount', unit: 'm', start: 400, race: 1000, step: 100, times: SKI_TIMES,
-    sub: 'Drive from the hips, not just arms. Build the distance, then the speed.',
-    subs: ['SkiErg', 'Row (if ski busy)', 'Banded lat pulldowns hard'] },
-  { id: 'run2', kind: 'run', icon: '🏃', name: 'Run 2 · 1 km', img: 'Running_Treadmill', video: 'treadmill+running+form',
-    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Treadmill again — hold the same pace as Run 1. Bike (▾) if the treadmill is taken.',
-    subs: ['Treadmill', 'Outdoor', 'Bike ~4–5 min hard'] },
-  { id: 'push', kind: 'station', icon: '🛷', num: 2, name: 'Sled Push', img: 'Sled_Push', video: 'hyrox+sled+push+technique',
-    scale: 'weight', unit: 'm', dist: 50, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg/hand', compNote: 'race sled ≈ 152 kg', times: SLED_TIMES,
-    sub: 'YMCA has no sled → heavy DB/KB suitcase march 50 m. Build the weight toward race feel.',
-    subs: ['DB/KB suitcase march', 'Leg-press burnout', 'Prowler / hack-squat if free'] },
-  { id: 'bike3', kind: 'bike', icon: '🚴', name: 'Bike 3 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Bike stands in for the run. Run-equivalent: ~2.5–3 km hard on the bike per 1 km.',
-    subs: BIKE_SUBS },
-  { id: 'pull', kind: 'station', icon: '🪝', num: 3, name: 'Sled Pull', img: 'Sled_Row', video: 'hyrox+sled+pull+technique',
-    scale: 'weight', unit: 'm', dist: 50, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg', compNote: 'race sled ≈ 103 kg', times: SLED_TIMES,
-    sub: 'No sled → hard seated cable rows / heavy DB bent rows, hand-over-hand tempo.',
-    subs: ['Seated cable row', 'Heavy DB bent row', 'Ring / TRX row'] },
-  { id: 'bike4', kind: 'bike', icon: '🚴', name: 'Bike 4 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
-  { id: 'bbj', kind: 'station', icon: '🤸', num: 4, name: 'Burpee Broad Jumps', img: 'Freehand_Jump_Squat', video: 'burpee+broad+jump+form',
-    scale: 'amount', unit: 'm', start: 40, race: 80, step: 10, times: BBJ_TIMES,
-    sub: '⚠️ Brace the lower back · control every landing (ankle). ~15–18 reps ≈ 80 m.',
-    subs: ['Burpee broad jumps', 'Burpee + step forward', 'Squat-thrust + broad step'] },
-  { id: 'bike5', kind: 'bike', icon: '🚴', name: 'Bike 5 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
-  { id: 'row', kind: 'station', icon: '🚣', num: 5, name: 'RowErg', img: 'Rowing_Stationary', video: 'rowerg+technique+hyrox',
-    scale: 'amount', unit: 'm', start: 400, race: 1000, step: 100, times: ROW_TIMES,
-    sub: 'Legs–core–arms order. Long, strong strokes; don’t yank early.',
-    subs: ['RowErg', 'SkiErg', 'Bike 2 km hard'] },
-  { id: 'bike6', kind: 'bike', icon: '🚴', name: 'Bike 6 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
-  { id: 'carry', kind: 'station', icon: '🧳', num: 6, name: 'Farmers Carry', img: 'Farmers_Walk', video: 'farmers+carry+technique',
-    scale: 'weight', unit: 'm', dist: 200, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg/hand', compNote: 'race 2 × 24 kg', times: CARRY_TIMES,
-    sub: 'Heaviest DBs you can grip — tall chest, brace, don’t shrug.',
-    subs: ['Farmers carry, heaviest DBs', 'KB rack carry', 'Trap-bar hold walk'] },
-  { id: 'bike7', kind: 'bike', icon: '🚴', name: 'Bike 7 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
-  { id: 'lunge', kind: 'station', icon: '🦵', num: 7, name: 'Sandbag Lunges', img: 'Dumbbell_Lunges', video: 'goblet+reverse+lunge+form',
-    scale: 'weight', unit: 'm', dist: 100, startW: 8, raceW: 20, stepW: 2, wUnit: 'kg goblet', compNote: 'race 20 kg sandbag', times: LUNGE_TIMES,
-    sub: 'No sandbags → DB/KB goblet reverse lunges. Brace + control the ankle.',
-    subs: ['DB/KB goblet reverse lunge', 'Walking lunge (bodyweight)', 'Split squats ×20 / leg'] },
-  { id: 'bike8', kind: 'bike', icon: '🚴', name: 'Bike 8 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Last one — empty the tank. Hard 4–5 min.', subs: BIKE_SUBS },
-  { id: 'wb', kind: 'station', icon: '🏐', num: 8, name: 'Wall Balls', img: 'Medicine_Ball_Scoop_Throw', video: 'wall+ball+shot+form',
-    scale: 'amount', unit: 'reps', start: 40, race: 100, step: 10, times: WB_TIMES,
-    sub: 'Can’t use the wall → med-ball throw-ups / DB thrusters. Full squat, full extension.',
-    subs: ['Med-ball throw-ups', 'DB thrusters', 'Wall balls (if wall free)'] },
+  runSlot('run1', 1, 'Treadmill — steady & controlled, this is the easy one.', 0),
+  { id: 'ski', hx: 'ski', kind: 'station', icon: '🎿', num: 1, name: 'SkiErg', img: 'Straight-Arm_Pulldown', video: 'skierg+technique+hyrox',
+    scale: 'amount', unit: 'm', start: 400, race: 1000, step: 100,
+    sub: 'Drive from the hips, not just arms. Build the distance, then the speed.' },
+  runSlot('run2', 2, 'Treadmill again — hold the same pace as Run 1.', 0),
+  { id: 'push', hx: 'push', kind: 'station', icon: '🛷', num: 2, name: 'Sled Push', img: 'Sled_Push', video: 'hyrox+sled+push+technique',
+    scale: 'weight', unit: 'm', dist: 50, startW: 102, raceW: 152, stepW: 10, wUnit: 'kg sled', compNote: 'race 152 kg', tk0: 'push@0', defOpt: 2,
+    sub: 'Arms locked, hips low, short fast steps · 4 × 12.5 m lanes. No sled at the gym? Pick a replacement card ▾.' },
+  runSlot('bike3', 3, 'Match a race 1 km effort.', 2),
+  { id: 'pull', hx: 'pull', kind: 'station', icon: '🪝', num: 3, name: 'Sled Pull', img: 'Sled_Row', video: 'hyrox+sled+pull+technique',
+    scale: 'weight', unit: 'm', dist: 50, startW: 63, raceW: 103, stepW: 10, wUnit: 'kg sled', compNote: 'race 103 kg', tk0: 'pull@0', defOpt: 1,
+    sub: 'Anchor low, long hand-over-hand pulls, walk back to reset each lane. No sled? Pick a replacement card ▾.' },
+  runSlot('bike4', 4, 'Match a race 1 km effort.', 2),
+  { id: 'bbj', hx: 'bbj', kind: 'station', icon: '🤸', num: 4, name: 'Burpee Broad Jumps', img: 'Freehand_Jump_Squat', video: 'burpee+broad+jump+form',
+    scale: 'amount', unit: 'm', start: 40, race: 80, step: 10,
+    sub: '⚠️ Brace the lower back · control every landing (ankle). ~40–45 jumps ≈ 80 m.' },
+  runSlot('bike5', 5, 'Match a race 1 km effort.', 2),
+  { id: 'row', hx: 'row', kind: 'station', icon: '🚣', num: 5, name: 'RowErg', img: 'Rowing_Stationary', video: 'rowerg+technique+hyrox',
+    scale: 'amount', unit: 'm', start: 400, race: 1000, step: 100,
+    sub: 'Legs–core–arms order. Long, strong strokes; don’t yank early.' },
+  runSlot('bike6', 6, 'Match a race 1 km effort.', 2),
+  { id: 'carry', hx: 'carry', kind: 'station', icon: '🧳', num: 6, name: 'Farmers Carry', img: 'Farmers_Walk', video: 'farmers+carry+technique',
+    scale: 'weight', unit: 'm', dist: 200, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg/hand', compNote: 'race 2 × 24 kg',
+    sub: 'Heaviest DBs you can grip — tall chest, brace, don’t shrug.' },
+  runSlot('bike7', 7, 'Match a race 1 km effort.', 2),
+  { id: 'lunge', hx: 'lunge', kind: 'station', icon: '🦵', num: 7, name: 'Sandbag Lunges', img: 'Dumbbell_Lunges', video: 'hyrox+sandbag+lunge+technique',
+    scale: 'weight', unit: 'm', dist: 100, startW: 8, raceW: 20, stepW: 2, wUnit: 'kg bag', compNote: 'race 20 kg sandbag',
+    sub: 'Bag on the shoulders, back knee touches every rep. Brace + control the ankle. No sandbag? Pick a replacement ▾.' },
+  runSlot('bike8', 8, 'Last one — empty the tank.', 2),
+  { id: 'wb', hx: 'wb', kind: 'station', icon: '🏐', num: 8, name: 'Wall Balls', img: 'Medicine_Ball_Scoop_Throw', video: 'wall+ball+shot+form',
+    scale: 'amount', unit: 'reps', start: 40, race: 100, step: 10,
+    sub: 'Full squat, full extension, ball to the 3 m target. Wall busy? Pick a replacement ▾.' },
 ];
+SEGMENTS.forEach((s) => { s.times = HX_OPTIONS[s.hx].officialTimes; });
 
-// Swap-option images (parallel to `subs`) — picking an option swaps the picture.
-const BIKE_SUBIMG = ['Bicycling_Stationary', 'Rowing_Stationary', 'Running_Treadmill'];
-const SUBIMG = {
-  run1: ['Running_Treadmill', 'Running_Treadmill', 'Bicycling_Stationary'],
-  run2: ['Running_Treadmill', 'Running_Treadmill', 'Bicycling_Stationary'],
-  ski: ['Straight-Arm_Pulldown', 'Rowing_Stationary', 'Straight-Arm_Pulldown'],
-  row: ['Rowing_Stationary', 'Straight-Arm_Pulldown', 'Bicycling_Stationary'],
-  bike3: BIKE_SUBIMG, bike4: BIKE_SUBIMG, bike5: BIKE_SUBIMG, bike6: BIKE_SUBIMG, bike7: BIKE_SUBIMG, bike8: BIKE_SUBIMG,
-  push: ['Farmers_Walk', 'Leg_Press', 'Sled_Push'],
-  pull: ['Seated_Cable_Rows', 'Bent_Over_Two-Dumbbell_Row', 'Inverted_Row'],
-  bbj: ['Standing_Long_Jump', 'Standing_Long_Jump', 'Standing_Long_Jump'],
-  carry: ['Farmers_Walk', 'Farmers_Walk', 'Trap_Bar_Deadlift'],
-  lunge: ['Dumbbell_Rear_Lunge', 'Bodyweight_Walking_Lunge', 'Split_Squat_with_Dumbbells'],
-  wb: ['Medicine_Ball_Scoop_Throw', 'Kettlebell_Thruster', 'Medicine_Ball_Scoop_Throw'],
-};
+// ---- versions: option 0 = official slot config, 1–3 = replacement cards ----
+const CONFIG_KEYS = ['scale', 'unit', 'start', 'race', 'step', 'dist', 'wUnit', 'startW', 'raceW', 'stepW', 'compNote', 'times', 'img', 'kind'];
+function versionsOf(seg) { return [null, ...HX_OPTIONS[seg.hx].alts]; }
+function shortOptName(name) { return String(name).replace(/\s*\(.*\)\s*$/, ''); }
+function optIndex(seg) {
+  const v = swaps[seg.id];
+  const n = versionsOf(seg).length;
+  return Number.isInteger(v) && v >= 0 && v < n ? v : (seg.defOpt || 0);
+}
+function tierKey(seg, i) { return i === 0 ? (seg.tk0 || seg.id) : `${seg.id}@${i}`; }
+// effective card for a slot: the slot merged with its chosen version
+function E(seg, forceOpt) {
+  if (seg.__eff && forceOpt == null) return seg;
+  const base = seg.__base || seg;
+  const i = forceOpt != null ? forceOpt : optIndex(base);
+  const x = Object.assign({}, base, { __eff: true, __base: base, opt: i, tk: tierKey(base, i) });
+  if (i > 0) {
+    const o = versionsOf(base)[i];
+    CONFIG_KEYS.forEach((k) => { x[k] = o[k]; });
+    x.kind = o.kind || base.kind;
+    x.altName = shortOptName(o.name); x.why = o.why; x.cues = o.cues || []; x.mistake = o.mistake;
+    x.equip = o.equip; x.video = encodeURIComponent(o.video || o.name + ' technique');
+  }
+  return x;
+}
+function defaultTier(x) {
+  if (x.hx === 'run') return x.race;                    // runs: full 1 km equivalent
+  return x.scale === 'weight' ? x.startW : x.start;
+}
+function specText(x) {
+  return x.scale === 'weight' ? `${x.dist} ${x.unit} · ${x.raceW} ${x.wUnit}` : `${x.race} ${x.unit}`;
+}
 
 const RANKS = [
   { key: 'rookie',   name: 'Rookie',       emoji: '🥚', ms: Infinity },
@@ -158,7 +150,7 @@ const SIM_KEY      = 'rtc_hyrox_sim_v1';
 const LOG_KEY      = 'rtc_hyrox_log_v1';
 const TIER_KEY     = 'rtc_hyrox_tier_v1';
 const TIMETIER_KEY = 'rtc_hyrox_timetier_v1';
-const SWAPS_KEY    = 'rtc_hyrox_swaps_v1';
+const SWAPS_KEY    = 'rtc_hyrox_swaps_v2';   // v2: 0 = official, 1–3 = replacement cards
 const PB_KEY       = 'rtc_hyrox_pb_v1';
 const SEGPB_KEY    = 'rtc_hyrox_segpb_v3';
 const XP_KEY       = 'rtc_hyrox_xp_v1';
@@ -202,14 +194,14 @@ const xpState  = loadJSON(XP_KEY, { xp: 0, prs: 0, log: [] });
 const tiers    = loadJSON(TIER_KEY, {});
 const timeTier = loadJSON(TIMETIER_KEY, {});
 SEGMENTS.forEach((s) => {
-  if (tiers[s.id] == null) tiers[s.id] = s.scale === 'weight' ? s.startW : s.start;
+  versionsOf(s).forEach((_, i) => { const x = E(s, i); if (tiers[x.tk] == null) tiers[x.tk] = defaultTier(x); });
   if (timeTier[s.id] == null) timeTier[s.id] = 'amateur';
 });
 // one-time: Saturday runs move up to the full 1 km (Sep 2026) — still adjustable
 const RUNS1K_KEY = 'rtc_hyrox_runs1k_v1';
 try {
   if (!localStorage.getItem(RUNS1K_KEY)) {
-    SEGMENTS.forEach((s) => { if (s.kind === 'run' || s.kind === 'bike') tiers[s.id] = s.race; });
+    SEGMENTS.forEach((s) => { if (s.hx === 'run') tiers[s.id] = s.race; });
     localStorage.setItem(RUNS1K_KEY, '1');
   }
 } catch {}
@@ -262,39 +254,51 @@ let lastSegTap = { id: null, t: 0 };
 // ============================================================
 // Two dials: distance/weight tier + time tier
 // ============================================================
-function curTarget(seg) { return tiers[seg.id]; }
-function targetAmount(seg) { return seg.scale === 'weight' ? seg.dist : curTarget(seg); }
+function curTarget(seg) { seg = E(seg); return tiers[seg.tk]; }
+function targetAmount(seg) { seg = E(seg); return seg.scale === 'weight' ? seg.dist : curTarget(seg); }
 function curTimeTier(seg) { return timeTier[seg.id] || 'amateur'; }
 // time to hit a tier at the CURRENT distance (weight stations: fixed distance → no scale)
 function tierTime(seg, tierKey) {
+  seg = E(seg);
   const base = seg.times[tierKey];
   return seg.scale === 'weight' ? base : Math.round(base * curTarget(seg) / seg.race);
 }
 function targetTime(seg) { return tierTime(seg, curTimeTier(seg)); }
-function distPct(seg) { return seg.scale === 'weight' ? curTarget(seg) / seg.raceW : curTarget(seg) / seg.race; }
+function distPct(seg) { seg = E(seg); return seg.scale === 'weight' ? curTarget(seg) / seg.raceW : curTarget(seg) / seg.race; }
 function distTierLabel(seg) {
-  const p = distPct(seg);
+  seg = E(seg);
+  let p = distPct(seg);
+  if (seg.opt) {
+    // replacement cards start well above 40% of race-equivalent, so rate the
+    // level by progress from the card's start value to its race value
+    const lo = seg.scale === 'weight' ? seg.startW : seg.start, hi = seg.scale === 'weight' ? seg.raceW : seg.race;
+    const prog = hi > lo ? (curTarget(seg) - lo) / (hi - lo) : 1;
+    p = prog <= 0 ? 0.3 : 0.4 + 0.6 * Math.min(1, prog);
+  }
   if (p >= 1) return 'Competition';
   if (p >= 0.8) return 'Pro';
   if (p >= 0.6) return 'Intermediate';
   if (p >= 0.4) return 'Amateur';
   return 'Beginner';
 }
-function atMax(seg) { return seg.scale === 'weight' ? curTarget(seg) >= seg.raceW : curTarget(seg) >= seg.race; }
-function atMin(seg) { return curTarget(seg) <= (seg.scale === 'weight' ? 4 : seg.step); }
+function atMax(seg) { seg = E(seg); return seg.scale === 'weight' ? curTarget(seg) >= seg.raceW : curTarget(seg) >= seg.race; }
+function atMin(seg) { seg = E(seg); return curTarget(seg) <= (seg.scale === 'weight' ? 4 : seg.step); }
 function stepTarget(segId, dir) {
-  const seg = SEGMENTS.find((s) => s.id === segId);
-  if (!seg) return;
-  if (seg.scale === 'weight') tiers[segId] = Math.max(4, Math.min(seg.raceW, curTarget(seg) + dir * seg.stepW));
-  else tiers[segId] = Math.max(seg.step, Math.min(seg.race, curTarget(seg) + dir * seg.step));
+  const raw = SEGMENTS.find((s) => s.id === segId);
+  if (!raw) return;
+  const seg = E(raw);
+  if (seg.scale === 'weight') tiers[seg.tk] = Math.max(Math.min(seg.stepW, 4), Math.min(seg.raceW, curTarget(seg) + dir * seg.stepW));
+  else tiers[seg.tk] = Math.max(seg.step, Math.min(seg.race, curTarget(seg) + dir * seg.step));
   saveJSON(TIER_KEY, tiers);
   render();
 }
 // set every run (treadmill + bike stand-ins) to one distance in a tap
 const RUN_DISTS = [500, 600, 800, 1000];
-function runSegs() { return SEGMENTS.filter((s) => s.kind === 'run' || s.kind === 'bike'); }
+function runSegs() { return SEGMENTS.filter((s) => s.hx === 'run'); }
+// the same run-equivalent for every version (e.g. 600 m ≈ 36 cal bike ≈ 700 m row)
+function runEquiv(x, m) { return snapVal(x.race * m / 1000, x.step, x.step, x.race); }
 function setAllRuns(m) {
-  runSegs().forEach((s) => { tiers[s.id] = Math.max(s.step, Math.min(s.race, m)); });
+  runSegs().forEach((s) => versionsOf(s).forEach((_, i) => { const x = E(s, i); tiers[x.tk] = runEquiv(x, m); }));
   saveJSON(TIER_KEY, tiers); render();
   toast(`All runs → ${m >= 1000 ? m / 1000 + ' km' : m + ' m'}`);
 }
@@ -307,10 +311,12 @@ function snapVal(v, step, min, max) { return Math.max(min, Math.min(max, Math.ro
 function applyPreset(level) {
   const frac = PRESET_FRAC[level];
   if (frac == null) return;
-  SEGMENTS.forEach((seg) => {
+  SEGMENTS.forEach((raw) => {
+    const seg = E(raw);
     timeTier[seg.id] = level;
-    if (seg.scale === 'weight') tiers[seg.id] = snapVal(seg.raceW * frac, seg.stepW, 4, seg.raceW);
-    else tiers[seg.id] = snapVal(seg.race * frac, seg.step, seg.step, seg.race);
+    if (seg.hx === 'run') return;          // runs have their own "All runs" row
+    if (seg.scale === 'weight') tiers[seg.tk] = snapVal(seg.raceW * frac, seg.stepW, Math.min(seg.stepW, 4), seg.raceW);
+    else tiers[seg.tk] = snapVal(seg.race * frac, seg.step, seg.step, seg.race);
   });
   saveJSON(TIER_KEY, tiers); saveJSON(TIMETIER_KEY, timeTier);
   render();
@@ -318,14 +324,15 @@ function applyPreset(level) {
 }
 
 // best time is tracked per distance/weight so 500 m and 1 km compare fairly
-function amountKey(seg) { return String(curTarget(seg)); }
-function bestFor(seg) { const m = segPb[seg.id]; return m ? m[amountKey(seg)] : undefined; }
+function amountKey(seg) { return String(curTarget(E(seg))); }
+function bestFor(seg) { seg = E(seg); const m = segPb[seg.tk]; return m ? m[amountKey(seg)] : undefined; }
 
 function isFullClear(seg) {
+  seg = E(seg);
   if (!segDone(seg.id)) return false;
   const e = log[seg.id] || {};
   if (seg.scale === 'weight') { const w = parseFloat(e.w); return !isNaN(w) && w >= curTarget(seg); }
-  const metric = seg.unit === 'reps' ? parseFloat(e.r) : parseFloat(e.d);
+  const metric = seg.unit === 'm' ? parseFloat(e.d) : parseFloat(e.r);   // reps / cal / steps → the 3rd box
   return !isNaN(metric) && metric >= targetAmount(seg);
 }
 
@@ -361,7 +368,7 @@ async function loadImageDB() {
 }
 function imgUrlFor(seg, chosen) {
   if (!imgDb) return null;
-  const id = (SUBIMG[seg.id] && SUBIMG[seg.id][chosen || 0]) || seg.img;
+  const id = E(seg).img;
   if (!id) return null;
   const ex = imgDb.find((d) => d.id === id);
   return ex && ex.images && ex.images.length ? IMG_BASE_URL + ex.images[0] : null;
@@ -390,11 +397,12 @@ function coinHTML() {
 }
 
 function recordsHTML() {
-  const rows = SEGMENTS.map((s) => {
+  const rows = SEGMENTS.map((raw) => {
+    const s = E(raw);
     const b = bestFor(s), tt = targetTime(s), delta = b != null ? b - tt : null;
     const amt = s.scale === 'weight' ? `${curTarget(s)} ${s.wUnit}` : `${curTarget(s)} ${s.unit}`;
     return `<tr>
-      <td>${esc(s.name)}<span class="rec-tier">${esc(amt)}</span></td>
+      <td>${esc(s.opt ? `${s.altName} (${shortName(s)})` : s.name)}<span class="rec-tier">${esc(amt)}</span></td>
       <td class="rec-best">${b != null ? fmtClock(b) : '—'}</td>
       <td class="rec-tgt">${fmtClock(tt)}</td>
       <td class="${delta == null ? '' : delta <= 0 ? 'rec-good' : 'rec-over'}">${b != null ? (delta <= 0 ? '−' : '+') + fmtClock(Math.abs(delta)) : ''}</td>
@@ -426,10 +434,13 @@ function imgSlotHTML(seg, chosen) {
 
 // distance / weight dial (−/+) with tier label + competition reference
 function distLineHTML(seg) {
+  seg = E(seg);
   const label = distTierLabel(seg);
   let now, comp;
-  if (seg.scale === 'weight') { now = `${seg.dist} m · ${curTarget(seg)} ${seg.wUnit}`; comp = seg.compNote; }
-  else { now = `${curTarget(seg)} ${seg.unit}`; comp = `comp ${seg.race} ${seg.unit}`; }
+  if (seg.scale === 'weight') {
+    now = `${seg.dist} ${seg.unit} · ${curTarget(seg)} ${seg.wUnit}`;
+    comp = seg.opt ? `race ≈ ${seg.raceW} ${seg.wUnit}` : seg.compNote;
+  } else { now = `${curTarget(seg)} ${seg.unit}`; comp = `${seg.opt ? 'race ≈' : 'comp'} ${seg.race} ${seg.unit}`; }
   return `
     <div class="race-seg-goal">
       <span class="race-goal-now">${esc(now)}</span>
@@ -459,20 +470,22 @@ function doneMetaHTML(seg, st, tt, full) {
           <span class="race-cmp-t">${full ? 'record set on Save' : `full target = ${seg.scale === 'weight' ? curTarget(seg) + ' ' + seg.wUnit : targetAmount(seg) + ' ' + seg.unit}`}</span>`;
 }
 
-function segCard(seg) {
+function segCard(raw) {
+  const seg = E(raw);
   const done = segDone(seg.id);
   const running = segRunning(seg.id);
   const el = segElapsed(seg.id);
   const st = segTime(seg.id);
-  const chosen = swaps[seg.id] || 0;
-  const working = seg.subs[chosen] || seg.subs[0];
+  const chosen = seg.opt;
   const swapped = chosen > 0;
-  // A swap fully transforms the card: name, demo video, and notes all follow
-  // the chosen alternative — the station only remains as a small "replaces" tag.
-  const displayName = swapped ? working : seg.name;
-  const workLine = swapped ? `↩ replaces ${seg.name} — same target & aim` : `▶ ${working}`;
-  const subText = swapped ? 'Substitute movement — match the station’s distance/reps and chase the same time.' : seg.sub;
-  const videoQ = swapped ? encodeURIComponent(working + ' exercise technique') : seg.video;
+  // A replacement card is a full card: its own name, dial, race-equivalent
+  // target, time table, demo, cues — the station stays as a "for …" tag.
+  const displayName = swapped ? seg.altName : seg.name;
+  const workLine = swapped ? `🛠 ${seg.equip || ''}` : '';
+  const subText = swapped ? `${seg.why || ''} ${seg.compNote ? '≈ ' + seg.compNote : ''}`.trim() : seg.sub;
+  const videoQ = seg.video;
+  const coach = swapped && (seg.cues.length || seg.mistake)
+    ? `<div class="race-seg-coach">${seg.cues.map((c) => `<span>✓ ${esc(c)}</span>`).join('')}${seg.mistake ? `<span class="race-seg-miss">✗ ${esc(seg.mistake)}</span>` : ''}</div>` : '';
   const e = log[seg.id] || {};
   const best = bestFor(seg);
   const tt = targetTime(seg);
@@ -499,31 +512,41 @@ function segCard(seg) {
           : `<button type="button" class="race-seg-redo is-empty" tabindex="-1" aria-hidden="true" disabled>↺</button>`}
       </div>`;
 
-  const dPlace = seg.scale === 'weight' ? String(seg.dist) : (seg.unit === 'm' ? String(curTarget(seg)) : 'm');
+  // Dist / Wt / 3rd box (reps, cal or steps — whatever this version counts)
+  const fixed = seg.scale === 'weight' ? seg.dist : curTarget(seg);
+  const dPlace = seg.unit === 'm' ? String(fixed) : 'm';
   const wPlace = seg.scale === 'weight' ? String(curTarget(seg)) : 'kg';
-  const rPlace = seg.scale === 'amount' && seg.unit === 'reps' ? String(curTarget(seg)) : '#';
+  const rPlace = seg.unit === 'm' ? '#' : String(fixed);
+  const rLabel = seg.unit === 'cal' ? 'Cal' : seg.unit === 'steps' ? 'Steps' : 'Reps';
 
   return `
     <div class="race-seg race-seg-${seg.kind} ${done ? 'done' : ''} ${running ? 'running' : ''}" data-seg="${seg.id}">
       <div class="race-seg-top">
-        ${imgSlotHTML(seg, chosen)}
+        ${imgSlotHTML(seg)}
         <div class="race-seg-body">
-          <div class="race-seg-name">${esc(displayName)}${swapped ? ' <span class="race-swapped-tag">swapped</span>' : ''}</div>
+          <div class="race-seg-name">${esc(displayName)}${swapped ? ` <span class="race-swapped-tag">for ${esc(shortName(seg))}</span>` : ''}</div>
           ${distLineHTML(seg)}
-          <div class="race-seg-working">${esc(workLine)}</div>
+          ${workLine ? `<div class="race-seg-working">${esc(workLine)}</div>` : ''}
           <div class="race-seg-sub">${esc(subText)}</div>
+          ${coach}
         </div>
         <div class="race-seg-tools">
           ${video}
           <button type="button" class="race-rest-btn" data-seg="${seg.id}" title="Rest timer">⏱</button>
-          <button type="button" class="race-swap-btn" data-seg="${seg.id}" title="Swap exercise">▾</button>
+          <button type="button" class="race-swap-btn" data-seg="${seg.id}" title="Choose version">▾</button>
         </div>
       </div>
 
       <div class="race-swap-panel" data-seg="${seg.id}">
-        <div class="race-swap-head">Swap exercise</div>
-        ${seg.subs.map((opt, i) => `
-          <button type="button" class="race-swap-opt ${i === chosen ? 'active' : ''}" data-seg="${seg.id}" data-opt="${i}">${esc(opt)}</button>`).join('')}
+        <div class="race-swap-head">Choose version · each has its own target &amp; times</div>
+        ${versionsOf(seg.__base).map((_, i) => {
+          const v = E(seg.__base, i);
+          const nm = i === 0 ? `${seg.__base.name} — race standard` : v.altName;
+          return `
+          <button type="button" class="race-swap-opt ${i === chosen ? 'active' : ''}" data-seg="${seg.id}" data-opt="${i}">
+            <b>${esc(nm)}</b><span>race ≈ ${esc(specText(v))} · ${esc(TIME_TIERS.find((t) => t.key === curTimeTier(v)).label)} aim ${fmtClock(v.times[curTimeTier(v)])}</span>
+          </button>`;
+        }).join('')}
       </div>
 
       ${timeTierHTML(seg)}
@@ -533,7 +556,7 @@ function segCard(seg) {
       <div class="race-seg-inputs">
         <label>Dist<input type="text" inputmode="decimal" data-seg="${seg.id}" data-f="d" value="${esc(e.d || '')}" placeholder="${esc(dPlace)}" /></label>
         <label>Wt<input type="text" inputmode="decimal" data-seg="${seg.id}" data-f="w" value="${esc(e.w || '')}" placeholder="${esc(wPlace)}" /></label>
-        <label>Reps<input type="text" inputmode="numeric" data-seg="${seg.id}" data-f="r" value="${esc(e.r || '')}" placeholder="${esc(rPlace)}" /></label>
+        <label>${rLabel}<input type="text" inputmode="numeric" data-seg="${seg.id}" data-f="r" value="${esc(e.r || '')}" placeholder="${esc(rPlace)}" /></label>
       </div>
     </div>`;
 }
@@ -550,7 +573,7 @@ function render() {
     <div class="race-preset race-runset">
       <span class="race-preset-lbl">All runs&nbsp;→</span>
       ${RUN_DISTS.map((m) => {
-        const on = runSegs().every((s) => curTarget(s) === m);
+        const on = runSegs().every((s) => { const x = E(s); return curTarget(x) === runEquiv(x, m); });
         return `<button type="button" class="race-preset-btn race-runset-btn ${on ? 'active' : ''}" data-runs="${m}">${m >= 1000 ? m / 1000 + ' km' : m + ' m'}</button>`;
       }).join('')}
     </div>
@@ -774,14 +797,15 @@ function stopSeg(segId, backTo) {
   // stopping = "I did the target": write the CURRENT target (so last week's
   // 600 m doesn't read as a partial at 800 m) unless you typed a value this
   // session — then only blanks are filled. Edit down if you did less.
-  const seg = SEGMENTS.find((s) => s.id === segId);
-  if (seg) {
+  const rawSeg = SEGMENTS.find((s) => s.id === segId);
+  if (rawSeg) {
+    const seg = E(rawSeg);
     const e = (log[segId] || (log[segId] = {}));
     const keep = !!sim.edited[segId];
     const put = (f, v) => { if (!keep || !e[f]) e[f] = String(v); };
-    if (seg.scale === 'weight') { put('w', curTarget(seg)); put('d', seg.dist); }
-    else if (seg.unit === 'reps') put('r', targetAmount(seg));
-    else put('d', targetAmount(seg));
+    const amtField = seg.unit === 'm' ? 'd' : 'r';
+    if (seg.scale === 'weight') { put('w', curTarget(seg)); put(amtField, seg.dist); }
+    else put(amtField, targetAmount(seg));
     saveJSON(LOG_KEY, log);
   }
   // last station done → freeze the whole-session clock as the finish time
@@ -830,17 +854,18 @@ function clearSeg(segId) {
 function saveToTracker() {
   let gained = 0;
   const events = [];
-  SEGMENTS.forEach((seg) => {
+  SEGMENTS.forEach((raw) => {
+    const seg = E(raw);
     if (!isFullClear(seg)) return;
     const st = segTime(seg.id);
     if (st == null || st < MIN_SEG_MS) return;
     const key = amountKey(seg);
-    const bucket = segPb[seg.id] || (segPb[seg.id] = {});
+    const bucket = segPb[seg.tk] || (segPb[seg.tk] = {});
     if (bucket[key] == null || st < bucket[key]) {
       const first = bucket[key] == null;
       bucket[key] = st;
       const pts = first ? 25 : 40;
-      gained += pts; events.push({ label: `${seg.name} ${first ? 'logged' : 'PB!'}`, pts });
+      gained += pts; events.push({ label: `${seg.opt ? seg.altName : seg.name} ${first ? 'logged' : 'PB!'}`, pts });
     }
   });
   const allFull = SEGMENTS.every((s) => isFullClear(s));
@@ -872,9 +897,9 @@ function saveToTracker() {
   const total = finishMs() ?? elapsedMs();
   const exercises = logged.map((s) => {
     const st = segTime(s.id), e = log[s.id] || {};
-    const ch = swaps[s.id] || 0;
-    const name = ch > 0 ? `${s.subs[ch]} (for ${s.name})` : s.name;
-    return { exId: 'hx_' + s.id, name, target: `${targetAmount(s)} ${s.unit}`,
+    const x = E(s);
+    const name = x.opt > 0 ? `${x.altName} (for ${s.name})` : s.name;
+    return { exId: 'hx_' + s.id, name, target: x.scale === 'weight' ? `${x.dist} ${x.unit} @ ${curTarget(x)} ${x.wUnit}` : `${targetAmount(x)} ${x.unit}`,
       done: segDone(s.id), sets: [{ w: e.w || '', r: st != null ? fmtClock(st) : (e.r || '') }] };
   });
   try {
@@ -891,10 +916,12 @@ function copyRace() {
   const lines = [`HYROX Race Sim — ${todayStr()}`];
   const total = finishMs();
   if (total != null) lines.push(`Finish: ${fmtClock(total)} · stations ${fmtClock(workMs())}`);
-  SEGMENTS.forEach((s) => {
+  SEGMENTS.forEach((raw) => {
+    const s = E(raw);
     const st = segTime(s.id), e = log[s.id] || {};
-    const bits = [e.d && `${e.d}m`, e.w && `${e.w}kg`, e.r && `${e.r} reps`].filter(Boolean).join(' · ');
-    lines.push(`${s.name} — ${curTimeTier(s)} aim${bits ? ` · ${bits}` : ''} · ${st != null ? fmtClock(st) : '—'} (aim ${fmtClock(targetTime(s))})`);
+    const bits = [e.d && `${e.d}m`, e.w && `${e.w}kg`, e.r && `${e.r} ${s.unit === 'm' ? 'reps' : s.unit}`].filter(Boolean).join(' · ');
+    const nm = s.opt ? `${s.altName} (for ${raw.name})` : raw.name;
+    lines.push(`${nm} — ${curTimeTier(s)} aim${bits ? ` · ${bits}` : ''} · ${st != null ? fmtClock(st) : '—'} (aim ${fmtClock(targetTime(s))})`);
   });
   const text = lines.join('\n');
   if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast('✓ Copied'), () => fallbackCopy(text));

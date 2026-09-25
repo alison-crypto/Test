@@ -4829,3 +4829,10 @@ body.auth-page {
 /* Hyrox: 'All runs' distance row */
 .race-runset { margin-top: -4px; }
 .race-runset-btn.active { background: var(--gym-accent); border-color: var(--gym-accent); color: #fff; }
+
+/* Hyrox: version picker + replacement-card coaching */
+.race-swap-opt { display: flex; flex-direction: column; gap: 2px; }
+.race-swap-opt b { font-size: 12.5px; }
+.race-swap-opt span { font-size: 11px; color: var(--muted-strong); font-weight: 500; font-variant-numeric: tabular-nums; }
+.race-seg-coach { display: flex; flex-direction: column; gap: 2px; margin-top: 5px; font-size: 11px; color: var(--muted-strong); line-height: 1.4; }
+.race-seg-coach .race-seg-miss { color: var(--danger); }

@@ -1,10 +1,17 @@
 // hyrox.js — HYROX race simulator (gym-card format + timer, splits, RPG ranks).
 //
-// 8 × 1 km runs interleaved with 8 stations, in the order Alison runs them at
-// the YMCA: Ski + Row first with real treadmill runs, the rest in the next room
-// with the bike replacing each run. Kit the Y lacks (sled/wall/sandbags) shows
-// the real target plus a working substitute; every station has a ▾ Swap menu
-// (which also swaps the card image).
+// 8 × 1 km runs interleaved with 8 stations, in the OFFICIAL competition order
+// (Run → Ski → Run → Sled Push → Run → Sled Pull → Run → Burpee Broad Jumps →
+// Run → Row → Run → Farmers Carry → Run → Lunges → Run → Wall Balls). Kit the Y
+// lacks (sled/wall/sandbags) shows the real target plus a working substitute;
+// every station has a ▾ Swap menu (which also swaps the card image).
+//
+// TIMERS: every card has its OWN Start/Stop timer that measures only that
+// station, so the gym can be done in any order (machine taken → do another one
+// first) without corrupting any split. The big clock is the whole-session
+// total: it starts/resumes when any station starts, can be paused while waiting
+// for a machine, and stops itself when the last station is done. Only one
+// station runs at a time — starting another auto-stops the one still running.
 //
 // TWO INDEPENDENT DIALS per station:
 //   • Distance / weight tier — how much you do (−/+), Beginner → Competition.
@@ -13,14 +20,14 @@
 //     distance you picked. You can do a Competition distance at an Amateur time,
 //     or the reverse — both change freely.
 //
-// A split means "I did the current target" (auto-fills the metric), so it counts
-// as a full clear; edit the box down only if you did less. Records + XP commit
+// Stopping a station means "I did the current target" (auto-fills the metric), so
+// it counts as a full clear; edit the box down only if you did less. Records + XP commit
 // ONLY on "Save & Log XP" — nothing counts by accident. Best times are tracked
 // per distance so 500 m and 1 km are compared fairly. Wall-clock timer survives
 // backgrounding; a Wake Lock keeps the screen awake.
 //
 // Storage:
-//   rtc_hyrox_sim_v1       — live attempt
+//   rtc_hyrox_sim_v1       — live attempt { running, accumMs, lastStart, segs:{id:{acc,start,done}}, finishMs }
 //   rtc_hyrox_log_v1       — { segId:{d,w,r} } structured log
 //   rtc_hyrox_tier_v1      — { segId: distance/weight target }
 //   rtc_hyrox_timetier_v1  — { segId: timeTierKey }
@@ -68,34 +75,34 @@ const SEGMENTS = [
     subs: ['SkiErg', 'Row (if ski busy)', 'Banded lat pulldowns hard'] },
   { id: 'run2', kind: 'run', icon: '🏃', name: 'Run 2 · 1 km', img: 'Running_Treadmill', video: 'treadmill+running+form',
     scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Treadmill again (Ski + Row are by the treadmill).',
+    sub: 'Treadmill again — hold the same pace as Run 1. Bike (▾) if the treadmill is taken.',
     subs: ['Treadmill', 'Outdoor', 'Bike ~4–5 min hard'] },
-  { id: 'row', kind: 'station', icon: '🚣', num: 2, name: 'RowErg', img: 'Rowing_Stationary', video: 'rowerg+technique+hyrox',
-    scale: 'amount', unit: 'm', start: 400, race: 1000, step: 100, times: ROW_TIMES,
-    sub: 'Legs–core–arms order. Long, strong strokes; don’t yank early.',
-    subs: ['RowErg', 'SkiErg', 'Bike 2 km hard'] },
-  { id: 'bike3', kind: 'bike', icon: '🚴', name: 'Bike 3 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
-    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Bike replaces the run here (next room). Run-equivalent: ~2.5–3 km hard on the bike per 1 km.',
-    subs: BIKE_SUBS },
-  { id: 'push', kind: 'station', icon: '🛷', num: 3, name: 'Sled Push', img: 'Sled_Push', video: 'hyrox+sled+push+technique',
+  { id: 'push', kind: 'station', icon: '🛷', num: 2, name: 'Sled Push', img: 'Sled_Push', video: 'hyrox+sled+push+technique',
     scale: 'weight', unit: 'm', dist: 50, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg/hand', compNote: 'race sled ≈ 152 kg', times: SLED_TIMES,
     sub: 'YMCA has no sled → heavy DB/KB suitcase march 50 m. Build the weight toward race feel.',
     subs: ['DB/KB suitcase march', 'Leg-press burnout', 'Prowler / hack-squat if free'] },
-  { id: 'bike4', kind: 'bike', icon: '🚴', name: 'Bike 4 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
+  { id: 'bike3', kind: 'bike', icon: '🚴', name: 'Bike 3 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
     scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
-    sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
-  { id: 'pull', kind: 'station', icon: '🪝', num: 4, name: 'Sled Pull', img: 'Sled_Row', video: 'hyrox+sled+pull+technique',
+    sub: 'Bike stands in for the run. Run-equivalent: ~2.5–3 km hard on the bike per 1 km.',
+    subs: BIKE_SUBS },
+  { id: 'pull', kind: 'station', icon: '🪝', num: 3, name: 'Sled Pull', img: 'Sled_Row', video: 'hyrox+sled+pull+technique',
     scale: 'weight', unit: 'm', dist: 50, startW: 12, raceW: 24, stepW: 2, wUnit: 'kg', compNote: 'race sled ≈ 103 kg', times: SLED_TIMES,
     sub: 'No sled → hard seated cable rows / heavy DB bent rows, hand-over-hand tempo.',
     subs: ['Seated cable row', 'Heavy DB bent row', 'Ring / TRX row'] },
-  { id: 'bike5', kind: 'bike', icon: '🚴', name: 'Bike 5 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
+  { id: 'bike4', kind: 'bike', icon: '🚴', name: 'Bike 4 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
     scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
     sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
-  { id: 'bbj', kind: 'station', icon: '🤸', num: 5, name: 'Burpee Broad Jumps', img: 'Freehand_Jump_Squat', video: 'burpee+broad+jump+form',
+  { id: 'bbj', kind: 'station', icon: '🤸', num: 4, name: 'Burpee Broad Jumps', img: 'Freehand_Jump_Squat', video: 'burpee+broad+jump+form',
     scale: 'amount', unit: 'm', start: 40, race: 80, step: 10, times: BBJ_TIMES,
     sub: '⚠️ Brace the lower back · control every landing (ankle). ~15–18 reps ≈ 80 m.',
     subs: ['Burpee broad jumps', 'Burpee + step forward', 'Squat-thrust + broad step'] },
+  { id: 'bike5', kind: 'bike', icon: '🚴', name: 'Bike 5 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
+    scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
+    sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
+  { id: 'row', kind: 'station', icon: '🚣', num: 5, name: 'RowErg', img: 'Rowing_Stationary', video: 'rowerg+technique+hyrox',
+    scale: 'amount', unit: 'm', start: 400, race: 1000, step: 100, times: ROW_TIMES,
+    sub: 'Legs–core–arms order. Long, strong strokes; don’t yank early.',
+    subs: ['RowErg', 'SkiErg', 'Bike 2 km hard'] },
   { id: 'bike6', kind: 'bike', icon: '🚴', name: 'Bike 6 · run sub', img: 'Bicycling_Stationary', video: 'assault+bike+intervals',
     scale: 'amount', unit: 'm', start: 1000, race: 1000, step: 100, times: RUN_TIMES,
     sub: 'Hard 4–5 min effort — match a 1 km run.', subs: BIKE_SUBS },
@@ -172,9 +179,15 @@ function todayStr() {
   return d.toISOString().slice(0, 10);
 }
 
+function freshSim() { return { date: todayStr(), running: false, accumMs: 0, lastStart: null, segs: {}, finishMs: null }; }
 let sim = loadJSON(SIM_KEY, null);
 if (!sim || sim.date !== todayStr()) {
-  sim = { date: todayStr(), running: false, accumMs: 0, lastStart: null, splits: {} };
+  sim = freshSim();
+  saveJSON(SIM_KEY, sim);
+} else if (!sim.segs) {
+  // old in-order "cumulative split" format → keep today's main clock, drop the
+  // order-dependent splits (they can't be turned into honest station times).
+  sim.segs = {}; sim.finishMs = null; delete sim.splits;
   saveJSON(SIM_KEY, sim);
 }
 const log      = loadJSON(LOG_KEY, {});
@@ -203,19 +216,27 @@ function fmtClock(ms) {
   return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`;
 }
 function elapsedMs() { return sim.accumMs + (sim.running && sim.lastStart ? Date.now() - sim.lastStart : 0); }
-function prevCum(segId) {
-  const idx = SEGMENTS.findIndex((s) => s.id === segId);
-  for (let i = idx - 1; i >= 0; i--) { const v = sim.splits[SEGMENTS[i].id]; if (v != null) return v; }
-  return 0;
+// Per-station timers — each station owns its time, independent of order.
+function segElapsed(segId) {
+  const st = sim.segs[segId];
+  if (!st) return 0;
+  return st.acc + (st.start ? Math.max(0, Date.now() - st.start) : 0);
 }
-function segTime(segId) { const c = sim.splits[segId]; return c == null ? null : c - prevCum(segId); }
-function doneCount() { return Object.keys(sim.splits).length; }
-function allSplit() { return doneCount() >= SEGMENTS.length; }
-function finishMs() { return allSplit() ? Math.max(...SEGMENTS.map((s) => sim.splits[s.id] || 0)) : null; }
-function currentSegMs() {
-  const cums = Object.values(sim.splits);
-  return Math.max(0, elapsedMs() - (cums.length ? Math.max(...cums) : 0));
+function segRunning(segId) { const st = sim.segs[segId]; return !!(st && st.start); }
+function segDone(segId) { const st = sim.segs[segId]; return !!(st && st.done && !st.start); }
+function segTime(segId) { return segDone(segId) ? segElapsed(segId) : null; }
+function runningSeg() { return SEGMENTS.find((s) => segRunning(s.id)) || null; }
+function doneCount() { return SEGMENTS.filter((s) => segDone(s.id)).length; }
+function allDone() { return doneCount() >= SEGMENTS.length; }
+// time spent actually working stations (excludes walking/waiting between them)
+function workMs() { return SEGMENTS.reduce((t, s) => t + (segDone(s.id) ? segElapsed(s.id) : 0), 0); }
+// race finish = whole-session clock when the last station stopped (like a real
+// race, transitions count); never less than the stations' own total.
+function finishMs() {
+  if (!allDone()) return null;
+  return Math.max(sim.finishMs != null ? sim.finishMs : 0, workMs());
 }
+function shortName(seg) { return seg.name.split(' · ')[0]; }
 
 // ============================================================
 // Two dials: distance/weight tier + time tier
@@ -272,7 +293,7 @@ function amountKey(seg) { return String(curTarget(seg)); }
 function bestFor(seg) { const m = segPb[seg.id]; return m ? m[amountKey(seg)] : undefined; }
 
 function isFullClear(seg) {
-  if (sim.splits[seg.id] == null) return false;
+  if (!segDone(seg.id)) return false;
   const e = log[seg.id] || {};
   if (seg.scale === 'weight') { const w = parseFloat(e.w); return !isNaN(w) && w >= curTarget(seg); }
   const metric = seg.unit === 'reps' ? parseFloat(e.r) : parseFloat(e.d);
@@ -402,9 +423,17 @@ function timeTierHTML(seg) {
   return `<div class="race-tiers"><span class="race-tiers-lbl">🎯 aim</span>${chips}</div>`;
 }
 
+function doneMetaHTML(seg, st, tt, full) {
+  const delta = st - tt, sign = delta <= 0 ? '−' : '+', cls = delta <= 0 ? 'good' : 'over';
+  return `${full ? `<span class="race-cmp ${cls}">${sign}${fmtClock(Math.abs(delta))} vs aim</span>`
+                 : `<span class="race-cmp partial">partial — logged less than the target</span>`}
+          <span class="race-cmp-t">${full ? 'record set on Save' : `full target = ${seg.scale === 'weight' ? curTarget(seg) + ' ' + seg.wUnit : targetAmount(seg) + ' ' + seg.unit}`}</span>`;
+}
+
 function segCard(seg) {
-  const cum = sim.splits[seg.id];
-  const done = cum != null;
+  const done = segDone(seg.id);
+  const running = segRunning(seg.id);
+  const el = segElapsed(seg.id);
   const st = segTime(seg.id);
   const chosen = swaps[seg.id] || 0;
   const working = seg.subs[chosen] || seg.subs[0];
@@ -421,26 +450,30 @@ function segCard(seg) {
   const full = isFullClear(seg);
   const video = `<a class="race-seg-demo" href="https://www.youtube.com/results?search_query=${videoQ}" target="_blank" rel="noopener" title="Demo">📹</a>`;
 
-  let result = '';
+  // Station timer strip — its own Start/Stop, so any order gives honest times.
+  let meta;
   if (done) {
-    const delta = st - tt, sign = delta <= 0 ? '−' : '+', cls = delta <= 0 ? 'good' : 'over';
-    result = `
-      <div class="race-seg-splits">
-        <span class="race-split-seg">${fmtClock(st)}</span>
-        <span class="race-split-meta">
-          ${full ? `<span class="race-cmp ${cls}">${sign}${fmtClock(Math.abs(delta))} vs aim</span>`
-                 : `<span class="race-cmp partial">partial — logged less than the target</span>`}
-          <span class="race-cmp-t">${full ? 'record set on Save' : `full target = ${seg.scale === 'weight' ? curTarget(seg) + ' ' + seg.wUnit : targetAmount(seg) + ' ' + seg.unit}`}</span>
-        </span>
-      </div>`;
+    meta = `<span class="race-split-meta">${doneMetaHTML(seg, st, tt, full)}</span>`;
+  } else {
+    meta = `<span class="race-split-meta"><span class="race-seg-aim">aim ${fmtClock(tt)}</span>
+      <span class="race-cmp-t">${running ? 'running — tap Stop when done' : el > 0 ? '' : 'tap Start when you begin'}</span></span>`;
   }
+  const goLabel = running ? '■ Stop' : done ? '▶ Resume' : '▶ Start';
+  const goCls = running ? 'stop' : done ? 'resume' : '';
+  const timer = `
+      <div class="race-seg-timer ${running ? 'running' : ''}">
+        <span class="race-seg-clock ${running && el > tt ? 'over' : ''}" data-segclock="${seg.id}">${fmtClock(el)}</span>
+        ${meta}
+        <button type="button" class="race-seg-go ${goCls}" data-seg="${seg.id}">${goLabel}</button>
+        ${el > 0 || done || running ? `<button type="button" class="race-seg-redo" data-seg="${seg.id}" title="Clear this station's time" aria-label="Clear time">↺</button>` : ''}
+      </div>`;
 
   const dPlace = seg.scale === 'weight' ? String(seg.dist) : (seg.unit === 'm' ? String(curTarget(seg)) : 'm');
   const wPlace = seg.scale === 'weight' ? String(curTarget(seg)) : 'kg';
   const rPlace = seg.scale === 'amount' && seg.unit === 'reps' ? String(curTarget(seg)) : '#';
 
   return `
-    <div class="race-seg race-seg-${seg.kind} ${done ? 'done' : ''}" data-seg="${seg.id}">
+    <div class="race-seg race-seg-${seg.kind} ${done ? 'done' : ''} ${running ? 'running' : ''}" data-seg="${seg.id}">
       <div class="race-seg-top">
         ${imgSlotHTML(seg, chosen)}
         <div class="race-seg-body">
@@ -464,13 +497,12 @@ function segCard(seg) {
 
       ${timeTierHTML(seg)}
       ${best != null ? `<div class="race-seg-best">your best at ${esc(seg.scale === 'weight' ? curTarget(seg) + ' ' + seg.wUnit : curTarget(seg) + ' ' + seg.unit)}: <b>${fmtClock(best)}</b></div>` : ''}
-      ${result}
+      ${timer}
 
       <div class="race-seg-inputs">
         <label>Dist<input type="text" inputmode="decimal" data-seg="${seg.id}" data-f="d" value="${esc(e.d || '')}" placeholder="${esc(dPlace)}" /></label>
         <label>Wt<input type="text" inputmode="decimal" data-seg="${seg.id}" data-f="w" value="${esc(e.w || '')}" placeholder="${esc(wPlace)}" /></label>
         <label>Reps<input type="text" inputmode="numeric" data-seg="${seg.id}" data-f="r" value="${esc(e.r || '')}" placeholder="${esc(rPlace)}" /></label>
-        <button type="button" class="race-split-btn ${done ? 'logged' : ''}" data-seg="${seg.id}">${done ? '✓ Split' : 'Split'}</button>
       </div>
     </div>`;
 }
@@ -513,8 +545,10 @@ function render() {
     <div class="race-howto">
       Two dials per station: <b>−/+</b> sets the <b>distance/weight</b>, the <b>🎯 aim</b> chips set your <b>time tier</b>
       (real HYROX benchmarks that scale to your distance). Do a Competition distance at an Amateur pace, or the reverse —
-      both change freely. Tap <b>Split</b> when done (it logs the target; edit down if you did less). <b>XP banks only on
-      “Save & Log XP.”</b> Beginner tip: rest 60–90 s between stations (⏱).
+      both change freely. Every card has its <b>own ▶ Start / ■ Stop</b> timer, so you can do stations in <b>any order</b>
+      when the gym is busy — times stay right. Stop logs the target (edit down if you did less); <b>↺</b> clears a station.
+      Waiting for a machine? <b>Pause</b> the big clock — it resumes when you start the next station.
+      <b>XP banks only on “Save & Log XP.”</b> Beginner tip: rest 60–90 s between stations (⏱).
     </div>
 
     <div class="race-wrnote">🌍 Just for fun — the HYROX solo world record is ≈ <b>0:54</b> (men) · ≈ <b>0:56</b> (women). Each station's <b>🌍WR</b> aim chip is a world-class split scaled to your distance.</div>
@@ -532,7 +566,17 @@ const RING_CIRC = 2 * Math.PI * 52;
 function renderTimer() {
   const clk = document.getElementById('race-clock'); if (clk) clk.textContent = fmtClock(elapsedMs());
   const live = document.getElementById('race-seg-live');
-  if (live) live.textContent = (sim.running || elapsedMs() > 0) && !allSplit() ? `seg ${fmtClock(currentSegMs())}` : '';
+  const rs = runningSeg();
+  if (live) live.textContent = rs ? `▶ ${shortName(rs)} ${fmtClock(segElapsed(rs.id))}` : '';
+  // live station clocks
+  SEGMENTS.forEach((s) => {
+    if (!segRunning(s.id)) return;
+    const c = root.querySelector(`[data-segclock="${s.id}"]`);
+    if (!c) return;
+    const ms = segElapsed(s.id);
+    c.textContent = fmtClock(ms);
+    c.classList.toggle('over', ms > targetTime(s));
+  });
   const go = document.getElementById('race-go');
   if (go) { go.textContent = elapsedMs() > 0 ? '▶ Resume' : '▶ Start'; go.disabled = sim.running; }
   const pause = document.getElementById('race-pause'); if (pause) pause.disabled = !sim.running;
@@ -542,7 +586,7 @@ function renderTimer() {
   const fin = document.getElementById('race-finish-banner');
   if (fin) {
     const total = finishMs();
-    if (total != null) { fin.classList.add('show'); fin.innerHTML = `🏁 All splits in — <b>${fmtClock(total)}</b> · tap “Save &amp; Log XP”`; }
+    if (total != null) { fin.classList.add('show'); fin.innerHTML = `🏁 All ${SEGMENTS.length} done — <b>${fmtClock(total)}</b> · stations ${fmtClock(workMs())} · tap “Save &amp; Log XP”`; }
     else fin.classList.remove('show');
   }
 }
@@ -558,6 +602,11 @@ async function requestWake() {
 function releaseWake() { if (wakeLock) { try { wakeLock.release(); } catch {} wakeLock = null; } }
 function startTick() { if (!tickId) tickId = setInterval(renderTimer, 250); }
 function stopTick() { if (tickId) { clearInterval(tickId); tickId = null; } }
+// keep ticking + screen awake while the main clock OR any station runs
+function syncTick() {
+  if (sim.running || runningSeg()) { startTick(); if (!wakeLock) requestWake(); }
+  else { stopTick(); releaseWake(); }
+}
 
 function startTimer() {
   if (sim.running) return;
@@ -566,29 +615,61 @@ function startTimer() {
 }
 function pauseTimer() {
   if (!sim.running) return;
-  sim.accumMs += Date.now() - sim.lastStart; sim.running = false; sim.lastStart = null; stopTick(); releaseWake();
-  persistSim(); renderTimer();
+  sim.accumMs += Date.now() - sim.lastStart; sim.running = false; sim.lastStart = null;
+  syncTick(); persistSim(); renderTimer();
 }
 function resetRace() {
-  if (!confirm('Reset the timer and all splits for a fresh race? (Your targets, records + XP stay.)')) return;
-  sim = { date: todayStr(), running: false, accumMs: 0, lastStart: null, splits: {} };
-  stopTick(); releaseWake(); persistSim(); render();
+  if (!confirm('Reset the clock and every station time for a fresh race? (Your targets, records + XP stay.)')) return;
+  sim = freshSim();
+  syncTick(); persistSim(); render();
 }
-function logSplit(segId) {
-  if (sim.splits[segId] != null) delete sim.splits[segId];
-  else {
-    if (!sim.running && sim.accumMs === 0) { sim.running = true; sim.lastStart = Date.now(); startTick(); requestWake(); }
-    sim.splits[segId] = elapsedMs();
-    const seg = SEGMENTS.find((s) => s.id === segId);
-    if (seg) {
-      const e = (log[segId] || (log[segId] = {}));
-      if (seg.scale === 'weight') { if (!e.w) e.w = String(curTarget(seg)); if (!e.d) e.d = String(seg.dist); }
-      else if (seg.unit === 'reps') { if (!e.r) e.r = String(targetAmount(seg)); }
-      else { if (!e.d) e.d = String(targetAmount(seg)); }
-      saveJSON(LOG_KEY, log);
-    }
+
+// ---- per-station Start / Stop ----
+function startSeg(segId) {
+  const seg = SEGMENTS.find((s) => s.id === segId);
+  if (!seg || segRunning(segId)) return;
+  // one station at a time — finish the one still running (forgot to tap Stop)
+  const other = runningSeg();
+  if (other) { stopSeg(other.id); toast(`${shortName(other)} stopped at ${fmtClock(segElapsed(other.id))}`); }
+  const st = sim.segs[segId] || (sim.segs[segId] = { acc: 0, start: null, done: false });
+  st.start = Date.now(); st.done = false;
+  sim.finishMs = null;
+  // starting a station starts / resumes the whole-session clock
+  if (!sim.running) { sim.running = true; sim.lastStart = Date.now(); }
+  syncTick(); persistSim(); render();
+}
+function stopSeg(segId) {
+  const st = sim.segs[segId];
+  if (!st || !st.start) return;
+  st.acc += Math.max(0, Date.now() - st.start); st.start = null; st.done = true;
+  // stopping = "I did the target": auto-fill the metric (edit down if less)
+  const seg = SEGMENTS.find((s) => s.id === segId);
+  if (seg) {
+    const e = (log[segId] || (log[segId] = {}));
+    if (seg.scale === 'weight') { if (!e.w) e.w = String(curTarget(seg)); if (!e.d) e.d = String(seg.dist); }
+    else if (seg.unit === 'reps') { if (!e.r) e.r = String(targetAmount(seg)); }
+    else { if (!e.d) e.d = String(targetAmount(seg)); }
+    saveJSON(LOG_KEY, log);
   }
-  persistSim(); render();
+  // last station done → freeze the whole-session clock as the finish time
+  if (allDone()) {
+    sim.finishMs = elapsedMs();
+    if (sim.running) { sim.accumMs = elapsedMs(); sim.running = false; sim.lastStart = null; }
+  }
+  try { navigator.vibrate && navigator.vibrate(60); } catch {}
+  persistSim();
+}
+function toggleSeg(segId) {
+  if (segRunning(segId)) { stopSeg(segId); syncTick(); render(); }
+  else startSeg(segId);
+}
+function clearSeg(segId) {
+  const seg = SEGMENTS.find((s) => s.id === segId);
+  if (!seg || !sim.segs[segId]) return;
+  if (!confirm(`Clear the time for ${seg.name}?`)) return;
+  delete sim.segs[segId];
+  sim.finishMs = null;
+  syncTick(); persistSim(); render();
 }
 
 // ============================================================
@@ -619,8 +700,8 @@ function saveToTracker() {
       gained += 150; events.push({ label: first ? 'First finish!' : 'Finish PB!', pts: 150 });
     }
   }
-  const logged = SEGMENTS.filter((s) => sim.splits[s.id] != null || log[s.id]);
-  if (!logged.length) { toast('Nothing logged yet — hit some splits first.'); return; }
+  const logged = SEGMENTS.filter((s) => segDone(s.id));
+  if (!logged.length) { toast('Nothing timed yet — Start and Stop a station first.'); return; }
 
   if (gained > 0) {
     const before = levelInfo().level;
@@ -642,7 +723,7 @@ function saveToTracker() {
     const ch = swaps[s.id] || 0;
     const name = ch > 0 ? `${s.subs[ch]} (for ${s.name})` : s.name;
     return { exId: 'hx_' + s.id, name, target: `${targetAmount(s)} ${s.unit}`,
-      done: sim.splits[s.id] != null, sets: [{ w: e.w || '', r: st != null ? fmtClock(st) : (e.r || '') }] };
+      done: segDone(s.id), sets: [{ w: e.w || '', r: st != null ? fmtClock(st) : (e.r || '') }] };
   });
   try {
     const KEY = 'rtc_tracker_training_v1';
@@ -657,7 +738,7 @@ function saveToTracker() {
 function copyRace() {
   const lines = [`HYROX Race Sim — ${todayStr()}`];
   const total = finishMs();
-  if (total != null) lines.push(`Finish: ${fmtClock(total)}`);
+  if (total != null) lines.push(`Finish: ${fmtClock(total)} · stations ${fmtClock(workMs())}`);
   SEGMENTS.forEach((s) => {
     const st = segTime(s.id), e = log[s.id] || {};
     const bits = [e.d && `${e.d}m`, e.w && `${e.w}kg`, e.r && `${e.r} reps`].filter(Boolean).join(' · ');
@@ -734,8 +815,10 @@ root.addEventListener('click', (e) => {
   if (swapBtn) { const p = root.querySelector(`.race-swap-panel[data-seg="${swapBtn.dataset.seg}"]`); if (p) p.classList.toggle('open'); return; }
   const restBtn = e.target.closest('.race-rest-btn');
   if (restBtn) { const s = SEGMENTS.find((x) => x.id === restBtn.dataset.seg); openRest(s ? s.name : 'station'); return; }
-  const split = e.target.closest('.race-split-btn');
-  if (split) { logSplit(split.dataset.seg); return; }
+  const segGo = e.target.closest('.race-seg-go');
+  if (segGo) { toggleSeg(segGo.dataset.seg); return; }
+  const segRedo = e.target.closest('.race-seg-redo');
+  if (segRedo) { clearSeg(segRedo.dataset.seg); return; }
   if (e.target.closest('#race-go'))    { startTimer(); return; }
   if (e.target.closest('#race-pause')) { pauseTimer(); return; }
   if (e.target.closest('#race-reset')) { resetRace(); return; }
@@ -750,22 +833,16 @@ root.addEventListener('input', (e) => {
   saveJSON(LOG_KEY, log);
   const seg = SEGMENTS.find((s) => s.id === id);
   const card = inp.closest('.race-seg');
-  if (seg && card && sim.splits[id] != null) {
-    const st = segTime(id), tt = targetTime(seg), full = isFullClear(seg);
+  if (seg && card && segDone(id)) {
     const meta = card.querySelector('.race-split-meta');
-    if (meta) {
-      const delta = st - tt, sign = delta <= 0 ? '−' : '+', cls = delta <= 0 ? 'good' : 'over';
-      meta.innerHTML = `${full ? `<span class="race-cmp ${cls}">${sign}${fmtClock(Math.abs(delta))} vs aim</span>`
-        : `<span class="race-cmp partial">partial — logged less than the target</span>`}
-        <span class="race-cmp-t">${full ? 'record set on Save' : `full target = ${seg.scale === 'weight' ? curTarget(seg) + ' ' + seg.wUnit : targetAmount(seg) + ' ' + seg.unit}`}</span>`;
-    }
+    if (meta) meta.innerHTML = doneMetaHTML(seg, segTime(id), targetTime(seg), isFullClear(seg));
   }
 });
-document.addEventListener('visibilitychange', () => { if (document.hidden) return; if (sim.running && !wakeLock) requestWake(); renderTimer(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden) return; if ((sim.running || runningSeg()) && !wakeLock) requestWake(); renderTimer(); });
 
 // ============================================================
 // Init
 // ============================================================
 render();
-if (sim.running) { startTick(); requestWake(); }
+syncTick();
 loadImageDB().then(() => { if (imgDb) render(); });

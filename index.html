@@ -17,6 +17,7 @@
   <header class="app-header">
     <h1>Alison &amp; Darlene</h1>
     <p class="subtitle">Your personal command center</p>
+    <a href="hyrox.html" class="race-countdown" data-race-countdown></a>
   </header>
 
   <main class="home-grid">
@@ -78,6 +79,7 @@
     <small>v0.3 · synced across devices</small>
   </footer>
 
+  <script src="race-countdown.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js').catch(() => {});

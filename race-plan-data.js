@@ -134,6 +134,63 @@
   // week 9 Sunday is recovery after the sim
   WEEKS[8].days[6] = [{ t: 'Recovery', d: '30–40 min easy bike or swim + sauna. No running.', k: E, time: '9:00 AM', dur: 40 }];
 
+  // ---- From week 3 (Mon 12 Oct): train before work 6–7 AM, second session
+  // 4:30–5:30 PM. Hard/heavy work goes in the morning, the lighter piece in the
+  // afternoon (~9 h apart = the concurrent-training sweet spot). Weekends stay
+  // at 9 AM. On an amber/red night the AM session slides to 4:30 PM.
+  const AM_FROM_WEEK = 3;
+  const RETIME = {
+    0: { 'Strength B · full body': '6:00 AM', 'Mobility': '6:00 AM' },
+    1: { 'Circuit A · running': '6:00 AM', 'Upper strength': '4:30 PM', 'Race-pace touch': '6:00 AM' },
+    2: { 'Strength A · legs': '6:00 AM', 'Easy bike / row / ski': '4:30 PM', 'Easy bike + mobility': '6:00 AM' },
+    3: { 'Easy run': '6:00 AM', 'Strength C · core, ankle, carries': '4:30 PM', 'Easy run + strides': '6:00 AM' },
+    4: { 'Rest': '4:30 PM' },
+  };
+  WEEKS.forEach((w) => {
+    if (w.n < AM_FROM_WEEK) return;
+    Object.keys(RETIME).forEach((i) => {
+      w.days[i] = w.days[i].map((s) => {
+        const t = RETIME[i][s.t];
+        if (!t) return s;
+        return Object.assign({}, s, { time: t, am: t.endsWith('AM'), d: t.endsWith('AM') && s.k !== 'rest' ? s.d + ' Bad night? Slide it to 4:30 PM.' : s.d });
+      });
+    });
+    // AM-first order within a day
+    w.days = w.days.map((ds) => ds.slice().sort((x, y) => toMin(x.time) - toMin(y.time)));
+  });
+  function toMin(t) { const m = /(\d+):(\d+)\s*(AM|PM)/i.exec(t || ''); if (!m) return 0; let h = +m[1] % 12; if (/pm/i.test(m[3])) h += 12; return h * 60 + +m[2]; }
+
+  // ---- BC statutory holidays: gym closed → home / outdoor versions ----
+  // (BC 2026: Sep 30 Truth & Reconciliation, Oct 12 Thanksgiving, Nov 11
+  // Remembrance Day, Dec 25 Christmas — Boxing Day is not a BC stat.)
+  const HOLIDAYS = [
+    { date: '2026-09-30', name: 'National Day for Truth and Reconciliation' },
+    { date: '2026-10-12', name: 'Thanksgiving' },
+    { date: '2026-11-11', name: 'Remembrance Day' },
+    { date: '2026-12-25', name: 'Christmas Day' },
+  ];
+  const HOLIDAY_SESSIONS = {
+    '2026-09-30': [
+      { t: '🏠 Legs at home / outside', d: 'Gym closed (stat holiday). 3 rounds, RPE 5–6: 15 air squats · 10 walking lunges / leg · 10 split squats / leg · 12 single-leg RDL / leg · 20 calf raises. 10 min mobility.', k: M, href: 'race-plan.html#today', time: '5:00 PM', dur: 40 },
+      { t: '🌳 Easy walk or ride outside', d: '30 min easy — the Wednesday aerobic piece, outdoors.', k: E, time: '5:45 PM', dur: 30 },
+    ],
+    '2026-10-12': [
+      { t: '🏠 Full body at home', d: 'Gym closed (Thanksgiving). 3 rounds, RPE 6–7: 10 burpees · 15 push-ups · 20 walking lunges · 20 air squats · 30 s plank · 10 single-leg glute bridges / leg. Then 10–15 min mobility. Sleep in — no 6 AM today.', k: M, href: 'race-plan.html#today', time: '9:00 AM', dur: 45 },
+      { t: 'Volleyball (for fun)', d: 'Probably off for Thanksgiving — enjoy the day.', k: R, time: '7:00 PM', dur: 120 },
+    ],
+    '2026-11-11': [
+      { t: '🌳 Legs outside: hills / stairs + bodyweight', d: 'Gym closed (Remembrance Day). 10 min easy jog · 8 × 30 s hill or stair climb, walk down · then 3 rounds: 20 walking lunges · 12 split squats / leg · 15 single-leg RDL / leg · 10 soft jump squats (land quietly — ankle). Strength effort, not a race.', k: M, href: 'race-plan.html#today', time: '9:00 AM', dur: 50 },
+      { t: '🌳 Easy walk or ride', d: '30 min easy outside + 10 min mobility.', k: E, time: '4:30 PM', dur: 30 },
+    ],
+  };
+  const isoOf = (dt) => `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+  WEEKS.forEach((w) => w.days.forEach((ds, i) => {
+    const key = isoOf(dateOf(w.n, i));
+    const h = HOLIDAYS.find((x) => x.date === key);
+    if (h && HOLIDAY_SESSIONS[key]) w.days[i] = HOLIDAY_SESSIONS[key].map((s) => Object.assign({ holiday: h.name }, s));
+  }));
+  function holidayOn(date) { return HOLIDAYS.find((x) => x.date === isoOf(date)) || null; }
+
   const DAYKEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   const DAYNAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   function startOf(w) { return dateOf(w.n, 0); }
@@ -147,5 +204,5 @@
     const t = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
     return Math.round((Date.UTC(RACE.y, RACE.m - 1, RACE.d) - t) / 86400000);
   }
-  window.RACE_PLAN = { RACE, WEEKS, DAYKEYS, DAYNAMES, LINKS: L, dateOf, weekFor, dayIndex, sessionsOn, daysToRace };
+  window.RACE_PLAN = { RACE, WEEKS, DAYKEYS, DAYNAMES, LINKS: L, HOLIDAYS, AM_FROM_WEEK, dateOf, weekFor, dayIndex, sessionsOn, daysToRace, holidayOn, isoOf };
 })();

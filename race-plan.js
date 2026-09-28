@@ -10,6 +10,7 @@
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
   const iso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   const fmtDay = (d) => d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  const holTag = (d) => { const h = P.holidayOn(d); return h ? ` <span class="rp-hol">🇨🇦 ${esc(h.name)} · gym closed</span>` : ''; };
 
   function sessHTML(s) {
     const inner = `
@@ -62,7 +63,7 @@
     let todayHTML;
     if (todayS) {
       todayHTML = `<section class="rp-card rp-today" id="today">
-        <div class="rp-eyebrow">Today · ${esc(fmtDay(now))} · Week ${w.n} · ${esc(w.phase)}</div>
+        <div class="rp-eyebrow">Today · ${esc(fmtDay(now))} · Week ${w.n} · ${esc(w.phase)}</div>${holTag(now)}
         ${w.note ? `<p class="rp-note">${esc(w.note)}</p>` : ''}
         <div class="rp-list">${todayS.map(sessHTML).join('')}</div>
       </section>`;
@@ -78,7 +79,7 @@
       <p class="rp-muted">Run ${esc(cur.km)} km · erg/bike ${esc(cur.erg)}</p>
       ${cur.days.map((ds, i) => {
         const d = P.dateOf(cur.n, i); const isToday = iso(d) === iso(now);
-        return `<div class="rp-day ${isToday ? 'is-today' : ''}"><div class="rp-day-h">${esc(fmtDay(d))}${isToday ? ' · today' : ''}</div>${ds.map(sessHTML).join('')}</div>`;
+        return `<div class="rp-day ${isToday ? 'is-today' : ''}"><div class="rp-day-h">${esc(fmtDay(d))}${isToday ? ' · today' : ''}${holTag(d)}</div>${ds.map(sessHTML).join('')}</div>`;
       }).join('')}
     </section>`;
 
@@ -89,20 +90,22 @@
         <details class="rp-wk" ${w && wk.n === w.n ? 'open' : ''}>
           <summary><b>Week ${wk.n}</b><span>${esc(wk.phase)} · ${esc(fmtDay(P.dateOf(wk.n, 0)))}</span><em>${esc(wk.km)} km</em></summary>
           ${wk.note ? `<p class="rp-note">${esc(wk.note)}</p>` : ''}
-          ${wk.days.map((ds, i) => `<div class="rp-day"><div class="rp-day-h">${esc(fmtDay(P.dateOf(wk.n, i)))}</div>${ds.map(sessHTML).join('')}</div>`).join('')}
+          ${wk.n === P.AM_FROM_WEEK ? '<p class="rp-note">From this week: train 6–7 AM before work, second session 4:30–5:30 PM. Bad night? Slide the morning session to 4:30.</p>' : ''}
+          ${wk.days.map((ds, i) => `<div class="rp-day"><div class="rp-day-h">${esc(fmtDay(P.dateOf(wk.n, i)))}${holTag(P.dateOf(wk.n, i))}</div>${ds.map(sessHTML).join('')}</div>`).join('')}
         </details>`).join('')}
     </section>`;
 
     const calHTML = `<section class="rp-card" id="calendar">
       <h2>Put it on your phone calendar</h2>
-      <p class="rp-muted">Adds every session from today to race day as calendar events. Each event links back to the right page in the app.</p>
+      <p class="rp-muted">Adds every session from today to race day as calendar events, plus the BC stat holidays (gym closed). Each event links back to the right page in the app. Already imported an older version? Delete the old “HYROX Race Plan” events first so nothing doubles.</p>
       <button type="button" class="rp-btn" id="rp-ics">📅 Add all sessions to calendar</button>
     </section>`;
 
     const fuelHTML = `<section class="rp-card" id="rules">
       <h2>Sleep &amp; fuel rules</h2>
       <ul class="rp-rules">
-        <li>Weeks 1–4: eat at maintenance, window ~11 am–8 pm (Mondays: dinner ~6:45 before volleyball).</li>
+        <li>Weeks 1–4: eat at maintenance. Weeks 1–2 window ~11 am–8 pm; from week 3 (6 AM training) ~7 am–7:30 pm, breakfast right after the morning session.</li>
+        <li>BC stat holidays (Sep 30, Oct 12, Nov 11) have home / outdoor sessions — the gym is closed.</li>
         <li>Protein 170–205 g a day; keep creatine; carbs up on hard days.</li>
         <li>Last coffee ~1:30 pm, no stimulant pre-workout in the evening.</li>
         <li>Finish hard sessions ≥ 90 min before bed. Nap 20–90 min (1–4 pm) when you can.</li>
@@ -122,7 +125,7 @@
     const p = (n) => String(n).padStart(2, '0');
     return { x, s: `${x.getFullYear()}${p(x.getMonth() + 1)}${p(x.getDate())}T${p(x.getHours())}${p(x.getMinutes())}00` };
   }
-  const icsEsc = (s) => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+  const icsEsc = (s) => String(s).replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
   function exportICS() {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const base = location.origin + location.pathname.replace(/[^/]*$/, '');
@@ -142,6 +145,15 @@
         n++;
       });
     }));
+    (P.HOLIDAYS || []).forEach((h) => {
+      const [y, m, dd] = h.date.split('-').map(Number);
+      const d0 = new Date(y, m - 1, dd); if (d0 < today) return;
+      const d1 = new Date(y, m - 1, dd + 1);
+      const f = (x) => `${x.getFullYear()}${String(x.getMonth() + 1).padStart(2, '0')}${String(x.getDate()).padStart(2, '0')}`;
+      lines.push('BEGIN:VEVENT', `UID:bc-stat-${h.date}@desouzas`, `DTSTAMP:${stamp}`, `DTSTART;VALUE=DATE:${f(d0)}`, `DTEND;VALUE=DATE:${f(d1)}`,
+        `SUMMARY:${icsEsc('🇨🇦 ' + h.name + ' — BC stat holiday, gym closed')}`, `DESCRIPTION:${icsEsc('Home / outdoor session in the Race Plan.\nOpen: ' + base + 'race-plan.html')}`, 'TRANSP:TRANSPARENT', 'END:VEVENT');
+      n++;
+    });
     lines.push('END:VCALENDAR');
     const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
     const a = document.createElement('a');

@@ -70,6 +70,49 @@ const MEALS = {
   ],
 };
 
+// From week 3 (Mon Oct 12) Mon–Thu training moves to 6–7 AM, with a second
+// session 4:30–5:30 PM. The eating window moves to ~7 AM–7:30 PM: eat right
+// after the morning session, smoothie before the afternoon one.
+const AM_START = '2026-10-12';
+const WEEK_AM = {
+  mon: { type: 'MOD',  train: 'Strength B full body (6:00 AM) · volleyball for fun 7–9 PM' },
+  tue: { type: 'HIGH', train: 'Circuit A running (6:00 AM) + upper strength (4:30 PM) — hard day' },
+  wed: { type: 'MOD',  train: 'Strength A legs (6:00 AM) + easy bike (4:30 PM)' },
+  thu: { type: 'MOD',  train: 'Easy run (6:00 AM) + core / ankle / carries (4:30 PM)' },
+  fri: WEEK.fri, sat: WEEK.sat, sun: WEEK.sun,
+};
+const COFFEE_AM = { time: 'by 1:00 PM', name: 'Last coffee', items: ['Coffee cutoff for sleep — early bedtime now', 'Pre-workout only for the 6 AM session'] };
+const PRE_AM = { time: '5:30 AM', name: 'Pre-session bite', tag: 'FUEL', fuel: 'Small and fast — a full meal comes right after.', items: ['1 banana (or 2 dates)', 'Water + pinch of salt', 'Ghost + creatine 5 g'] };
+const MEALS_AM = {
+  EASY: [
+    prepMeal('8:00 AM', 'Breakfast', 'Window opens ~7–8 am on the new schedule.'),
+    COFFEE_AM,
+    prepMeal('12:30 PM', 'Lunch'),
+    { time: '3:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Rest day: small top-up. ' + PREP_NOTE, items: ['1 scoop whey', '1 banana'] },
+    prepMeal('6:30 PM', 'Dinner', 'Window closes ~7:30 pm.'),
+  ],
+  MOD: [
+    PRE_AM,
+    prepMeal('7:15 AM', 'Breakfast', 'Right after the 6 AM session — this is your recovery meal.'),
+    COFFEE_AM,
+    prepMeal('12:00 PM', 'Lunch'),
+    { time: '3:45 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: '~45 min before the 4:30 session. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana', '40 g oats (blend in)'] },
+    prepMeal('6:30 PM', 'Dinner', 'Mondays: eat by ~6:15 PM before volleyball. Window closes ~7:30 pm (9 pm Mondays).'),
+  ],
+  HIGH: [
+    PRE_AM,
+    prepMeal('7:15 AM', 'Breakfast', 'Right after Circuit A — hard day, don’t skip.'),
+    COFFEE_AM,
+    prepMeal('12:00 PM', 'Lunch', 'Extra rice/potato on hard days if the prep allows.'),
+    { time: '3:45 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: 'Biggest top-up of the week, before the 4:30 upper session. ' + PREP_NOTE, items: ['4 scoops MRE', '1 banana', '50 g oats (blend in)'] },
+    prepMeal('6:30 PM', 'Dinner', 'After training. Window closes ~7:30 pm.'),
+  ],
+  PEAK: MEALS.PEAK,
+};
+function amPhase() { return todayStr() >= AM_START; }
+function weekInfo(day) { return (amPhase() ? WEEK_AM : WEEK)[day]; }
+function mealsFor(type) { return (amPhase() ? MEALS_AM : MEALS)[type]; }
+
 // ---- storage helpers ----
 function loadJSON(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
@@ -119,9 +162,9 @@ function mealHTML(day, meal) {
 }
 
 function render(day) {
-  const info = WEEK[day];
+  const info = weekInfo(day);
   const m = MACROS[info.type];
-  const meals = MEALS[info.type];
+  const meals = mealsFor(info.type);
   root.innerHTML = `
     <div class="diet-daymeta">
       <span class="dt-badge dt-${info.type}">${info.type}</span>
@@ -162,7 +205,7 @@ document.querySelectorAll('.day-btn').forEach((b) => {
 root.addEventListener('click', (e) => {
   const reset = e.target.closest('#diet-reset');
   if (reset) {
-    MEALS[WEEK[currentDay].type].forEach((meal) => { delete checks[currentDay + '|' + meal.name]; });
+    mealsFor(weekInfo(currentDay).type).forEach((meal) => { delete checks[currentDay + '|' + meal.name]; });
     persistChecks();
     render(currentDay);
     return;

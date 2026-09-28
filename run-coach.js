@@ -1,4 +1,4 @@
-// run-coach.js — the Run card on the Hyrox tab. Guided run sessions from the
+// run-coach.js — the Run page (run.html). Guided run sessions from the
 // Race Plan (Tue intervals, Thu easy, Sun long), effort zones with paces from
 // your 5 km time, a lap/split log, and the how-to-run guide + 3 replacement
 // options (like the station cards).
@@ -34,7 +34,8 @@
 
   function week() { const now = new Date(); return P ? (P.weekFor(now) || (P.daysToRace(now) > 0 ? P.WEEKS[0] : P.WEEKS[P.WEEKS.length - 1])) : null; }
   function defaultKind() { const d = new Date().getDay(); return d === 4 ? 'easy' : d === 0 ? 'long' : 'iv'; }
-  let kind = load(KIND, null) && load(LIVE, null) ? load(KIND, 'iv') : defaultKind();
+  const qKind = new URLSearchParams(location.search).get('kind');
+  let kind = load(LIVE, null) ? (load(LIVE, null).kind || 'iv') : (['iv', 'easy', 'long'].includes(qKind) ? qKind : defaultKind());
   let live = load(LIVE, null);
   let tickId = null, wake = null;
 
@@ -59,7 +60,9 @@
       return { kind: k, title: `${iv.reps} × ${repTxt} · ${ZONES[iv.zone].name}`, sub: w.a.main, iv, zone: iv.zone };
     }
     const mins = k === 'easy' ? (typeof w.thu === 'number' ? w.thu : 30) : (w.long || 45);
-    return { kind: k, title: `${mins} min ${k === 'easy' ? 'easy run' : 'long easy run'}`, sub: k === 'easy' ? 'Thursday · zone 2, quick light steps.' : 'Sunday · zone 2 — the day after Circuit B, so truly easy. Sore legs or < 6 h sleep → half on the bike.', mins, zone: 'easy' };
+    // Sunday shows the plan's own wording (week 1 is 20 min run + 15 min bike)
+    const sunTxt = typeof w.sun === 'string' && w.sun ? w.sun + ' ' : '';
+    return { kind: k, title: `${mins} min ${k === 'easy' ? 'easy run' : 'long easy'}`, sub: k === 'easy' ? 'Thursday · zone 2, quick light steps.' : `Sunday · ${sunTxt}Zone 2 — the day after Circuit B, so truly easy. Sore legs or < 6 h sleep → half on the bike.`, mins, zone: 'easy' };
   }
   function phasesFor(s) {
     if (s.kind !== 'iv') return [{ type: 'run', label: s.title, secs: s.mins * 60, zone: 'easy' }];
@@ -163,7 +166,7 @@
     if (!log.length) return '<p class="rc-muted">Your finished runs and rep splits show up here.</p>';
     return log.map((r) => {
       const avg = r.dist && r.splits.length ? r.splits.reduce((a, b) => a + b, 0) / r.splits.length : 0;
-      return `<div class="rc-log"><div><b>${esc(r.title)}</b><span>${esc(r.date)} · week ${r.week} · ${clock(r.totalMs)} total</span>${r.start && window.WatchSC ? `<button type="button" class="rc-watch" data-rc-watch="${r.start}">⌚ Heart rate &amp; distance from watch</button>` : ''}</div>
+      return `<div class="rc-log"><div><b>${esc(r.title)}</b><span>${esc(r.date)} · week ${r.week} · ${clock(r.totalMs)} total</span></div>
         ${r.splits.length ? `<div class="rc-splits">${r.splits.map((ms, i) => `<span>#${i + 1} ${clock(ms)}</span>`).join('')}${avg ? `<span class="rc-avg">avg ${pace(avg / 1000 / (r.dist / 1000))} / km</span>` : ''}</div>` : ''}</div>`;
     }).join('');
   }
@@ -208,7 +211,7 @@
     host.innerHTML = `
       <div class="race-plan-card rc-card" id="run">
         <span id="circuit-a" class="rc-anchor"></span>
-        <div class="race-plan-top"><b>🏃 Run card · week ${w.n}</b><span class="race-plan-tag hard">Runs</span></div>
+        <div class="race-plan-top"><b>Week ${w.n} · ${esc(w.phase)}</b><span class="race-plan-tag hard">Runs</span></div>
         <div class="rc-kinds" role="tablist">
           ${[['iv', 'Tue · Circuit A intervals'], ['easy', 'Thu · easy'], ['long', 'Sun · long']].map(([k, l]) => `<button type="button" class="race-preset-btn ${k === kind ? 'active' : ''}" data-rc-kind="${k}" ${live ? 'disabled' : ''}>${l}</button>`).join('')}
         </div>
@@ -234,8 +237,6 @@
   host.addEventListener('click', (e) => {
     const k = e.target.closest('[data-rc-kind]');
     if (k && !live) { kind = k.dataset.rcKind; save(KIND, kind); render(); return; }
-    const wb = e.target.closest('[data-rc-watch]');
-    if (wb) { const r = load(LOG, []).find((x) => String(x.start) === wb.dataset.rcWatch); if (r) window.WatchSC.runWorkout('Run · ' + r.title, r.start - 60000, r.end + 60000); return; }
     const b = e.target.closest('[data-rc]'); if (!b) return;
     const a = b.dataset.rc;
     if (a === 'start') start(); else if (a === 'pause') togglePause(); else if (a === 'next') next(false); else if (a === 'stop') stop();
@@ -251,4 +252,5 @@
 
   render();
   if (live) { requestWake(); loop(); }
+  if (location.hash) { const el = document.getElementById(location.hash.slice(1)); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 60); }
 })();

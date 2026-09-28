@@ -6,33 +6,31 @@
   <meta name="theme-color" content="#0a84ff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Run" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="styles.css" />
-  <title>Race Plan</title>
+  <title>Run</title>
   <script type="module" src="auth-gate.js"></script>
 </head>
-<body class="workouts-body theme-alison rp-page">
+<body class="workouts-body theme-alison race-page">
 
 <header class="workouts-header">
   <a href="index.html" class="back-link">‹ Home</a>
-  <h1>🏁 Race Plan</h1>
-  <div class="race-countdown" data-race-countdown></div>
-  <div class="workouts-subtitle">12-week HYROX block · weekdays 6 AM + 4:30 PM from Oct 12 · tap any session to open it</div>
+  <h1>👟 Run</h1>
+  <a href="race-plan.html" class="race-countdown" data-race-countdown></a>
+  <div class="workouts-subtitle">Tue intervals (Circuit A) · Thu easy · Sun long · guided timer with reps, rests and splits · paces from your 5 km time</div>
 </header>
 
-<div id="rp-root"></div>
-<div id="watch-root"></div>
+<div id="run-root" class="race-plan-cards"></div>
 
 <footer class="workouts-footer">
-  Race block Sep 28 → Sun Dec 20 · research-based (concurrent training, taper, sleep and return-to-training evidence)<br />
-  Readiness check is a coaching rule of thumb — your trend matters more than one number.
+  Runs follow the 12-week Race Plan · effort zones from your 5 km time · zone 2 = talk in full sentences
 </footer>
 
 <script src="race-countdown.js" defer></script>
 <script src="race-plan-data.js" defer></script>
-<script src="race-plan.js" defer></script>
-<script type="module" src="health-link.js"></script>
+<script src="run-coach.js" defer></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(() => {});

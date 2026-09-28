@@ -579,6 +579,11 @@ function circuitCardsHTML() {
   return `
     <div class="race-plan-cards">
       <div class="race-plan-head">📋 Race Plan · Week ${w.n} · ${esc(w.phase)} <a href="race-plan.html#week">full week ›</a></div>
+      <a class="race-plan-card race-plan-runlink" id="circuit-a" href="run.html?kind=iv">
+        <div class="race-plan-top"><b>Circuit A · Tuesday</b><span class="race-plan-tag hard">Running</span></div>
+        <div class="race-plan-main">${esc(a.main)}</div>
+        <div class="race-plan-foot">Guided on the Run page — reps, rests, splits and paces ›</div>
+      </a>
       <div class="race-plan-card" id="circuit-b">
         <div class="race-plan-top"><b>Circuit B · Saturday</b><span class="race-plan-tag ${b.race || b.sim ? 'hard' : 'station'}">${b.race ? 'Race' : b.sim ? 'Full sim' : b.benchmark ? 'Benchmark' : 'Stations'}</span></div>
         <div class="race-plan-main">${esc(b.text)}</div>

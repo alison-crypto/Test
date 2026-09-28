@@ -4997,3 +4997,5 @@ a.rp-sess:active { transform: scale(0.99); }
 .hw-times label { display: flex; flex-direction: column; gap: 2px; font-size: 11.5px; color: var(--muted); min-width: 0; }
 .rp-watchbtn { margin-top: 8px; }
 .rc-watch { margin-top: 4px; align-self: flex-start; font: inherit; font-size: 12px; font-weight: 600; color: var(--gym-accent); background: none; border: 1px solid var(--gym-accent); border-radius: 7px; padding: 4px 8px; cursor: pointer; }
+.tile-run { background: linear-gradient(135deg, #10b981 0%, #0e7490 100%); }
+a.race-plan-runlink { text-decoration: none; color: inherit; }

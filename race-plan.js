@@ -52,13 +52,12 @@
     return `
       <section class="rp-card" id="readiness">
         <h2>Morning check</h2>
-        <p class="rp-muted">${e.auto ? '⌚ Filled in from your Apple Watch — edit if it looks wrong.' : 'Hours slept and resting heart rate (take it lying in bed) — or connect your Apple Watch below to fill this in automatically.'} Worse signal wins.</p>
+        <p class="rp-muted">${e.auto ? '⌚ Filled in from your watch screenshot — edit if it looks wrong.' : 'Hours slept and resting heart rate (from your watch, or lying in bed).'} Worse signal wins.</p>
         <div class="rp-ready">
           <label>Sleep (h)<input id="rp-sleep" type="number" inputmode="decimal" step="0.5" min="0" max="14" value="${esc(e.sleep || '')}" /></label>
           <label>Resting HR<input id="rp-rhr" type="number" inputmode="numeric" min="30" max="120" value="${esc(e.rhr || '')}" /></label>
           <label class="rp-sick"><input id="rp-sickbox" type="checkbox" ${e.sick ? 'checked' : ''} /> Sick</label>
         </div>
-        <button type="button" class="race-plan-btn ghost rp-watchbtn" data-watch="morning">⌚ Sync from watch</button>
         ${light ? `<div class="rp-light rp-l-${light}"><b>${MSG[light][0]}</b><span>${MSG[light][1]}</span><small>${esc(why.join(' · '))}</small></div>`
                 : '<div class="rp-light rp-l-none"><span>Enter this morning’s numbers to get today’s call.</span></div>'}
       </section>`;

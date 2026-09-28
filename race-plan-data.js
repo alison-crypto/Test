@@ -10,8 +10,8 @@
   const E = 'easy', M = 'med', H = 'hard', R = 'rest';
   const L = {
     strB: 'gym-alison.html?day=strB', upper: 'gym-alison.html?day=upper', strA: 'gym-alison.html?day=strA',
-    strC: 'gym-alison.html?day=strC', cA: 'hyrox.html#run', cB: 'hyrox.html#circuit-b',
-    run: 'hyrox.html#run', diet: 'diet-alison.html',
+    strC: 'gym-alison.html?day=strC', cA: 'run.html?kind=iv', cB: 'hyrox.html#circuit-b',
+    run: 'run.html?kind=easy', runLong: 'run.html?kind=long', diet: 'diet-alison.html',
   };
   // Monday = week start. Week 1 starts Mon 28 Sep 2026.
   const W1 = { y: 2026, m: 9, d: 28 };
@@ -38,7 +38,7 @@
       ],
       Array.isArray(o.fri) ? o.fri : [{ t: 'Rest', d: 'Off. Optional easy swim + sauna 20–30 min, or a walk with the baby.', k: R, time: '5:00 PM', dur: 30 }],
       Array.isArray(o.sat) ? o.sat : [{ t: 'Circuit B · stations', d: o.b.text, k: o.bKind || H, href: L.cB, time: '9:00 AM', dur: 75 }],
-      Array.isArray(o.sun) ? o.sun : [{ t: 'Long easy run', d: o.sun + ' Day after Circuit B: zone 2 only — full sentences, no pace goal. Sore legs or < 6 h sleep → do half of it on the bike.', k: E, href: L.run, time: '9:00 AM', dur: 60 }],
+      Array.isArray(o.sun) ? o.sun : [{ t: 'Long easy run', d: o.sun + ' Day after Circuit B: zone 2 only — full sentences, no pace goal. Sore legs or < 6 h sleep → do half of it on the bike.', k: E, href: L.runLong, time: '9:00 AM', dur: 60 }],
     ];
     return Object.assign({ n, days }, o);
   }
@@ -48,7 +48,7 @@
       note: 'About half your old volume. Nothing above RPE 7. Finish every session feeling you could do more.',
       strB: 'Light: 2 × 10 full body @ RPE 5–6 + mobility.', upper: '2 × 8–10 light.',
       a: { main: 'Easy fartlek: 30 min run with 6–8 × 1 min at RPE 6.', steps: ['10 min easy', '6–8 × 1 min steady (RPE 6), 1 min easy between', '5–10 min easy'], rest: 60 },
-      strA: '2–3 × 8–10 @ RPE 5–6, focus on form.', iv: { reps: 7, secs: 60, rest: 60, zone: 'steady', wu: 10, cd: 5, strides: 0 }, long: 20, thu: 25,
+      strA: '2–3 × 8–10 @ RPE 5–6, focus on form.', iv: { reps: 7, secs: 60, rest: 60, zone: 'steady', wu: 10, cd: 5, strides: 0 }, long: 35, thu: 25,
       b: { text: 'Technique circuit: 4 × 500 m + the first 4 stations, RPE 6.', runs: 500, level: 'beginner', stations: ['ski', 'push', 'pull', 'bbj'] },
       sun: '35 min: 20 min easy run + 15 min easy bike, then mobility.' }),
     week(2, { phase: 'Base', km: '16–19', erg: '60 min',

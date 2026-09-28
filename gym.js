@@ -321,7 +321,7 @@ function resetCurrentDay() {
       ex.querySelectorAll('.set-input').forEach((input) => {
         sets[input.dataset.field] = input.value;
       });
-      prev[exId] = { sets };
+      prev[exId] = { sets, at: Date.now() };   // when it was logged (next-weight suggestions)
     });
     localStorage.setItem(PREV_KEY, JSON.stringify(prev));
   } catch (e) {}

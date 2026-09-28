@@ -4999,3 +4999,8 @@ a.rp-sess:active { transform: scale(0.99); }
 .rc-watch { margin-top: 4px; align-self: flex-start; font: inherit; font-size: 12px; font-weight: 600; color: var(--gym-accent); background: none; border: 1px solid var(--gym-accent); border-radius: 7px; padding: 4px 8px; cursor: pointer; }
 .tile-run { background: linear-gradient(135deg, #10b981 0%, #0e7490 100%); }
 a.race-plan-runlink { text-decoration: none; color: inherit; }
+
+/* Gym — next-weight suggestion (gym-progress.js) */
+.next-target { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-top: 6px; padding: 7px 9px; border-radius: 8px; background: rgba(10, 132, 255, 0.08); border: 1px solid rgba(10, 132, 255, 0.25); font-size: 12.5px; line-height: 1.4; color: var(--muted-strong); }
+.next-target b { color: var(--text); }
+.next-fill { flex: 0 0 auto; font: inherit; font-size: 12px; font-weight: 700; color: #fff; background: var(--gym-accent, #0a84ff); border: none; border-radius: 7px; padding: 5px 9px; cursor: pointer; }

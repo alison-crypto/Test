@@ -1,4 +1,4 @@
-const CACHE = 'assistant-v73';
+const CACHE = 'assistant-v74';
 const ASSETS = [
   './',
   './index.html',
@@ -28,6 +28,7 @@ const ASSETS = [
   './race-plan.html',
   './race-plan.js',
   './race-plan-data.js',
+  './run-coach.js',
   './hyrox-options.js',
   './hyrox.js',
   './library.html',

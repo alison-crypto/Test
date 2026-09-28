@@ -8,57 +8,65 @@
 const DAY_KEY   = 'rtc_diet_alison_day_v1';
 const CHECK_KEY = 'rtc_diet_alison_checks_v1';
 
+// HYROX race block (from Sep 28, 2026) — day types follow the Race Plan:
+// Tue/Sat hard, Mon/Wed/Thu/Sun training, Fri rest.
 const WEEK = {
-  mon: { type: 'EASY', train: 'Upper A (am) · swim + sauna (pm)' },
-  tue: { type: 'MOD',  train: 'RTC functional (am) · Lower gym or run (pm)' },
-  wed: { type: 'EASY', train: 'Upper B (am) · swim + sauna (pm)' },
-  thu: { type: 'MOD',  train: 'Muay Thai w/ RTC (am) · Lower gym or run (pm)' },
-  fri: { type: 'HIGH', train: 'Upper C (am) · swim + sauna · carb-load' },
-  sat: { type: 'PEAK', train: 'HYROX circuit (1 km runs) · morning' },
-  sun: { type: 'EASY', train: 'Rest day — maybe pool with Darlene' },
+  mon: { type: 'MOD',  train: 'Strength B full body (5:15) · volleyball for fun 7–9' },
+  tue: { type: 'HIGH', train: 'Circuit A running + upper strength (5:00) — hard day' },
+  wed: { type: 'MOD',  train: 'Strength A legs + easy bike (5:00)' },
+  thu: { type: 'MOD',  train: 'Easy run + core / ankle / carries (5:00)' },
+  fri: { type: 'EASY', train: 'Rest day · optional swim + sauna' },
+  sat: { type: 'PEAK', train: 'Circuit B stations (9:00 AM) — hard day' },
+  sun: { type: 'MOD',  train: 'Long easy run (9:00 AM)' },
 };
 
-// CUT PHASE (Aug → mid-Oct, set Jul 28): 16:8 fasting, eating window
-// 8:30am–4:30pm. ~350 kcal/day deficit → ~0.7 lb/week → ~199-200 lb at race
-// time. Protein held ~205g+ to keep muscle. Shake/MRE-first for practicality.
-// Tue/Thu Lower-gym evenings: protein bar or shake after is the ONE allowed
-// exception outside the window. Saturday PEAK = no fasting, fuel the race.
-// After the race: hold maintenance briefly, then clean bulk.
+// MAINTENANCE for weeks 1–4 of the race block (cut paused: short sleep in a
+// deficit costs muscle, not fat). ~94 kg: protein ~2 g/kg every day; carbs
+// ~3 g/kg rest, ~4.5 training, ~5.5 hard. Reassess from week 5 — a small
+// deficit (≤0.5% body weight/week) only in weeks you sleep ≥ 6.5 h; none in
+// weeks 11–12; ~8 g/kg carbs the day before the race.
 const MACROS = {
-  EASY: { kcal: 2250, p: 205, c: 190, f: 70 },
-  MOD:  { kcal: 2350, p: 210, c: 215, f: 68 },
-  HIGH: { kcal: 2700, p: 205, c: 300, f: 75 },
-  PEAK: { kcal: 3000, p: 210, c: 340, f: 80 },
+  EASY: { kcal: 2900, p: 190, c: 280, f: 115 },
+  MOD:  { kcal: 3200, p: 190, c: 420, f: 84 },
+  HIGH: { kcal: 3400, p: 195, c: 500, f: 69 },
+  PEAK: { kcal: 3500, p: 195, c: 540, f: 62 },
 };
 
-// 16:8 layout — fasted from 4:30pm to 8:30am. Pre-workout (Ghost/creatine/
-// black coffee) doesn't break the fast. Shake/MRE-first so meals are fast and
-// light on the stomach. PEAK (Saturday) ignores the fast — race fuel wins.
+// Same meal prep for breakfast, lunch and dinner every day (easy to cook).
+// The whey / MRE smoothie is the dial that tops each day up to its target —
+// sizes below are placeholders until the meal-prep recipe is in.
+const PREP = 'Meal prep portion (same every day)';
+const PREP_NOTE = 'Tell Claude what’s in the meal prep — calories get calculated and the smoothie resized to hit today’s target.';
+const COFFEE = { time: 'by 1:30 PM', name: 'Last coffee', items: ['Coffee cutoff for sleep', 'No stimulant pre-workout in the evening'] };
+function prepMeal(time, name, extra) { return { time, name, tag: 'PREP', fuel: extra || '', items: [PREP] }; }
 const MEALS = {
   EASY: [
-    { time: '5:20 AM',  name: 'Pre-workout', fuel: 'Fasted — Ghost + creatine + black coffee don\'t break the fast. Rest Sunday: just creatine + coffee, sleep in', items: ['Ghost ½ scoop', 'Creatine 5g', 'Black coffee'] },
-    { time: '8:30 AM',  name: 'Breakfast', tag: 'MRE', fuel: 'Window opens — post-workout shake, 90 min after the AM lift · real-food swap: 4 boiled eggs + 1 scoop whey + 1 banana', items: ['1 MRE (4 scoops)', '1 banana'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['200g chicken', '150g rice', '200g veg', '1 tbsp olive oil (or ½ avocado)'] },
-    { time: '4:00 PM',  name: 'Pre-gym meal', tag: 'SHAKE', fuel: 'Last meal — window closes 4:30. After: water, tea, black coffee only', items: ['2 scoops whey', '50g oats (blend in)', '200g Greek yogurt', '1 tbsp peanut butter (or 20g almonds)', '1 apple'] },
+    prepMeal('11:00 AM', 'Breakfast', 'Window opens 11 am.'),
+    COFFEE,
+    prepMeal('2:00 PM', 'Lunch'),
+    { time: '4:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Rest day: small top-up. ' + PREP_NOTE, items: ['1 scoop whey', '1 banana', 'Creatine 5 g'] },
+    prepMeal('7:00 PM', 'Dinner', 'Window closes 8 pm.'),
   ],
   MOD: [
-    { time: '5:20 AM',  name: 'Pre-workout', fuel: 'Fasted — Ghost + creatine + black coffee don\'t break the fast', items: ['Ghost ½ scoop', 'Creatine 5g', 'Black coffee'] },
-    { time: '8:30 AM',  name: 'Breakfast', tag: 'MRE', fuel: 'Window opens — recovery after the RTC/Muay Thai session · real-food swap: 4 boiled eggs + 1 scoop whey + 1 banana', items: ['1 MRE (4 scoops)', '1 banana'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['200g chicken', '180g rice', '200g veg', '1 tbsp olive oil (or ½ avocado)'] },
-    { time: '4:00 PM',  name: 'Pre-gym meal', tag: 'SHAKE', fuel: 'Fuels the 5pm Lower session — window closes 4:30', items: ['2 scoops whey', '60g oats (blend in)', '150g Greek yogurt', '1 banana'] },
-    { time: '6:30 PM',  name: 'Post-Lower shake', tag: 'LEG DAY ONLY', fuel: 'The one allowed exception — protein only, ONLY after a Lower gym session (skip if you ran instead)', items: ['Protein bar OR 1 scoop whey in water'] },
+    prepMeal('11:00 AM', 'Breakfast', 'Window opens 11 am.'),
+    COFFEE,
+    prepMeal('2:00 PM', 'Lunch'),
+    { time: '4:15 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: '~45 min before training. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana', '40 g oats (blend in)', 'Creatine 5 g'] },
+    prepMeal('7:30 PM', 'Dinner', 'After training. Mondays: eat ~6:45 PM before volleyball. Window closes ~8 pm (9 pm on Mondays).'),
   ],
   HIGH: [
-    { time: '5:20 AM',  name: 'Pre-workout', fuel: 'Fasted — Ghost + creatine + black coffee don\'t break the fast', items: ['Ghost full scoop', 'Creatine 5g', 'Black coffee'] },
-    { time: '8:30 AM',  name: 'Breakfast', tag: 'MRE', fuel: 'Carb-load starts — glycogen for tomorrow\'s Hyrox circuit', items: ['1 MRE (4 scoops)', '1 banana', '30g dates'] },
-    { time: '12:15 PM', name: 'Lunch',       items: ['200g chicken', '250g rice', '200g veg', '1 tbsp olive oil'] },
-    { time: '4:00 PM',  name: 'Pre-swim meal', tag: 'SHAKE', fuel: 'Big carb finish — window closes 4:30, wake up race-ready', items: ['2 scoops whey', '80g oats (blend in)', '40g dates', '1 banana'] },
+    prepMeal('11:00 AM', 'Breakfast', 'Window opens 11 am. Hard day — don’t skip.'),
+    COFFEE,
+    prepMeal('2:00 PM', 'Lunch', 'Extra rice/potato on hard days if the prep allows.'),
+    { time: '4:15 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: 'Biggest top-up of the week before Circuit A. ' + PREP_NOTE, items: ['4 scoops MRE', '1 banana', '50 g oats (blend in)', 'Creatine 5 g'] },
+    prepMeal('7:30 PM', 'Dinner', 'Right after training. Window closes ~8 pm.'),
   ],
   PEAK: [
-    { time: '6:30 AM',  name: 'Race breakfast', tag: 'NO FAST TODAY', fuel: 'Race day — fasting loses, fuel wins. Eat ~1.5-2h before the circuit', items: ['1 MRE (4 scoops)', '1 banana', '30g dates', 'Creatine 5g'] },
-    { time: '11:30 AM', name: 'Post-race lunch', fuel: 'Recovery — refill what the circuit burned', items: ['200g chicken', '250g rice', '200g veg', '1 tbsp olive oil'] },
-    { time: '3:30 PM',  name: 'Snack',       items: ['200g Greek yogurt', '1 apple', '25g almonds'] },
-    { time: '6:30 PM',  name: 'Dinner',      items: ['150g beef', '300g potato', '150g broccoli', '1 tbsp olive oil'] },
+    { time: '7:30 AM', name: 'Pre-session smoothie', tag: 'MRE', fuel: 'Saturday Circuit B is at 9 AM — no fasting on hard mornings. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana', '30 g dates', 'Creatine 5 g'] },
+    prepMeal('11:00 AM', 'Breakfast', 'Recovery meal after the circuit.'),
+    prepMeal('2:30 PM', 'Lunch'),
+    { time: '4:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Top-up to today’s target.', items: ['1 scoop whey', '1 banana'] },
+    prepMeal('7:00 PM', 'Dinner', 'Window closes ~8 pm.'),
   ],
 };
 

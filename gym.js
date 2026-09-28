@@ -431,5 +431,15 @@ window.exportData = exportData;
 window.saveToTracker = saveToTracker;
 
 load();
+// Deep link (?day=strA from the Race Plan / Schedule) wins; otherwise, with no
+// saved session, open the page's default day.
+(function pickDay() {
+  try {
+    const q = new URLSearchParams(location.search).get('day');
+    if (q && document.getElementById('day-' + q)) { switchDay(q); return; }
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+    if (!(saved && saved.day && document.getElementById('day-' + saved.day)) && cfg.defaultDay && document.getElementById('day-' + cfg.defaultDay)) switchDay(cfg.defaultDay, false);
+  } catch (e) {}
+})();
 loadPrev();
 updateProgress();

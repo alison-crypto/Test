@@ -561,8 +561,73 @@ function segCard(raw) {
     </div>`;
 }
 
+// ---- this week's Circuit A / B from the Race Plan (race-plan-data.js) ----
+function planWeek() {
+  const P = window.RACE_PLAN;
+  if (!P) return null;
+  const now = new Date();
+  return P.weekFor(now) || (P.daysToRace(now) > 0 ? P.WEEKS[0] : null);
+}
+function circuitCardsHTML() {
+  const w = planWeek();
+  if (!w) return '';
+  const b = w.b, a = w.a;
+  const stIds = b.stations === 'all' ? SEGMENTS.filter((s) => s.kind === 'station').map((s) => s.id) : b.stations;
+  const stNames = stIds.map((id) => { const s = SEGMENTS.find((x) => x.id === id); return s ? shortOptName(E(s).opt ? E(s).altName : s.name) : id; });
+  const runTxt = b.runs >= 1000 ? `${b.runs / 1000} km` : `${b.runs} m`;
+  const lvl = b.level[0].toUpperCase() + b.level.slice(1);
+  return `
+    <div class="race-plan-cards">
+      <div class="race-plan-head">📋 Race Plan · Week ${w.n} · ${esc(w.phase)} <a href="race-plan.html#week">full week ›</a></div>
+      <div class="race-plan-card" id="circuit-a">
+        <div class="race-plan-top"><b>Circuit A · Tuesday</b><span class="race-plan-tag hard">Running</span></div>
+        <div class="race-plan-main">${esc(a.main)}</div>
+        <ol class="race-plan-steps">${a.steps.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>
+        <div class="race-plan-actions">
+          <button type="button" class="race-plan-btn" data-rest="${a.rest}">⏱ Rest timer ${a.rest >= 60 ? Math.floor(a.rest / 60) + ':' + pad(a.rest % 60) : a.rest + ' s'}</button>
+          <a class="race-plan-btn ghost" href="gym-alison.html?day=upper">Then upper strength ›</a>
+        </div>
+      </div>
+      <div class="race-plan-card" id="circuit-b">
+        <div class="race-plan-top"><b>Circuit B · Saturday</b><span class="race-plan-tag ${b.race || b.sim ? 'hard' : 'station'}">${b.race ? 'Race' : b.sim ? 'Full sim' : b.benchmark ? 'Benchmark' : 'Stations'}</span></div>
+        <div class="race-plan-main">${esc(b.text)}</div>
+        <div class="race-plan-meta">Runs <b>${runTxt}</b> · level <b>${lvl}</b> · stations: ${esc(stNames.join(', '))}</div>
+        <div class="race-plan-actions">
+          <button type="button" class="race-plan-btn" data-loadplan="1">Load this week’s setup</button>
+        </div>
+        <div class="race-plan-foot">Sets every run to ${runTxt} and every station to ${lvl}. The circuit below stays fully customizable — change anything after loading.</div>
+      </div>
+    </div>`;
+}
+function loadPlanSetup() {
+  const w = planWeek();
+  if (!w) return;
+  const b = w.b;
+  const frac = PRESET_FRAC[b.level];
+  SEGMENTS.forEach((raw) => {
+    const seg = E(raw);
+    timeTier[seg.id] = b.level;
+    if (seg.hx === 'run') { tiers[seg.tk] = runEquiv(seg, b.runs); return; }
+    if (seg.scale === 'weight') tiers[seg.tk] = snapVal(seg.raceW * frac, seg.stepW, Math.min(seg.stepW, 4), seg.raceW);
+    else tiers[seg.tk] = snapVal(seg.race * frac, seg.step, seg.step, seg.race);
+  });
+  saveJSON(TIER_KEY, tiers); saveJSON(TIMETIER_KEY, timeTier);
+  render();
+  toast(`Week ${w.n} setup loaded`);
+}
+function focusStations() {
+  const w = planWeek();
+  if (!w) return;
+  const ids = w.b.stations === 'all' ? null : w.b.stations;
+  root.querySelectorAll('.race-seg[data-seg]').forEach((c) => {
+    const s = SEGMENTS.find((x) => x.id === c.dataset.seg);
+    c.classList.toggle('plan-focus', !!(s && s.kind === 'station' && (!ids || ids.includes(s.id))));
+  });
+}
+
 function render() {
   root.innerHTML = `
+    ${circuitCardsHTML()}
     <div class="race-preset">
       <span class="race-preset-lbl">Set all&nbsp;→</span>
       <button type="button" class="race-preset-btn" data-preset="beginner">Beginner</button>
@@ -620,6 +685,7 @@ function render() {
       <button type="button" class="ghost-btn gym-save-tracker" id="race-save">Save &amp; Log XP</button>
       <button type="button" class="ghost-btn" id="race-copy">Copy</button>
     </div>`;
+  focusStations();
   renderTimer();
 }
 
@@ -960,10 +1026,10 @@ function ensureRestEl() {
   restEl.querySelectorAll('[data-d]').forEach((b) => b.onclick = () => adjRest(parseInt(b.dataset.d, 10)));
   return restEl;
 }
-function openRest(name) {
+function openRest(name, secs) {
   ensureRestEl();
   if (restState && restState.iv) clearInterval(restState.iv);
-  restState = { name, remaining: 75, running: false, iv: null, endAt: null };
+  restState = { name, base: secs || 75, remaining: secs || 75, running: false, iv: null, endAt: null };
   restEl.classList.remove('done'); restEl.classList.add('open'); paintRest();
 }
 function paintRest() {
@@ -976,7 +1042,7 @@ function adjRest(d) { if (restState) { restState.remaining = Math.max(0, restSta
 function toggleRest() {
   if (!restState) return;
   if (restState.running) { restState.running = false; if (restState.iv) clearInterval(restState.iv); restState.iv = null; restState.endAt = null; }
-  else { if (restState.remaining <= 0) restState.remaining = 75; restState.running = true; restState.endAt = Date.now() + restState.remaining * 1000; restState.iv = setInterval(tickRest, 250); }
+  else { if (restState.remaining <= 0) restState.remaining = restState.base || 75; restState.running = true; restState.endAt = Date.now() + restState.remaining * 1000; restState.iv = setInterval(tickRest, 250); }
   paintRest();
 }
 function tickRest() {
@@ -991,6 +1057,9 @@ function closeRest() { if (restState && restState.iv) clearInterval(restState.iv
 // Events (delegated)
 // ============================================================
 root.addEventListener('click', (e) => {
+  const planRest = e.target.closest('[data-rest]');
+  if (planRest) { openRest('Circuit A', parseInt(planRest.dataset.rest, 10)); return; }
+  if (e.target.closest('[data-loadplan]')) { loadPlanSetup(); return; }
   const runset = e.target.closest('.race-runset-btn');
   if (runset) { setAllRuns(parseInt(runset.dataset.runs, 10)); return; }
   const preset = e.target.closest('.race-preset-btn');
@@ -1036,4 +1105,6 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) retur
 // ============================================================
 render();
 syncTick();
+// deep link from the Race Plan / Schedule: #circuit-a or #circuit-b
+if (location.hash) { const el = document.getElementById(location.hash.slice(1)); if (el) setTimeout(() => el.scrollIntoView({ block: 'start' }), 60); }
 loadImageDB().then(() => { if (imgDb) render(); });

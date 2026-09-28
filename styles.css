@@ -4848,3 +4848,86 @@ body.auth-page {
 .race-countdown span { font-weight: 600; opacity: 0.92; }
 .race-countdown:empty { display: none; }
 .app-header .race-countdown { display: inline-flex; }
+
+/* ===================== Race Plan page ===================== */
+.rp-page #rp-root { display: flex; flex-direction: column; gap: 12px; padding: 0 12px 20px; max-width: 700px; margin: 0 auto; }
+.rp-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow); }
+.rp-card h2 { margin: 0; font-size: 18px; }
+.rp-muted { margin: 0; font-size: 13px; color: var(--muted); }
+.rp-eyebrow { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gym-accent); }
+.rp-today { border-color: var(--gym-accent); }
+.rp-note { margin: 0; font-size: 13px; padding: 8px 10px; border-radius: 8px; background: var(--accent-soft); color: var(--text); }
+.rp-list, .rp-day { display: flex; flex-direction: column; gap: 6px; }
+.rp-day { padding-top: 6px; border-top: 1px solid var(--border); }
+.rp-day.is-today .rp-day-h { color: var(--gym-accent); }
+.rp-day-h { font-size: 12px; font-weight: 700; color: var(--muted-strong); text-transform: uppercase; letter-spacing: 0.04em; }
+.rp-sess { display: grid; grid-template-columns: 62px 1fr auto auto; gap: 8px; align-items: center; padding: 9px 10px; border-radius: 9px; background: var(--card-2); color: var(--text); text-decoration: none; }
+a.rp-sess:active { transform: scale(0.99); }
+.rp-s-time { font-size: 12px; font-weight: 700; color: var(--muted-strong); font-variant-numeric: tabular-nums; }
+.rp-s-main { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.rp-s-main b { font-size: 14px; }
+.rp-s-main span { font-size: 12.5px; color: var(--muted-strong); line-height: 1.4; }
+.rp-go { font-size: 20px; color: var(--gym-accent); font-weight: 700; }
+.rp-chip { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 6px; border-radius: 5px; white-space: nowrap; }
+.rp-easy { background: rgba(48, 209, 88, 0.16); color: #1f9d48; }
+.rp-med { background: rgba(255, 159, 10, 0.18); color: #b86e00; }
+.rp-hard { background: rgba(255, 59, 48, 0.15); color: #d0302a; }
+.rp-rest { background: rgba(142, 142, 147, 0.18); color: var(--muted-strong); }
+@media (prefers-color-scheme: dark) { .rp-easy { color: #4cd97b; } .rp-med { color: #ffb340; } .rp-hard { color: #ff6961; } }
+.rp-ready { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+.rp-ready label { display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; flex: 1; min-width: 90px; }
+.rp-ready input[type=number] { padding: 9px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text); font-size: 16px; font-family: inherit; }
+.rp-ready .rp-sick { flex-direction: row; align-items: center; gap: 6px; flex: 0 0 auto; padding-bottom: 10px; }
+.rp-light { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 10px; font-size: 13.5px; }
+.rp-light b { font-size: 16px; text-transform: uppercase; letter-spacing: 0.04em; }
+.rp-light small { color: var(--muted-strong); }
+.rp-l-g { background: rgba(48, 209, 88, 0.14); } .rp-l-g b { color: #1f9d48; }
+.rp-l-a { background: rgba(255, 159, 10, 0.16); } .rp-l-a b { color: #b86e00; }
+.rp-l-r { background: rgba(255, 59, 48, 0.14); } .rp-l-r b { color: #d0302a; }
+.rp-l-none { background: var(--card-2); color: var(--muted-strong); }
+.rp-btn { padding: 12px; border: none; border-radius: 10px; background: var(--gym-accent); color: #fff; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.rp-phasebar { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3px; }
+.rp-ph { height: 26px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #fff; }
+.rp-ph.is-now { outline: 3px solid var(--text); outline-offset: 1px; }
+.rp-ph-base { background: #3d7fbf; } .rp-ph-build { background: #e8521c; } .rp-ph-deload { background: #7a8290; }
+.rp-ph-spec { background: #d0302a; } .rp-ph-taper { background: #2e9e63; }
+.rp-wk { border-top: 1px solid var(--border); padding-top: 6px; }
+.rp-wk summary { display: flex; gap: 8px; align-items: baseline; cursor: pointer; padding: 6px 0; list-style: none; }
+.rp-wk summary::-webkit-details-marker { display: none; }
+.rp-wk summary span { flex: 1; font-size: 13px; color: var(--muted-strong); }
+.rp-wk summary em { font-style: normal; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rp-wk[open] { display: flex; flex-direction: column; gap: 6px; }
+.rp-rules { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; }
+.race-countdown { cursor: pointer; }
+.workouts-header .race-countdown { margin: 8px 0 4px; }
+
+/* Hyrox: this week's Circuit A / B from the Race Plan */
+.race-plan-cards { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 12px; }
+.race-plan-head { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-strong); display: flex; justify-content: space-between; gap: 8px; }
+.race-plan-head a { color: var(--gym-accent); text-decoration: none; text-transform: none; letter-spacing: 0; }
+.race-plan-card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--gym-accent); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: var(--shadow); scroll-margin-top: 250px; }
+.race-plan-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.race-plan-top b { font-size: 15px; }
+.race-plan-tag { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 7px; border-radius: 5px; }
+.race-plan-tag.hard { background: rgba(255, 59, 48, 0.15); color: #d0302a; }
+.race-plan-tag.station { background: rgba(255, 159, 10, 0.18); color: #b86e00; }
+.race-plan-main { font-size: 14px; font-weight: 600; }
+.race-plan-steps { margin: 0; padding-left: 20px; font-size: 13px; color: var(--muted-strong); display: flex; flex-direction: column; gap: 2px; }
+.race-plan-meta { font-size: 13px; color: var(--muted-strong); }
+.race-plan-foot { font-size: 11.5px; color: var(--muted); }
+.race-plan-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.race-plan-btn { padding: 9px 12px; border-radius: 8px; border: 1px solid var(--gym-accent); background: var(--gym-accent); color: #fff; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; text-decoration: none; }
+.race-plan-btn.ghost { background: var(--card); color: var(--gym-accent); }
+.race-seg.plan-focus { border-left-color: #ff9f0a; }
+.race-seg.plan-focus .race-seg-name::after { content: ' · this week'; font-size: 11px; font-weight: 700; color: #ff9f0a; }
+
+/* Schedule: race-block training rows + tappable training-week card */
+.timeline .t-row.t-old { display: none; }
+.timeline a.t-row.train, .timeline .t-row.train { text-decoration: none; color: inherit; border-left: 4px solid #ff9f0a; background: rgba(255, 159, 10, 0.10); }
+.timeline .t-row.train.t-hard { border-left-color: #ff3b30; background: rgba(255, 59, 48, 0.08); }
+.timeline .t-row.train.t-easy { border-left-color: #30d158; background: rgba(48, 209, 88, 0.08); }
+.timeline .t-row.train.t-rest { border-left-color: #8e8e93; background: rgba(142, 142, 147, 0.08); }
+.tw-card a.tw-row { text-decoration: none; color: inherit; }
+.tw-card a.tw-row:active { opacity: 0.7; }
+
+.tile-raceplan { background: linear-gradient(135deg, #1f2937 0%, #ff6b1a 100%); }

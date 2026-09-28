@@ -91,6 +91,71 @@ const SUBSTITUTES = {
     { name: 'Machine Row',            reason: 'Form-locked' },
     { name: 'TRX Inverted Row',       reason: 'Bodyweight / no machine' },
   ],
+  him_sB_thruster: [
+    { name: 'Wall balls', reason: 'The race movement, if the wall is free' },
+    { name: 'Goblet squat + push press', reason: 'One bell only' },
+    { name: 'Barbell thruster (light)', reason: 'Barbell available' },
+  ],
+  him_sB_pushup: [
+    { name: 'DB floor press', reason: 'Wrist-friendly' },
+    { name: 'Burpee', reason: 'HYROX-specific conditioning' },
+    { name: 'Incline push-up', reason: 'Easier variation' },
+  ],
+  him_sB_swing: [
+    { name: 'DB swing', reason: 'No kettlebell' },
+    { name: 'Cable pull-through', reason: 'Back-friendly hinge' },
+    { name: 'Hip thrust (light, fast)', reason: 'Glute power, no swing' },
+  ],
+  him_sB_carry: [
+    { name: 'Trap-bar carry', reason: 'Heavier load' },
+    { name: 'KB rack carry', reason: 'Core + upper back' },
+    { name: 'Suitcase carry', reason: 'Anti-lateral flexion' },
+  ],
+  him_sU_hang: [
+    { name: 'Towel hang', reason: 'Harder grip' },
+    { name: 'Farmers hold', reason: 'No bar free' },
+    { name: 'Plate pinch hold', reason: 'Finger strength' },
+  ],
+  him_sA_bss: [
+    { name: 'Reverse lunge', reason: 'Easier balance' },
+    { name: 'Step-up', reason: 'Knee-friendly' },
+    { name: 'Split squat (rear foot down)', reason: 'Ankle-friendly' },
+  ],
+  him_sA_legpress: [
+    { name: 'Hack squat', reason: 'Leg press taken' },
+    { name: 'Dead-mill push', reason: 'Sled-specific' },
+    { name: 'Heavy goblet squat', reason: 'No machine' },
+  ],
+  him_sC_mcgill: [
+    { name: 'Dead bug', reason: 'Floor core' },
+    { name: 'Plank', reason: 'Simple bracing' },
+    { name: 'Stir-the-pot', reason: 'Harder bracing' },
+  ],
+  him_sC_pallof: [
+    { name: 'Band Pallof press', reason: 'No cable free' },
+    { name: 'Suitcase hold', reason: 'Anti-lateral flexion' },
+    { name: 'Half-kneeling cable chop', reason: 'Rotation control' },
+  ],
+  him_sC_calfiso: [
+    { name: 'Seated calf raise', reason: 'Soleus focus' },
+    { name: 'Single-leg calf raise', reason: 'No machine' },
+    { name: 'Wall calf iso hold', reason: 'Tendon-friendly' },
+  ],
+  him_sC_tib: [
+    { name: 'Heel walks', reason: 'No wall' },
+    { name: 'Banded dorsiflexion', reason: 'Ankle rehab' },
+    { name: 'Tib bar raise', reason: 'Loaded' },
+  ],
+  him_sC_balance: [
+    { name: 'Balance on foam pad', reason: 'Progression' },
+    { name: 'Single-leg RDL (bodyweight)', reason: 'Balance + hinge' },
+    { name: 'Y-balance reaches', reason: 'Dynamic balance' },
+  ],
+  him_sC_carry: [
+    { name: 'Trap-bar carry', reason: 'Heavier load' },
+    { name: 'KB carry', reason: 'DBs taken' },
+    { name: 'Farmers hold (static)', reason: 'No floor space' },
+  ],
   him_uC_facepull: [
     { name: 'Band Pull-Apart',        reason: 'No cable needed' },
     { name: 'Rear-Delt Fly Machine',  reason: 'Form-locked rear delts' },

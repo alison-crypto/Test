@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a84ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>Race Plan</title>
+  <script type="module" src="auth-gate.js"></script>
+</head>
+<body class="workouts-body theme-alison rp-page">
+
+<header class="workouts-header">
+  <a href="index.html" class="back-link">‹ Home</a>
+  <h1>🏁 Race Plan</h1>
+  <div class="race-countdown" data-race-countdown></div>
+  <div class="workouts-subtitle">12-week HYROX block · evenings on weekdays · tap any session to open it</div>
+</header>
+
+<div id="rp-root"></div>
+
+<footer class="workouts-footer">
+  Race block Sep 28 → Sun Dec 20 · research-based (concurrent training, taper, sleep and return-to-training evidence)<br />
+  Readiness check is a coaching rule of thumb — your trend matters more than one number.
+</footer>
+
+<script src="race-countdown.js" defer></script>
+<script src="race-plan-data.js" defer></script>
+<script src="race-plan.js" defer></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

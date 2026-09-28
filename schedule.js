@@ -27,6 +27,39 @@ document.querySelectorAll('.day-btn').forEach((b) => {
   b.addEventListener('click', () => switchDay(b.dataset.day));
 });
 
+// ============================================================
+// HYROX race block: this week's training blocks in each day's timeline
+// (tappable → the exact place in the app), old morning-gym rows hidden.
+// ============================================================
+(function injectTraining() {
+  const P = window.RACE_PLAN;
+  if (!P) return;
+  const now = new Date();
+  const w = P.weekFor(now) || (P.daysToRace(now) > 0 ? P.WEEKS[0] : null);
+  if (!w) return;
+  const toMin = (s) => { const m = /(\d+):(\d+)\s*(AM|PM)/i.exec(s || ''); if (!m) return 9999; let h = +m[1] % 12; if (/pm/i.test(m[3])) h += 12; return h * 60 + +m[2]; };
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  P.DAYKEYS.forEach((dk, i) => {
+    const tl = document.querySelector(`.day-page[data-day="${dk}"] .timeline`);
+    if (!tl) return;
+    tl.querySelectorAll('.t-row').forEach((r) => {
+      const b = r.querySelector('.t-act b');
+      if (b && /🏋\s*Gym/.test(b.textContent)) r.classList.add('t-old');
+    });
+    (w.days[i] || []).forEach((s) => {
+      const el = document.createElement(s.href ? 'a' : 'div');
+      el.className = 't-row train t-' + s.k;
+      if (s.href) el.href = s.href;
+      el.innerHTML = `<div class="t-time">${esc(s.time)}</div><div class="t-act"><b>🏁 ${esc(s.t)}</b><span class="t-det">${esc(s.d)}</span></div>`;
+      const t = toMin(s.time);
+      const after = [...tl.querySelectorAll('.t-row')].find((r) => toMin((r.querySelector('.t-time') || {}).textContent) > t);
+      tl.insertBefore(el, after || null);
+    });
+  });
+  const head = document.querySelector('#tw-card .tw-head');
+  if (head) head.textContent = `🏁 Alison's Training Week · Week ${w.n} · ${w.phase}`;
+})();
+
 switchDay(currentDay);
 
 // ============================================================
@@ -84,7 +117,7 @@ function buildEventsForDay(dayCode) {
 
   const raw = [];
   page.querySelectorAll('.t-row').forEach((row) => {
-    if (row.classList.contains('sleep')) return;
+    if (row.classList.contains('sleep') || row.classList.contains('t-old')) return;
     const b = row.querySelector('.t-act b');
     const summary = b ? b.textContent.trim() : '';
     if (!summary || /^free\b/i.test(summary)) return;

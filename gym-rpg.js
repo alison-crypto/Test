@@ -174,6 +174,14 @@
     him_uC_facepull: { r: 15, beg: 15,   int: 30,   adv: 45,    eli: 60 },
     him_uC_hammer:   { r: 10, perhand: true, beg: 8, int: 14, adv: 20, eli: 26 },
     him_uC_fly:      { r: 12, beg: 15,   int: 30,   adv: 45,    eli: 60 },
+    him_sA_bss:      { r: 8,  perhand: true, beg: 10, int: 18, adv: 26, eli: 34 },
+    him_sA_legpress: { r: 15, beg: 80,   int: 140,  adv: 200,   eli: 260 },
+    him_sB_thruster: { r: 12, perhand: true, beg: 8, int: 14, adv: 20, eli: 26 },
+    him_sB_swing:    { r: 15, beg: 12,   int: 20,   adv: 28,    eli: 36 },
+    him_sB_pushup:   { rep: true, beg: '15 reps', int: '30 reps', adv: '45 reps', eli: '60 reps' },
+    him_sB_carry:    { rep: true, beg: '2×16 kg', int: '2×24 kg', adv: '2×32 kg', eli: '2×40 kg' },
+    him_sC_carry:    { rep: true, beg: '2×16 kg', int: '2×24 kg', adv: '2×32 kg', eli: '2×40 kg' },
+    him_sU_hang:     { rep: true, beg: '20 s', int: '45 s', adv: '60 s', eli: '90 s' },
   };
   const DIFF_TIER = { beginner: 'beg', intermediate: 'int', advanced: 'adv', elite: 'eli' };
   function tierDisp(s, t) {
@@ -264,7 +272,7 @@
   function recordsHTML() {
     const b = bests();
     // Level tracker — one row per lift (program order), with your PR-derived level.
-    const rows = Object.keys(STANDARDS).map((exId) => {
+    const rows = Object.keys(STANDARDS).filter((exId) => document.querySelector(`.exercise[data-ex="${exId}"]`)).map((exId) => {
       const s = STANDARDS[exId], best = b[exId];
       const name = nameFor(exId);
       if (s.rep) {

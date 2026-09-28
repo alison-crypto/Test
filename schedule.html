@@ -51,15 +51,15 @@
   </div>
 </header>
 
-<div class="tw-card">
-  <div class="tw-head">🏋️ Alison's Training Week</div>
-  <div class="tw-row"><b>Mon</b><span>Gym Upper A (am) · swim + sauna (pm)</span><i class="tw-easy">EASY</i></div>
-  <div class="tw-row"><b>Tue</b><span>RTC functional (am) · Lower gym or run (pm)</span><i class="tw-mod">MOD</i></div>
-  <div class="tw-row"><b>Wed</b><span>Gym Upper B (am) · swim + sauna (pm)</span><i class="tw-easy">EASY</i></div>
-  <div class="tw-row"><b>Thu</b><span>Muay Thai w/ RTC (am) · Lower gym or run (pm)</span><i class="tw-mod">MOD</i></div>
-  <div class="tw-row"><b>Fri</b><span>Gym Upper C (am) · swim + sauna · carb-load</span><i class="tw-high">HIGH</i></div>
-  <div class="tw-row"><b>Sat</b><span>HYROX circuit · 1 km runs · morning</span><i class="tw-peak">PEAK</i></div>
-  <div class="tw-row"><b>Sun</b><span>Rest day — maybe pool with Darlene</span><i class="tw-easy">EASY</i></div>
+<div class="tw-card" id="tw-card">
+  <div class="tw-head">🏁 Alison's Training Week · HYROX race block</div>
+  <a class="tw-row" href="gym-alison.html?day=strB"><b>Mon</b><span>Strength B full body (5:15) · volleyball for fun 7–9</span><i class="tw-mod">MED</i></a>
+  <a class="tw-row" href="hyrox.html#circuit-a"><b>Tue</b><span>Circuit A running + upper strength (5:00)</span><i class="tw-peak">HARD</i></a>
+  <a class="tw-row" href="gym-alison.html?day=strA"><b>Wed</b><span>Strength A legs + easy bike (5:00)</span><i class="tw-mod">MED</i></a>
+  <a class="tw-row" href="race-plan.html#today"><b>Thu</b><span>Easy run + core/ankle/carries (5:00)</span><i class="tw-easy">EASY</i></a>
+  <a class="tw-row" href="race-plan.html"><b>Fri</b><span>Rest · optional swim + sauna</span><i class="tw-easy">REST</i></a>
+  <a class="tw-row" href="hyrox.html#circuit-b"><b>Sat</b><span>Circuit B stations (9:00 AM)</span><i class="tw-peak">HARD</i></a>
+  <a class="tw-row" href="race-plan.html"><b>Sun</b><span>Long easy run (9:00 AM)</span><i class="tw-easy">EASY</i></a>
 </div>
 
 <div class="sched-legend">
@@ -310,6 +310,7 @@
   Wake: 5:30am gym days, ~7am rest days · Bed: 10pm latest on gym-eve nights
 </footer>
 
+<script src="race-plan-data.js"></script>
 <script src="schedule.js"></script>
 <script>
   if ('serviceWorker' in navigator) {

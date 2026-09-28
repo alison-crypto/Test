@@ -127,6 +127,11 @@ const CURATED = {
   him_uB_incline: 'Incline_Dumbbell_Press', him_uB_pullup: 'Pullups',
   him_uB_row: 'Seated_Cable_Rows', him_uB_lat: 'Side_Lateral_Raise',
   him_uB_curl: 'EZ-Bar_Curl', him_uB_triext: 'Cable_Rope_Overhead_Triceps_Extension',
+  // Alison — HYROX race block (Sep 2026)
+  him_sB_thruster: 'Kettlebell_Thruster', him_sB_pushup: 'Pushups', him_sB_swing: 'One-Arm_Kettlebell_Swings',
+  him_sB_carry: 'Farmers_Walk', him_sU_hang: 'Hanging_Pike', him_sA_bss: 'Split_Squat_with_Dumbbells',
+  him_sA_legpress: 'Leg_Press', him_sC_mcgill: 'Side_Bridge', him_sC_pallof: 'Pallof_Press',
+  him_sC_calfiso: 'Standing_Calf_Raises', him_sC_tib: null, him_sC_balance: null, him_sC_carry: 'Farmers_Walk',
   // Alison — Upper C
   him_uC_facepull: 'Face_Pull', him_uC_hammer: 'Hammer_Curls', him_uC_fly: 'Cable_Crossover',
   // Hyrox — real matches, else null (no wrong picture)

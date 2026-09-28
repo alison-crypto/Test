@@ -58,6 +58,7 @@
           <label>Resting HR<input id="rp-rhr" type="number" inputmode="numeric" min="30" max="120" value="${esc(e.rhr || '')}" /></label>
           <label class="rp-sick"><input id="rp-sickbox" type="checkbox" ${e.sick ? 'checked' : ''} /> Sick</label>
         </div>
+        <button type="button" class="race-plan-btn ghost rp-watchbtn" data-watch="morning">⌚ Sync from watch</button>
         ${light ? `<div class="rp-light rp-l-${light}"><b>${MSG[light][0]}</b><span>${MSG[light][1]}</span><small>${esc(why.join(' · '))}</small></div>`
                 : '<div class="rp-light rp-l-none"><span>Enter this morning’s numbers to get today’s call.</span></div>'}
       </section>`;

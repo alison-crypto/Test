@@ -100,7 +100,7 @@
   }
   function finish() {
     const log = load(LOG, []);
-    log.unshift({ date: iso(new Date()), week: live.week, kind: live.kind, title: live.title, splits: live.splits, dist: live.dist, totalMs: now() - live.started });
+    log.unshift({ date: iso(new Date()), week: live.week, kind: live.kind, title: live.title, splits: live.splits, dist: live.dist, totalMs: now() - live.started, start: live.started, end: now() });
     save(LOG, log.slice(0, 60));
     live = null; save(LIVE, null); releaseWake(); signal(); render();
     toast('Run saved ✓');
@@ -163,7 +163,7 @@
     if (!log.length) return '<p class="rc-muted">Your finished runs and rep splits show up here.</p>';
     return log.map((r) => {
       const avg = r.dist && r.splits.length ? r.splits.reduce((a, b) => a + b, 0) / r.splits.length : 0;
-      return `<div class="rc-log"><div><b>${esc(r.title)}</b><span>${esc(r.date)} · week ${r.week} · ${clock(r.totalMs)} total</span></div>
+      return `<div class="rc-log"><div><b>${esc(r.title)}</b><span>${esc(r.date)} · week ${r.week} · ${clock(r.totalMs)} total</span>${r.start && window.WatchSC ? `<button type="button" class="rc-watch" data-rc-watch="${r.start}">⌚ Heart rate &amp; distance from watch</button>` : ''}</div>
         ${r.splits.length ? `<div class="rc-splits">${r.splits.map((ms, i) => `<span>#${i + 1} ${clock(ms)}</span>`).join('')}${avg ? `<span class="rc-avg">avg ${pace(avg / 1000 / (r.dist / 1000))} / km</span>` : ''}</div>` : ''}</div>`;
     }).join('');
   }
@@ -234,6 +234,8 @@
   host.addEventListener('click', (e) => {
     const k = e.target.closest('[data-rc-kind]');
     if (k && !live) { kind = k.dataset.rcKind; save(KIND, kind); render(); return; }
+    const wb = e.target.closest('[data-rc-watch]');
+    if (wb) { const r = load(LOG, []).find((x) => String(x.start) === wb.dataset.rcWatch); if (r) window.WatchSC.runWorkout('Run · ' + r.title, r.start - 60000, r.end + 60000); return; }
     const b = e.target.closest('[data-rc]'); if (!b) return;
     const a = b.dataset.rc;
     if (a === 'start') start(); else if (a === 'pause') togglePause(); else if (a === 'next') next(false); else if (a === 'stop') stop();

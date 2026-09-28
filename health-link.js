@@ -9,6 +9,7 @@ import { supabase, getSession } from './supabase-client.js';
 import { SUPABASE_URL } from './supabase-config.js';
 
 const ENDPOINT = `${SUPABASE_URL}/functions/v1/health-ingest`;
+const WS = window.WatchSC || { MORNING: 'DeSouzas Morning', WORKOUT: 'DeSouzas Workout' };
 const READY_KEY = 'rtc_readiness_v1';
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -56,10 +57,25 @@ function fillReadiness() {
   return changed;
 }
 
+function sessionFormHTML() {
+  const P = window.RACE_PLAN; const now = new Date();
+  const today = (P && P.sessionsOn(now)) || [];
+  const opts = today.filter((x) => x.k !== 'rest' || /volley/i.test(x.t)).map((x, i) => `<option value="${i}">${esc(x.time)} · ${esc(x.t)}</option>`).join('');
+  const hm = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const from = new Date(now.getTime() - 60 * 60000);
+  return `<div class="hw-pull">
+      <b>Pull a session from the watch</b>
+      <span class="rc-muted">Heart rate, distance and calories between these times (free Shortcut 2).</span>
+      ${opts ? `<select id="hw-sess"><option value="">Pick today’s session…</option>${opts}</select>` : ''}
+      <div class="hw-times"><label>Name<input id="hw-name" value="Workout" /></label><label>From<input id="hw-from" type="time" value="${hm(from)}" /></label><label>To<input id="hw-to" type="time" value="${hm(now)}" /></label></div>
+      <button type="button" class="race-plan-btn" data-hw="pull">⌚ Pull from watch</button>
+    </div>`;
+}
+
 function setupHTML() {
   const k = state.newKey;
   return `
-    <details class="rc-sec" ${k || !state.token ? 'open' : ''}><summary>${state.token ? '🔑 Sync key &amp; setup' : '🔌 Connect your Apple Watch'}</summary>
+    <details class="rc-sec" ${k || !state.token ? 'open' : ''}><summary>${state.token ? '🔑 Sync key &amp; Shortcut setup' : '🔌 Connect your Apple Watch (free)'}</summary>
       ${k ? `<div class="hw-key">
           <p><b>Your sync key — copy it now, it’s only shown once.</b></p>
           <label>URL<input readonly value="${esc(ENDPOINT)}" data-copy /></label>
@@ -67,22 +83,25 @@ function setupHTML() {
           <label>Header value<input readonly value="Bearer ${esc(k)}" data-copy /></label>
           <small>Tap a box to copy. Keep the key private — anyone with it can send data into your plan.</small>
         </div>` : ''}
-      <button type="button" class="race-plan-btn ${state.token ? 'ghost' : ''}" data-hw="key">${state.token ? 'Replace sync key' : 'Create my sync key'}</button>
-      <p class="rc-muted"><b>Option 1 — Health Auto Export (recommended, sleep + HR + HRV + workouts)</b></p>
+      <button type="button" class="race-plan-btn ${state.token ? 'ghost' : ''}" data-hw="key">${state.token ? 'Replace sync key' : '1 · Create my sync key'}</button>
+      <p class="rc-muted">Two free Shortcuts in Apple’s <b>Shortcuts</b> app. Names must match exactly. In each, the last action is the same <b>Get Contents of URL</b>: the URL above · Method <b>POST</b> · Headers: <b>Authorization</b> = <b>Bearer …</b> · Request Body <b>JSON</b>.</p>
+      <p class="rc-muted"><b>2 · Shortcut “${esc(WS.MORNING)}”</b> — sleep, resting HR, HRV</p>
       <ol>
-        <li>Install <b>Health Auto Export – JSON+CSV</b> from the App Store. Automations need Premium (7-day free trial, then subscription or one-time lifetime ≈ US$25).</li>
-        <li>Open it and allow Health access to <b>Sleep</b>, <b>Resting Heart Rate</b>, <b>Heart Rate Variability</b> and <b>Workouts</b>.</li>
-        <li><b>Automations → + → REST API.</b> Paste the URL above. Add a header: <b>Authorization</b> = <b>Bearer …</b> (the value above). Format <b>JSON</b>.</li>
-        <li>Data type <b>Health Metrics</b> → select only Resting Heart Rate, Heart Rate Variability, Sleep Analysis. Time grouping <b>Days</b>, sleep <b>aggregated</b>, range <b>last 7 days</b>.</li>
-        <li>Make a second automation the same way with data type <b>Workouts</b> (no routes needed).</li>
-        <li>Set both to sync every hour (they also run when you open the app), then tap <b>Manual export</b> once. This card shows “last data received” when it works.</li>
+        <li><b>Find Health Samples</b> · Type <b>Sleep Analysis</b> · Start Date is in the last <b>1 day</b> · Value is not <b>Awake</b> · Value is not <b>In Bed</b>.</li>
+        <li><b>Find Health Samples</b> · Type <b>Heart Rate Variability</b> · Start Date is in the last <b>1 day</b>.</li>
+        <li><b>Find Health Samples</b> · Type <b>Resting Heart Rate</b> · Sort by Start Date · <b>Latest First</b> · Limit <b>1</b>.</li>
+        <li><b>Get Contents of URL</b> · JSON fields (Text): <code>sleep</code> = step 1 → tap it → <b>Duration</b> · <code>hrv</code> = step 2 → <b>Value</b> · <code>rhr</code> = step 3 → <b>Value</b>.</li>
       </ol>
-      <p class="rc-muted"><b>Option 2 — free iPhone Shortcut (morning numbers only, no workouts)</b></p>
+      <p class="rc-muted"><b>3 · Shortcut “${esc(WS.WORKOUT)}”</b> — heart rate, distance, calories for a session</p>
       <ol>
-        <li>Shortcuts → Automation → <b>Time of day 6:00 AM</b> → Run immediately.</li>
-        <li>Actions: <b>Find Health Samples</b> Resting Heart Rate (latest, limit 1) · <b>Find Health Samples</b> Heart Rate Variability (last 1 day) → <b>Calculate Statistics</b> Average · <b>Find Health Samples</b> Sleep Analysis where Value is Asleep (last 1 day) → Duration → <b>Calculate Statistics</b> Sum (hours).</li>
-        <li><b>Get Contents of URL</b>: the URL above, Method POST, header Authorization = Bearer …, Request Body JSON: <code>date</code> (Current Date, format yyyy-MM-dd), <code>sleep_h</code>, <code>rhr</code>, <code>hrv</code>.</li>
+        <li><b>Split Text</b> · Shortcut Input · by Custom <b>|</b>.</li>
+        <li><b>Get Item from List</b> · Item at Index <b>1</b> → <b>Get Dates from Input</b> → <b>Set Variable</b> <i>Start</i>.</li>
+        <li><b>Get Item from List</b> (from Split Text) · Index <b>2</b> → <b>Get Dates from Input</b> → <b>Set Variable</b> <i>End</i>.</li>
+        <li><b>Find Health Samples</b> · <b>Heart Rate</b> · Start Date is after <i>Start</i> · End Date is before <i>End</i>. Repeat for <b>Walking + Running Distance</b> and <b>Active Energy</b>.</li>
+        <li><b>Get Contents of URL</b> · JSON fields (Text): <code>session</code> = Shortcut Input · <code>hr</code>, <code>dist</code>, <code>kcal</code> = the three sample lists → <b>Value</b>.</li>
       </ol>
+      <p class="rc-muted"><b>4 · Use it:</b> tap <b>⌚ Sync from watch</b> in the morning check, and <b>⌚ Pull from watch</b> after a session (also on the Run card). The app opens the Shortcut and you swipe back. Optional: a Shortcuts automation at 7 AM runs the morning one by itself — it only works if the phone is unlocked then.</p>
+      <p class="rc-muted">Wear the watch in a workout (Outdoor Run / Functional Strength) so heart rate is recorded every few seconds.</p>
     </details>`;
 }
 
@@ -105,6 +124,8 @@ function render() {
         </div>` : ''}
       ${state.workouts.length ? `<div class="hw-list">${state.workouts.slice(0, 6).map((w) => `
           <div class="hw-w"><b>${esc(w.name)}</b><span>${esc(new Date(w.start_ts).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }))} · ${esc(dur(w.duration_s))}${w.distance_km ? ` · ${esc(Math.round(w.distance_km * 100) / 100)} km · ${esc(pace(w.duration_s, w.distance_km))}` : ''}${w.avg_hr ? ` · avg HR ${esc(Math.round(w.avg_hr))}` : ''}</span></div>`).join('')}</div>` : ''}
+      <div class="race-plan-actions"><button type="button" class="race-plan-btn ghost" data-watch="morning">⌚ Sync morning numbers</button></div>
+      ${state.token ? sessionFormHTML() : ''}
       ${setupHTML()}
     </section>`;
 }
@@ -119,9 +140,39 @@ async function makeKey() {
 
 document.addEventListener('click', async (e) => {
   if (e.target.closest('[data-hw="key"]')) { makeKey(); return; }
+  if (e.target.closest('[data-watch="morning"]')) { window.WatchSC && window.WatchSC.runMorning(); return; }
+  if (e.target.closest('[data-hw="pull"]')) {
+    const [fh, fm] = document.getElementById('hw-from').value.split(':').map(Number);
+    const [th, tm] = document.getElementById('hw-to').value.split(':').map(Number);
+    const s0 = new Date(); s0.setHours(fh, fm, 0, 0); const e0 = new Date(); e0.setHours(th, tm, 0, 0);
+    if (!(e0 > s0)) { alert('“To” has to be after “From”.'); return; }
+    window.WatchSC && window.WatchSC.runWorkout(document.getElementById('hw-name').value, s0, e0);
+    return;
+  }
   const c = e.target.closest('#watch [data-copy]');
   if (c) { c.select(); try { await navigator.clipboard.writeText(c.value); c.classList.add('copied'); setTimeout(() => c.classList.remove('copied'), 1200); } catch {} }
 });
+
+// picking one of today's sessions fills the name and planned times
+document.addEventListener('change', (e) => {
+  if (e.target.id !== 'hw-sess' || e.target.value === '') return;
+  const P = window.RACE_PLAN; const x = (P.sessionsOn(new Date()) || [])[+e.target.value]; if (!x) return;
+  const m = /(\d+):(\d+)\s*(AM|PM)/i.exec(x.time); if (!m) return;
+  let h = +m[1] % 12; if (/pm/i.test(m[3])) h += 12;
+  const st = new Date(); st.setHours(h, +m[2], 0, 0); const en = new Date(st.getTime() + (x.dur || 60) * 60000);
+  document.getElementById('hw-name').value = x.t;
+  document.getElementById('hw-from').value = `${pad(st.getHours())}:${pad(st.getMinutes())}`;
+  document.getElementById('hw-to').value = `${pad(en.getHours())}:${pad(en.getMinutes())}`;
+});
+
+// coming back from the Shortcuts app → fetch what just arrived
+async function refresh() {
+  if (!state.user) return;
+  try { await fetchAll(); } catch (err) { state.error = String(err.message || err); }
+  const keep = state.newKey; render(); state.newKey = keep;
+  if (fillReadiness()) window.dispatchEvent(new Event('rp:refresh'));
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
 
 (async () => {
   const session = await getSession().catch(() => null);

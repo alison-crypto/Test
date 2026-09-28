@@ -3,7 +3,10 @@
 // Two senders are supported:
 //   1. Health Auto Export (iOS app) REST API automation — its standard JSON:
 //      { data: { metrics: [{ name, units, data: [...] }], workouts: [...] } }
-//   2. A plain iPhone Shortcut — { date, sleep_h, rhr, hrv }
+//   2. The free iPhone Shortcut — { sleep, hrv, rhr } as raw sample lists
+//      (or already-summed { date, sleep_h, rhr, hrv })
+//   3. The free workout Shortcut — { session, hr, dist, kcal } for one
+//      training session window chosen in the app
 //
 // Auth: the personal sync key created on the Race Plan page, sent as
 // "Authorization: Bearer <key>" (or an "x-health-key" header). Only its
@@ -35,6 +38,51 @@ function ts(v: unknown) {
   if (m) return `${m[1]}T${m[2].length === 5 ? m[2] + ':00' : m[2]}${m[3]}:${m[4]}`;
   const d = new Date(s); return isNaN(d.getTime()) ? null : d.toISOString();
 }
+// Every number in a value or a Shortcuts list ("55 count/min\n57 count/min")
+function numbers(v: unknown): number[] {
+  if (v == null) return [];
+  if (Array.isArray(v)) return v.flatMap(numbers);
+  if (typeof v === 'number') return Number.isFinite(v) ? [v] : [];
+  return String(v).split(/[\n,;]+/).map((x) => parseFloat(x.replace(/[^0-9.\-]/g, ' ').trim().split(/\s+/)[0])).filter((n) => Number.isFinite(n));
+}
+// Sum a list of sleep-sample durations → hours. Accepts "1 hr 23 min",
+// "45 min", "1:23:45", "3120 sec", or bare numbers (unit guessed from the total).
+function sumHours(v: unknown): number | null {
+  if (v == null) return null;
+  const items = Array.isArray(v) ? v.map(String) : String(v).split(/\n+/);
+  let secs = 0, bare = 0, any = false;
+  for (const raw of items) {
+    const t = raw.trim().toLowerCase(); if (!t) continue;
+    const hms = /^(\d+):(\d{2})(?::(\d{2}))?$/.exec(t);
+    if (hms) { secs += hms[3] != null ? +hms[1] * 3600 + +hms[2] * 60 + +hms[3] : +hms[1] * 3600 + +hms[2] * 60; any = true; continue; }
+    const parts = [...t.matchAll(/([\d.]+)\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes|s|sec|secs|second|seconds)\b/g)];
+    if (parts.length) { for (const [, n, u] of parts) secs += +n * (u.startsWith('h') ? 3600 : u.startsWith('m') ? 60 : 1); any = true; continue; }
+    const n = parseFloat(t); if (Number.isFinite(n)) { bare += n; any = true; }
+  }
+  if (bare) secs += bare > 2000 ? bare : bare > 30 ? bare * 60 : bare * 3600;
+  return any && secs > 0 ? secs / 3600 : null;
+}
+// Sum distance samples ("0.02 km", "12 m", "0.01 mi") → km
+function distanceKm(v: unknown): number | null {
+  if (v == null) return null;
+  const items = Array.isArray(v) ? v.map(String) : String(v).split(/\n+/);
+  let km = 0;
+  for (const raw of items) {
+    const m = /([\d.]+)\s*([a-z]*)/i.exec(raw.trim()); if (!m) continue;
+    const n = +m[1], u = m[2].toLowerCase();
+    km += u.startsWith('mi') ? n * 1.609344 : u === 'm' ? n / 1000 : u === 'ft' ? n * 0.0003048 : u === 'yd' ? n * 0.0009144 : n;
+  }
+  return km || null;
+}
+// Sum energy samples ("0.8 kcal", "3 kJ", "0.5 Cal") → kcal
+function energyKcal(v: unknown): number | null {
+  if (v == null) return null;
+  const items = Array.isArray(v) ? v.map(String) : String(v).split(/\n+/);
+  let k = 0;
+  for (const raw of items) { const m = /([\d.]+)\s*([a-z]*)/i.exec(raw.trim()); if (m) k += /^kj$/i.test(m[2]) ? +m[1] / 4.184 : +m[1]; }
+  return k || null;
+}
+function vancouverToday() { return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Vancouver' }).format(new Date()); }
 const round = (n: number | null, p = 1) => (n == null ? null : Math.round(n * 10 ** p) / 10 ** p);
 
 Deno.serve(async (req) => {
@@ -55,10 +103,40 @@ Deno.serve(async (req) => {
   const day = (d: string) => { if (!daily.has(d)) daily.set(d, {}); return daily.get(d)!; };
   const workouts: Record<string, unknown>[] = [];
 
-  // (2) plain Shortcut payload
-  if (body.date && (body.sleep_h != null || body.rhr != null || body.hrv != null)) {
-    const d = dateOnly(body.date);
-    if (d) { const r = day(d); if (num(body.sleep_h) != null) r.sleep_h = round(num(body.sleep_h), 2); if (num(body.rhr) != null) r.rhr = round(num(body.rhr)); if (num(body.hrv) != null) r.hrv = round(num(body.hrv)); r.source = 'Shortcut'; }
+  // (2) iPhone Shortcut payload. The Shortcut stays dumb: it sends the raw
+  // Health sample lists (Shortcuts turns a list into newline-separated text)
+  // and the adding-up happens here.
+  if (!body.session && (body.sleep != null || body.sleep_h != null || body.rhr != null || body.hrv != null)) {
+    const d = dateOnly(body.date) || vancouverToday();
+    const r = day(d);
+    const sleepH = body.sleep_h != null ? num(body.sleep_h) : sumHours(body.sleep);
+    const hrvs = numbers(body.hrv); const rhrs = numbers(body.rhr);
+    if (sleepH) r.sleep_h = round(sleepH, 2);
+    if (hrvs.length) r.hrv = round(hrvs.reduce((a, b) => a + b, 0) / hrvs.length);
+    if (rhrs.length) r.rhr = round(rhrs[0]);
+    r.source = 'Shortcut';
+  }
+
+  // (3) Workout Shortcut, launched from the app with "localStart|localEnd|name|isoStart|isoEnd".
+  // It sends back that text as `session` plus the raw Heart Rate, Walking +
+  // Running Distance and Active Energy samples from inside the window.
+  if (typeof body.session === 'string' && body.session.includes('|')) {
+    const [, , name, isoStart, isoEnd] = body.session.split('|').map((x) => x.trim());
+    const start = ts(isoStart), end = ts(isoEnd);
+    if (start) {
+      const hr = numbers(body.hr).filter((n) => n > 30 && n < 230);
+      const km = distanceKm(body.dist);
+      const kcal = energyKcal(body.kcal);
+      workouts.push({
+        user_id: userId, id: await sha256(`${name || 'Workout'}|${start}`), name: name || 'Workout', start_ts: start, end_ts: end,
+        duration_s: end ? Math.round((Date.parse(end) - Date.parse(start)) / 1000) : null,
+        distance_km: km ? round(km, 3) : null,
+        avg_hr: hr.length ? round(hr.reduce((a, b) => a + b, 0) / hr.length) : null,
+        max_hr: hr.length ? Math.max(...hr) : null,
+        energy_kcal: kcal ? round(kcal, 0) : null,
+        source: 'Shortcut', updated_at: new Date().toISOString(),
+      });
+    }
   }
 
   // (1) Health Auto Export payload

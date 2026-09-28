@@ -35,6 +35,14 @@
       const rank = { g: 0, a: 1, r: 2 }; if (!light || rank[l] > rank[light]) light = l;
       why.push(`resting HR ${diff >= 0 ? '+' : ''}${Math.round(diff)} vs your 7-day average`);
     } else if (e.rhr) why.push('resting HR saved — the comparison starts after 3 mornings');
+    // HRV (Apple Watch): well below your 7-day normal = not recovered
+    const pastHrv = Object.keys(all).filter((k) => k < today && all[k].hrv).sort().slice(-7).map((k) => +all[k].hrv);
+    if (e.hrv && pastHrv.length >= 3) {
+      const hb = pastHrv.reduce((a, b) => a + b, 0) / pastHrv.length; const pct = (+e.hrv - hb) / hb * 100;
+      const l = pct >= -10 ? 'g' : pct >= -25 ? 'a' : 'r';
+      const rank = { g: 0, a: 1, r: 2 }; if (!light || rank[l] > rank[light]) light = l;
+      why.push(`HRV ${Math.round(e.hrv)} ms (${pct >= 0 ? '+' : ''}${Math.round(pct)}% vs normal)`);
+    }
     if (e.sick) { light = 'r'; why.push('feeling sick'); }
     const MSG = {
       g: ['Green', 'Do the session as written.'],
@@ -44,7 +52,7 @@
     return `
       <section class="rp-card" id="readiness">
         <h2>Morning check</h2>
-        <p class="rp-muted">Hours slept and resting heart rate (take it lying in bed). Worse signal wins.</p>
+        <p class="rp-muted">${e.auto ? '⌚ Filled in from your Apple Watch — edit if it looks wrong.' : 'Hours slept and resting heart rate (take it lying in bed) — or connect your Apple Watch below to fill this in automatically.'} Worse signal wins.</p>
         <div class="rp-ready">
           <label>Sleep (h)<input id="rp-sleep" type="number" inputmode="decimal" step="0.5" min="0" max="14" value="${esc(e.sleep || '')}" /></label>
           <label>Resting HR<input id="rp-rhr" type="number" inputmode="numeric" min="30" max="120" value="${esc(e.rhr || '')}" /></label>
@@ -188,6 +196,8 @@
     }
   });
   root.addEventListener('click', (e) => { if (e.target.closest('#rp-ics')) exportICS(); });
+  // health-link.js fills readiness from the Apple Watch, then asks for a redraw
+  window.addEventListener('rp:refresh', () => { const y = window.scrollY; render(); window.scrollTo(0, y); });
   render();
   if (location.hash) { const el = document.getElementById(location.hash.slice(1)); if (el) el.scrollIntoView(); }
 })();

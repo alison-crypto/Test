@@ -4978,3 +4978,15 @@ a.rp-sess:active { transform: scale(0.99); }
 .rc-log > div:first-child { display: flex; flex-direction: column; font-size: 13px; }
 .rc-log > div:first-child span { font-size: 11.5px; color: var(--muted); }
 .rc-log .rc-splits { justify-content: flex-start; }
+
+/* Race plan — Apple Watch card (health-link.js) */
+.hw-list { display: flex; flex-direction: column; margin: 8px 0; }
+.hw-w { display: flex; flex-direction: column; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.hw-w span { color: var(--muted-strong); font-size: 12px; }
+.hw-key { border: 1px solid var(--gym-accent, #0a84ff); border-radius: 10px; padding: 10px; margin: 6px 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.hw-key p { margin: 0; }
+.hw-key label { display: flex; flex-direction: column; gap: 2px; font-size: 11.5px; color: var(--muted); }
+.hw-key input { font: 12px ui-monospace, Menlo, monospace; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--text); width: 100%; box-sizing: border-box; }
+.hw-key input.copied { border-color: #34c759; }
+#watch ol { font-size: 13px; color: var(--muted-strong); padding-left: 20px; line-height: 1.5; }
+#watch code { font-size: 12px; }

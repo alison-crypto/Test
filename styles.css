@@ -4933,3 +4933,10 @@ a.rp-sess:active { transform: scale(0.99); }
 .tile-raceplan { background: linear-gradient(135deg, #1f2937 0%, #ff6b1a 100%); }
 
 .rp-hol { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 700; text-transform: none; letter-spacing: 0; color: #d0302a; background: rgba(255, 59, 48, 0.12); padding: 2px 6px; border-radius: 5px; }
+
+/* Race plan — sub-60 budget */
+.rp-goal-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.rp-goal-row span { color: var(--muted-strong); }
+.rp-goal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 10px 0 4px; }
+.rp-goal-grid > div { display: flex; justify-content: space-between; gap: 6px; background: var(--bg, transparent); border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; font-size: 13px; }
+.rp-goal-grid span { color: var(--muted-strong); min-width: 0; }

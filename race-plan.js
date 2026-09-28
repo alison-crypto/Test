@@ -109,11 +109,24 @@
         <li>Protein 170–205 g a day; keep creatine; carbs up on hard days.</li>
         <li>Last coffee ~1:30 pm, no stimulant pre-workout in the evening.</li>
         <li>Finish hard sessions ≥ 90 min before bed. Nap 20–90 min (1–4 pm) when you can.</li>
-        <li>Runs: grow 2–4 km a week, flat even surfaces, quick steps; extra aerobic work on bike/row/ski.</li>
+        <li>Runs: grow ~10% a week (never more than 15%), flat even surfaces, quick steps; extra aerobic work on bike/row/ski.</li>
+        <li>Double days: hard or heavy first (6 AM), the lighter piece ~9 h later. One quality session a day — no hard doubles on short sleep.</li>
+        <li>Protein ~35–40 g at every meal + one before bed. Sauna is fine; no ice bath within ~6 h after lifting (it blunts muscle gain).</li>
+        <li>No sled at the gym? Book 2–3 real sled sessions (turf gym or drop-in) before the full sim on Nov 28 — the sleds are where most time is lost.</li>
       </ul>
     </section>`;
 
-    root.innerHTML = todayHTML + readiness() + weekHTML + calHTML + blockHTML + fuelHTML;
+    const g = P.SUB60;
+    const goalHTML = g ? `<section class="rp-card" id="goal">
+      <h2>Sub-60 budget</h2>
+      <p class="rp-muted">Sub-60 is roughly the top 1–2% of Men’s Open. It’s a stretch from where you’re starting — we go for it, and the Oct 31 half-sim tells us if it’s on (${esc(g.halfSim)}).</p>
+      <div class="rp-goal-row"><span>Runs</span><b>${esc(g.runs)}</b></div>
+      <div class="rp-goal-row"><span>Stations</span><b>${esc(g.stations)}</b></div>
+      <div class="rp-goal-row"><span>Roxzone</span><b>${esc(g.roxzone)}</b></div>
+      <div class="rp-goal-grid">${g.split.map(([n, t]) => `<div><span>${esc(n)}</span><b>${esc(t)}</b></div>`).join('')}</div>
+      <p class="rp-muted">Total ≈ ${esc(g.total)}. Paces in the plan stay effort-based until the benchmark; then they switch to these numbers or a realistic goal.</p>
+    </section>` : '';
+    root.innerHTML = todayHTML + readiness() + weekHTML + goalHTML + calHTML + blockHTML + fuelHTML;
   }
   function phaseClass(p) { p = p.toLowerCase(); return p.includes('deload') ? 'deload' : p.includes('taper') || p.includes('race week') ? 'taper' : p.includes('race') ? 'spec' : p.includes('build') ? 'build' : 'base'; }
 

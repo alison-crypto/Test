@@ -6,7 +6,7 @@
 // (evenings on weekdays, mornings on weekends), an intensity and a link to
 // the exact place in the app where you do it.
 (function () {
-  const RACE = { y: 2026, m: 12, d: 20, label: 'HYROX Men\'s Open', goalNote: 'Goal set after the Oct 31 half-sim benchmark · long-term target sub-60' };
+  const RACE = { y: 2026, m: 12, d: 20, label: 'HYROX Men\'s Open', goalNote: 'Going for sub-60 · checkpoint: Oct 31 half-sim ≈ 30 min or less' };
   const E = 'easy', M = 'med', H = 'hard', R = 'rest';
   const L = {
     strB: 'gym-alison.html?day=strB', upper: 'gym-alison.html?day=upper', strA: 'gym-alison.html?day=strA',
@@ -38,7 +38,7 @@
       ],
       Array.isArray(o.fri) ? o.fri : [{ t: 'Rest', d: 'Off. Optional easy swim + sauna 20–30 min, or a walk with the baby.', k: R, time: '5:00 PM', dur: 30 }],
       Array.isArray(o.sat) ? o.sat : [{ t: 'Circuit B · stations', d: o.b.text, k: o.bKind || H, href: L.cB, time: '9:00 AM', dur: 75 }],
-      Array.isArray(o.sun) ? o.sun : [{ t: 'Long easy run', d: o.sun, k: E, href: L.run, time: '9:00 AM', dur: 60 }],
+      Array.isArray(o.sun) ? o.sun : [{ t: 'Long easy run', d: o.sun + ' Day after Circuit B: zone 2 only — full sentences, no pace goal. Sore legs or < 6 h sleep → do half of it on the bike.', k: E, href: L.run, time: '9:00 AM', dur: 60 }],
     ];
     return Object.assign({ n, days }, o);
   }
@@ -57,40 +57,43 @@
       strA: '3 × 8 @ RPE 6–7.', thu: 30,
       b: { text: '3–4 × (500 m run + 2 stations) at 60–70% load.', runs: 500, level: 'amateur', stations: 'all' },
       sun: '45 min easy + mobility.' }),
-    week(3, { phase: 'Base → build', km: '19–22', erg: '60–75 min',
-      note: 'Mon 12 Oct is Thanksgiving — if plans change, skip Monday; nothing else moves.',
-      strB: '3 × 10 @ RPE 6–7 + mobility.', upper: '3 × 8.',
-      a: { main: '3 × 10 min at threshold, 2–3 min easy between.', steps: ['10 min easy + 4 strides', '3 × 10 min threshold (RPE 7), 2–3 min easy', '10 min easy'], rest: 150 },
-      strA: '4 × 6 @ RPE 7 (~75–80%).', thu: 35, strC: 'McGill big 3, Pallof, calf + tibialis, balance, heavy carries. Add low pogo hops.',
-      b: { text: 'Compromised: 4 × (1 km run + lunges or wall balls) at RPE 7.', runs: 1000, level: 'amateur', stations: ['lunge', 'wb'] },
-      sun: '55 min easy + mobility.' }),
-    week(4, { phase: 'Deload', km: '14–16', erg: '45 min',
-      note: 'Volume down 30–40%, weights stay the same. End the week feeling fresh.',
-      strB: '2 × 8, same weights + mobility.', upper: '2 × 6.',
-      a: { main: '5 × 3 min at RPE 7.', steps: ['10 min easy', '5 × 3 min at RPE 7, 2 min easy', '10 min easy'], rest: 120 },
-      strA: '2–3 × 5 at last week’s load.', thu: 30, strC: 'Ankle and core only, 20 min.',
-      b: { text: 'Light technique + Roxzone transition drills (walk in, station, walk out, go).', runs: 500, level: 'beginner', stations: ['ski', 'push', 'pull', 'bbj'] }, bKind: M,
-      sun: '45 min easy.' }),
-    week(5, { phase: 'Build', km: '22–24', erg: '75–90 min',
-      note: 'Sat 31 Oct: HALF-SIM BENCHMARK — 4 × 1 km + the first 4 stations at ~85%. These times set your goal and paces for the rest of the block.',
-      strB: '3 × 10–12 station endurance (lunges, wall balls, carries) @ RPE 7.', upper: '3 × 6.',
-      a: { main: '5 × 1 km at threshold, 75 s rest.', steps: ['10 min easy + 4 strides', '5 × 1 km at threshold, 75 s easy', '10 min easy'], rest: 75 },
-      strA: '4 × 5 @ RPE 7–8 (~80–85%).', wedErg: '25 min easy row + mobility.', thu: 40,
-      b: { text: 'HALF SIM: Run–Ski–Run–Push–Run–Pull–Run–BBJ at ~85%.', runs: 1000, level: 'intermediate', stations: ['ski', 'push', 'pull', 'bbj'], benchmark: true },
-      sun: '60 min easy (or 40 run + 20 bike).' }),
-    week(6, { phase: 'Build', km: '24–27', erg: '90 min',
+    week(3, { phase: 'Build 1', km: '21–23', erg: '75 min',
+      note: 'Build starts: ~10% more running a week (never more than 15%). Hard and heavy work in the 6 AM slot, the lighter piece at 4:30. Mon 12 Oct is Thanksgiving — home session, sleep in.',
+      strB: '3 × 10 @ RPE 7 + finisher: 3 × (20 wall balls + 20 m lunges), steady, not a race.', upper: '3 × 8 @ RPE 7.',
+      a: { main: 'Sub-threshold: 5 × 1 km at "comfortably hard" (RPE 7, could say a short sentence), 75 s jog.', steps: ['10 min easy + 4 strides', '5 × 1 km sub-threshold (RPE 7), 75 s easy jog', '10 min easy'], rest: 75 },
+      strA: '4 × 5 @ RPE 7–8 (~80%) — heavy leg press as the sled.', wedErg: '30 min easy bike / row + 10 min mobility.', thu: 40,
+      strC: 'McGill big 3, Pallof, calf + tibialis, balance, heavy carries. Add low pogo hops.',
+      b: { text: 'Compromised running: 5 × (1 km at RPE 8 + a station). Stations: ski, lunges, wall balls, row, farmers. Write down each 1 km split.', runs: 1000, level: 'intermediate', stations: ['ski', 'lunge', 'wb', 'row', 'carry'] },
+      sun: '60 min easy (or 45 run + 20 bike) + mobility.' }),
+    week(4, { phase: 'Build 2', km: '23–26', erg: '75–90 min',
+      note: 'Biggest week so far — this replaces the old deload (the unload moves to week 5, right before the benchmark). Two bad nights in a row, or resting HR up 5+ for 3 days → take week 5’s version now.',
+      strB: '3 × 12 station endurance (walking lunges, wall balls, sandbag / DB carries) @ RPE 7.', upper: '3 × 6 @ RPE 7–8.',
+      a: { main: 'Sub-threshold: 6 × 1 km at RPE 7, 60–75 s jog.', steps: ['10 min easy + 4 strides', '6 × 1 km sub-threshold (RPE 7), 60–75 s easy jog', '10 min easy'], rest: 70 },
+      strA: '4 × 4–5 @ RPE 8 (~82–85%). Leg press heavy, controlled.', wedErg: '35 min easy ski / row / bike + mobility.', thu: 45,
+      strC: 'Core, ankle, heavy carries (farmers 4 × 50 m at race weight or heavier).',
+      b: { text: 'Race-order compromised: 6 × (1 km at RPE 8 + station) — ski, leg-press push, pull, burpee broad jumps, row, wall balls. Aim for even 1 km splits.', runs: 1000, level: 'intermediate', stations: ['ski', 'push', 'pull', 'bbj', 'row', 'wb'] },
+      sun: '70 min easy (or 50 run + 25 bike) + mobility.' }),
+    week(5, { phase: 'Unload + benchmark', km: '17–19 + sim', erg: '45 min',
+      note: 'Volume down ~30%, intensity stays — so you hit Saturday fresh. Sat 31 Oct: HALF-SIM BENCHMARK at race effort. The result sets your real goal: first half in ~30 min or less = sub-60 is on.',
+      strB: '2 × 8 @ RPE 6 + mobility.', upper: '2 × 6.',
+      a: { main: '4 × 1 km at goal race pace, 90 s jog. Feel the pace, don’t chase it.', steps: ['10 min easy + 4 strides', '4 × 1 km at goal race pace (sub-60 = ~3:40/km), 90 s easy', '10 min easy'], rest: 90 },
+      strA: '3 × 3 @ RPE 7 — heavy but short. Keep the strength, lose the fatigue.', wedErg: '20 min easy bike + mobility.', thu: 30,
+      strC: 'Ankle and core only, 20 min.',
+      b: { text: 'HALF SIM BENCHMARK at race effort: Run–Ski–Run–Push–Run–Pull–Run–BBJ. Time every run, station and transition.', runs: 1000, level: 'competition', stations: ['ski', 'push', 'pull', 'bbj'], benchmark: true },
+      sun: '40 min easy run or bike — recovery after the benchmark.' }),
+    week(6, { phase: 'Build 3', km: '25–28', erg: '90 min',
       strB: '3 × 12 station endurance @ RPE 7.', upper: '3 × 5.',
       a: { main: '6 × 800 m at 5 km pace, 90 s rest.', steps: ['10 min easy + 4 strides', '6 × 800 m at 5 km pace, 90 s easy', '10 min easy'], rest: 90 },
       strA: '4 × 4–5 @ RPE 8.', thu: 45, strC: 'Core, ankle, heavy carries.',
       b: { text: '5–6 × (1 km + station), back-half stations: row, farmers, lunges, wall balls.', runs: 1000, level: 'intermediate', stations: ['row', 'carry', 'lunge', 'wb'] },
       sun: '65 min easy.' }),
-    week(7, { phase: 'Build (biggest week)', km: '26–30', erg: '90–120 min',
+    week(7, { phase: 'Build 4 (biggest week)', km: '28–31', erg: '90–120 min',
       strB: '3 × 12–15 station endurance @ RPE 7.', upper: '3 × 5.',
       a: { main: '2 × 15 min threshold (or 4 × 2 km).', steps: ['10 min easy + 4 strides', '2 × 15 min threshold, 3 min easy (or 4 × 2 km, 2 min)', '10 min easy'], rest: 180 },
       strA: '3–4 × 4 @ RPE 8.', wedErg: '30 min easy ski + mobility.', thu: 45,
       b: { text: 'Station-heavy: wall-ball and lunge volume up; leg-press sled push loaded heavy.', runs: 1000, level: 'competition', stations: 'all' },
       sun: '75 min easy (or 50 run + 25 bike).' }),
-    week(8, { phase: 'Deload', km: '18–20', erg: '60 min',
+    week(8, { phase: 'Deload', km: '20–22', erg: '60 min',
       strB: '2 × 10, lighter + mobility.', upper: '2 × 4.',
       a: { main: '4 × 1 km at race pace.', steps: ['10 min easy + 4 strides', '4 × 1 km at race pace, 90 s easy', '10 min easy'], rest: 90 },
       strA: '2 × 4 at the same load.', thu: 35, strC: 'Ankle and core only, 20 min.',
@@ -191,6 +194,14 @@
   }));
   function holidayOn(date) { return HOLIDAYS.find((x) => x.date === isoOf(date)) || null; }
 
+  // Sub-60 race budget (Men's Open). Built from race-data ranges: sub-60 is
+  // roughly the top 1–2% of Open men; runs ~3:30–3:50/km, Roxzone ~4–5 min.
+  const SUB60 = {
+    total: '59:30', runs: '29:30 (≈ 3:40 / km)', roxzone: '4:30 (≈ 17 s a transition)', stations: '25:30',
+    split: [['SkiErg 1000 m', '3:50'], ['Sled push', '2:45'], ['Sled pull', '3:15'], ['Burpee broad jumps', '3:00'],
+            ['Row 1000 m', '3:50'], ['Farmers carry', '1:15'], ['Sandbag lunges', '3:10'], ['Wall balls 100', '4:25']],
+    halfSim: '≈ 29:30–30:30 for 4 × 1 km + ski, push, pull, BBJ with transitions',
+  };
   const DAYKEYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
   const DAYNAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   function startOf(w) { return dateOf(w.n, 0); }
@@ -204,5 +215,5 @@
     const t = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
     return Math.round((Date.UTC(RACE.y, RACE.m - 1, RACE.d) - t) / 86400000);
   }
-  window.RACE_PLAN = { RACE, WEEKS, DAYKEYS, DAYNAMES, LINKS: L, HOLIDAYS, AM_FROM_WEEK, dateOf, weekFor, dayIndex, sessionsOn, daysToRace, holidayOn, isoOf };
+  window.RACE_PLAN = { RACE, SUB60, WEEKS, DAYKEYS, DAYNAMES, LINKS: L, HOLIDAYS, AM_FROM_WEEK, dateOf, weekFor, dayIndex, sessionsOn, daysToRace, holidayOn, isoOf };
 })();

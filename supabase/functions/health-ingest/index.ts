@@ -9,7 +9,7 @@
 //      training session window chosen in the app
 //
 // Auth: the personal sync key created on the Race Plan page, sent as
-// "Authorization: Bearer <key>" (or an "x-health-key" header). Only its
+// "Authorization: Bearer <key>", an "x-health-key" header, or ?key=<key>. Only its
 // SHA-256 hash is stored, so the key itself never sits in the database.
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
@@ -88,7 +88,9 @@ const round = (n: number | null, p = 1) => (n == null ? null : Math.round(n * 10
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
   const auth = req.headers.get('authorization') || '';
-  const key = (auth.toLowerCase().startsWith('bearer ') ? auth.slice(7) : req.headers.get('x-health-key') || '').trim();
+  // key in the Authorization header, an x-health-key header, or ?key= on the
+  // URL (so the Shortcut only needs one pasted link — no header setup)
+  const key = (auth.toLowerCase().startsWith('bearer ') ? auth.slice(7) : req.headers.get('x-health-key') || new URL(req.url).searchParams.get('key') || '').trim();
   if (key.length < 20) return json({ error: 'missing sync key' }, 401);
   const { data: tok } = await db.from('health_tokens').select('user_id').eq('token_hash', await sha256(key)).maybeSingle();
   if (!tok) return json({ error: 'unknown sync key' }, 401);

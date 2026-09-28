@@ -78,13 +78,12 @@ function setupHTML() {
     <details class="rc-sec" ${k || !state.token ? 'open' : ''}><summary>${state.token ? '🔑 Sync key &amp; Shortcut setup' : '🔌 Connect your Apple Watch (free)'}</summary>
       ${k ? `<div class="hw-key">
           <p><b>Your sync key — copy it now, it’s only shown once.</b></p>
-          <label>URL<input readonly value="${esc(ENDPOINT)}" data-copy /></label>
-          <label>Header name<input readonly value="Authorization" data-copy /></label>
-          <label>Header value<input readonly value="Bearer ${esc(k)}" data-copy /></label>
-          <small>Tap a box to copy. Keep the key private — anyone with it can send data into your plan.</small>
+          <label>Your sync link (tap to copy — this is all the Shortcuts need)<input readonly value="${esc(ENDPOINT)}?key=${esc(k)}" data-copy /></label>
+          <small>Keep it private — anyone with it can send data into your plan. Lost it? Tap Replace sync key and paste the new link into both Shortcuts.</small>
         </div>` : ''}
+      ${WS.LINKS && WS.LINKS.morning ? `<div class="race-plan-actions"><a class="race-plan-btn" href="${esc(WS.LINKS.morning)}">＋ Add “${esc(WS.MORNING)}”</a>${WS.LINKS.workout ? `<a class="race-plan-btn" href="${esc(WS.LINKS.workout)}">＋ Add “${esc(WS.WORKOUT)}”</a>` : ''}</div><p class="rc-muted">After adding, paste your sync link into each Shortcut when it asks.</p>` : ''}
       <button type="button" class="race-plan-btn ${state.token ? 'ghost' : ''}" data-hw="key">${state.token ? 'Replace sync key' : '1 · Create my sync key'}</button>
-      <p class="rc-muted">Two free Shortcuts in Apple’s <b>Shortcuts</b> app. Names must match exactly. In each, the last action is the same <b>Get Contents of URL</b>: the URL above · Method <b>POST</b> · Headers: <b>Authorization</b> = <b>Bearer …</b> · Request Body <b>JSON</b>.</p>
+      <p class="rc-muted">Two free Shortcuts in Apple’s <b>Shortcuts</b> app. Names must match exactly. In each, the last action is the same <b>Get Contents of URL</b>: paste your sync link · tap <b>›</b> · Method <b>POST</b> · Request Body <b>JSON</b> (no headers needed).</p>
       <p class="rc-muted"><b>2 · Shortcut “${esc(WS.MORNING)}”</b> — sleep, resting HR, HRV</p>
       <ol>
         <li><b>Find Health Samples</b> · Type <b>Sleep Analysis</b> · Start Date is in the last <b>1 day</b> · Value is not <b>Awake</b> · Value is not <b>In Bed</b>.</li>

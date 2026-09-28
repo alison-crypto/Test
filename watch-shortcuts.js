@@ -18,8 +18,12 @@
     if (text != null) url += `&input=text&text=${encodeURIComponent(text)}`;
     window.WatchSC.open(url);
   }
+  // iCloud links of the finished Shortcuts (Share → Copy iCloud Link). Once
+  // filled in, the app shows one-tap "Add to iPhone" buttons — the only way
+  // Apple lets a ready-made Shortcut be installed.
+  const LINKS = { morning: '', workout: '' };
   window.WatchSC = {
-    MORNING, WORKOUT,
+    MORNING, WORKOUT, LINKS,
     open(url) { window.location.href = url; },   // swappable in tests
     runMorning() { run(MORNING); },
     // name: what shows in the app (e.g. "Run · 5 × 1 km"); start/end: Date or ms

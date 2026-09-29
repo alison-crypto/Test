@@ -25,9 +25,10 @@
   // ---- what the exercise asks for ----
   function parseTarget(txt) {
     const t = String(txt || '').split('·')[0].split(' or ')[0];
-    const m = /(\d+)(?:\s*[–-]\s*(\d+))?\s*×\s*(\d+)(?:\s*[–-]\s*(\d+))?\s*(s\b|sec|m\b)?/i.exec(t);
+    const m = /(\d+)(?:\s*[–-]\s*(\d+))?\s*×\s*(\d+)(?:\s*[–-]\s*(\d+))?\s*(steps|s\b|sec|m\b)?/i.exec(t);
     if (!m) return null;
-    return { sets: +(m[2] || m[1]), lo: +m[3], hi: +(m[4] || m[3]), kind: /^s|sec/i.test(m[5] || '') ? 'time' : /^m/i.test(m[5] || '') ? 'dist' : 'reps' };
+    const u = (m[5] || '').toLowerCase();
+    return { sets: +(m[2] || m[1]), lo: +m[3], hi: +(m[4] || m[3]), kind: u === 'steps' || u === 'm' ? 'dist' : /^s|sec/.test(u) ? 'time' : 'reps', steps: u === 'steps' };
   }
   function restOf(txt) { const m = /rest\s+([^·]+)/i.exec(txt || ''); return m ? m[1].trim() : ''; }
 
@@ -87,7 +88,7 @@
     const U = unit(); const rest = restOf(targetTxt);
     const last = lastSession(ex.dataset.ex);
     const reps = tgt.lo === tgt.hi ? `${tgt.lo}` : `${tgt.lo}–${tgt.hi}`;
-    const unitLbl = tgt.kind === 'time' ? ' s' : tgt.kind === 'dist' ? ' m' : '';
+    const unitLbl = tgt.kind === 'time' ? ' s' : tgt.steps ? ' steps' : tgt.kind === 'dist' ? ' m' : '';
     const scheme = `${tgt.sets} × ${reps}${unitLbl}`;
     if (!last) return { text: `${scheme} — first time: pick a load you could do ~2 more reps with (RPE 8). Log it and the next one gets suggested.`, w: null, rest };
 
@@ -158,6 +159,8 @@
       el.hidden = false;
       el.innerHTML = `<span>🎯 <b>Next:</b> ${esc(s.text)}${s.rest ? ` Rest ${esc(s.rest)}.` : ''}</span>${s.w ? `<button type="button" class="next-fill" data-w="${s.w}">Fill ${esc(fmt(s.w))}</button>` : ''}`;
       ex.querySelectorAll('.set-input[data-field^="w"]').forEach((inp) => { inp.placeholder = s.w ? fmt(s.w) : unit(); });
+      // carries are counted in steps (≈ 0.77 m each) — say so in the log box
+      if (/steps/i.test((ex.querySelector('.ex-target') || {}).textContent || '')) ex.querySelectorAll('.set-input[data-field^="r"]').forEach((inp) => { inp.placeholder = 'steps'; });
     });
   }
 

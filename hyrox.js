@@ -432,15 +432,23 @@ function imgSlotHTML(seg, chosen) {
     : `<div class="race-seg-img"><span>${seg.icon}</span>${seg.num ? `<span class="race-seg-num">${seg.num}</span>` : ''}</div>`;
 }
 
+// Metres are hard to measure in a normal gym → show the count instead.
+// Average metres per step / lunge / jump for a man under load (race lanes).
+const STRIDE = { carry: [0.77, 'steps'], lunge: [0.9, 'lunges'], bbj: [1.5, 'jumps'] };
+function strideHint(seg, metres) {
+  const s = !seg.opt && STRIDE[seg.hx];
+  return s && metres ? ` (≈ ${Math.round(metres / s[0])} ${s[1]})` : '';
+}
+
 // distance / weight dial (−/+) with tier label + competition reference
 function distLineHTML(seg) {
   seg = E(seg);
   const label = distTierLabel(seg);
   let now, comp;
   if (seg.scale === 'weight') {
-    now = `${seg.dist} ${seg.unit} · ${curTarget(seg)} ${seg.wUnit}`;
+    now = `${seg.dist} ${seg.unit}${strideHint(seg, seg.dist)} · ${curTarget(seg)} ${seg.wUnit}`;
     comp = seg.opt ? `race ≈ ${seg.raceW} ${seg.wUnit}` : seg.compNote;
-  } else { now = `${curTarget(seg)} ${seg.unit}`; comp = `${seg.opt ? 'race ≈' : 'comp'} ${seg.race} ${seg.unit}`; }
+  } else { now = `${curTarget(seg)} ${seg.unit}${seg.unit === 'm' ? strideHint(seg, curTarget(seg)) : ''}`; comp = `${seg.opt ? 'race ≈' : 'comp'} ${seg.race} ${seg.unit}`; }
   return `
     <div class="race-seg-goal">
       <span class="race-goal-now">${esc(now)}</span>

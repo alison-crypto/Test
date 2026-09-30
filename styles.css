@@ -5004,3 +5004,6 @@ a.race-plan-runlink { text-decoration: none; color: inherit; }
 .next-target { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-top: 6px; padding: 7px 9px; border-radius: 8px; background: rgba(10, 132, 255, 0.08); border: 1px solid rgba(10, 132, 255, 0.25); font-size: 12.5px; line-height: 1.4; color: var(--muted-strong); }
 .next-target b { color: var(--text); }
 .next-fill { flex: 0 0 auto; font: inherit; font-size: 12px; font-weight: 700; color: #fff; background: var(--gym-accent, #0a84ff); border: none; border-radius: 7px; padding: 5px 9px; cursor: pointer; }
+.assist-row { margin: 2px 0 6px; }
+.assist-btn { width: 100%; text-align: left; font: inherit; font-size: 12.5px; font-weight: 600; padding: 7px 9px; border-radius: 8px; border: 1px dashed var(--border); background: transparent; color: var(--muted-strong); cursor: pointer; }
+.assist-btn.on { border-style: solid; border-color: #f59e0b; background: rgba(245, 158, 11, 0.12); color: var(--text); }

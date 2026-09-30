@@ -96,7 +96,7 @@
     const rs = last.sets.map((s) => s.r).filter((r) => r > 0);
     const lastW = ws.length ? Math.max(...ws) : 0;
     const when = last.date ? ` (${last.date})` : '';
-    const lastTxt = last.sets.map((s) => `${s.w > 0 ? fmt(s.w) : 'BW'}×${s.r || '?'}`).join(', ');
+    const lastTxt = last.sets.map((s) => `${s.w ? fmt(s.w) : 'BW'}×${s.r || '?'}`).join(', ');
     const light = lightWeek(); const ready = readiness();
     const inc = increment(name);
 
@@ -110,6 +110,25 @@
       const up = !light && ready !== 'a' && ready !== 'r';
       const w = ready === 'r' ? roundTo(lastW * 0.9, inc) : up ? lastW + inc : lastW;
       return { text: `${scheme} @ ${fmt(w)} ${U}${w > lastW ? ` (+${fmt(w - lastW)})` : ''} — ${up ? 'full distance last time, go heavier' : light ? 'lighter week, hold the load' : 'hold the load today'}.`, w, rest, last: lastTxt + when };
+    }
+
+    // machine-assisted (negative weight = counterweight, e.g. −50 lb):
+    // hit the top of the range → take one step of help away
+    const neg = last.sets.filter((s) => s.w < 0);
+    if (!lastW && neg.length) {
+      const step = U === 'lb' ? 10 : 5;
+      const done = neg.filter((s) => s.r >= tgt.lo);
+      const lastA = done.length ? Math.max(...done.map((s) => s.w)) : Math.min(...neg.map((s) => s.w));
+      const allTop = rs.length && rs.every((r) => r >= tgt.hi);
+      const under = rs.filter((r) => r < tgt.lo).length;
+      let a = lastA, why = 'same assistance, +1 rep per set (top of the range = less help)';
+      if (allTop) { a = lastA + step; why = `every set hit ${tgt.hi}+ — ${fmt(step)} ${U} less help`; }
+      else if (under >= 2) { a = lastA - step; why = `${under} sets under ${tgt.lo} — a bit more help, own the reps`; }
+      if (a > lastA && (light || ready === 'a')) { a = lastA; why = light ? 'lighter week — keep the same assistance' : 'amber morning — keep the same assistance'; }
+      if (ready === 'r') { a = lastA - step; why = 'red morning — more help, easy reps'; }
+      if (a >= 0) return { text: `${scheme} — bodyweight pull-ups, no machine! You earned it.`, w: null, rest, last: lastTxt + when };
+      const d = a - lastA;
+      return { text: `${scheme} @ ${fmt(a)} ${U} assist${d ? ` (was ${fmt(lastA)})` : ''} — ${why}.`, w: a, rest, last: lastTxt + when };
     }
 
     // bodyweight (nothing in the weight box): progress reps, then add load
@@ -149,22 +168,65 @@
     return { text: `${scheme} @ ${fmt(w)} ${U}${diff ? ` (${diff > 0 ? '+' : ''}${fmt(diff)})` : ''} — ${why}.`, w, rest, last: lastTxt + when };
   }
 
+  const ASSIST_KEY = 'rtc_gym_assist_v1';
+  const canAssist = (ex) => /pull-up|chin|dip/i.test((ex.querySelector('.ex-name') || {}).textContent || '');
+  function assistOn(ex) {
+    const st = load(ASSIST_KEY, {});
+    if (st[ex.dataset.ex] != null) return !!st[ex.dataset.ex];
+    const last = lastSession(ex.dataset.ex);            // default: on if last session was assisted
+    return !!(last && last.sets.some((x) => x.w < 0));
+  }
+  function setSign(ex, on) {
+    ex.querySelectorAll('.set-input[data-field^="w"]').forEach((inp) => {
+      const v = parseFloat(inp.value); if (!v) return;
+      const nv = on ? -Math.abs(v) : Math.abs(v);
+      if (nv !== v) { inp.value = String(nv); inp.dispatchEvent(new Event('input', { bubbles: true })); }
+    });
+  }
+  function assistRow(ex) {
+    if (!canAssist(ex)) return;
+    const box = ex.querySelector('.ex-sets');
+    let row = box.querySelector('.assist-row');
+    if (!row) { row = document.createElement('div'); row.className = 'assist-row'; box.insertBefore(row, box.firstChild); }
+    const on = assistOn(ex);
+    row.innerHTML = `<button type="button" class="assist-btn ${on ? 'on' : ''}" aria-pressed="${on}">${on ? '🔻 Machine-assisted — type the help (e.g. 50), it saves as −50' : '➕ Using the assist machine? Tap here'}</button>`;
+    ex.querySelectorAll('.set-input[data-field^="w"]').forEach((inp) => { if (on) inp.placeholder = `−${unit()}`; });
+  }
+
   function paint() {
     document.querySelectorAll('.exercise').forEach((ex) => {
       const box = ex.querySelector('.ex-sets'); if (!box) return;
+      assistRow(ex);
       let el = box.querySelector('.next-target');
       if (!el) { el = document.createElement('div'); el.className = 'next-target'; box.appendChild(el); }
       const s = suggest(ex);
       if (!s) { el.innerHTML = ''; el.hidden = true; return; }
       el.hidden = false;
       el.innerHTML = `<span>🎯 <b>Next:</b> ${esc(s.text)}${s.rest ? ` Rest ${esc(s.rest)}.` : ''}</span>${s.w ? `<button type="button" class="next-fill" data-w="${s.w}">Fill ${esc(fmt(s.w))}</button>` : ''}`;
-      ex.querySelectorAll('.set-input[data-field^="w"]').forEach((inp) => { inp.placeholder = s.w ? fmt(s.w) : unit(); });
+      ex.querySelectorAll('.set-input[data-field^="w"]').forEach((inp) => { inp.placeholder = s.w ? fmt(s.w) : canAssist(ex) && assistOn(ex) ? `−${unit()}` : unit(); });
       // carries are counted in steps (≈ 0.77 m each) — say so in the log box
       if (/steps/i.test((ex.querySelector('.ex-target') || {}).textContent || '')) ex.querySelectorAll('.set-input[data-field^="r"]').forEach((inp) => { inp.placeholder = 'steps'; });
     });
   }
 
+  // assisted: whatever is typed saves as a negative number
+  document.addEventListener('change', (e) => {
+    const inp = e.target.closest('.set-input[data-field^="w"]'); if (!inp) return;
+    const ex = inp.closest('.exercise');
+    if (!ex || !canAssist(ex) || !assistOn(ex)) return;
+    const v = parseFloat(inp.value);
+    if (v > 0) { inp.value = String(-v); inp.dispatchEvent(new Event('input', { bubbles: true })); }
+  });
   document.addEventListener('click', (e) => {
+    const ab = e.target.closest('.assist-btn');
+    if (ab) {
+      e.stopPropagation();
+      const ex = ab.closest('.exercise'); const st = load(ASSIST_KEY, {});
+      st[ex.dataset.ex] = !assistOn(ex);
+      try { localStorage.setItem(ASSIST_KEY, JSON.stringify(st)); } catch {}
+      setSign(ex, st[ex.dataset.ex]); paint();
+      return;
+    }
     const b = e.target.closest('.next-fill'); if (!b) return;
     e.stopPropagation();
     const ex = b.closest('.exercise');

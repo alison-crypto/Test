@@ -346,7 +346,8 @@ function exportData() {
       const r = row.querySelector('[data-field^="r"]').value;
       if (w || r) sets.push(`${w || '?'}×${r || '?'}`);
     });
-    txt += `${done ? '✓' : '○'} ${name}: ${sets.length ? sets.join(', ') : '(no data)'}\n`;
+    const ld = window.GymLoad && window.GymLoad.label(ex.dataset.ex);
+    txt += `${done ? '✓' : '○'} ${name}${ld && sets.length ? ` (${ld.short})` : ''}: ${sets.length ? sets.join(', ') : '(no data)'}\n`;
   });
   try {
     navigator.clipboard.writeText(txt);
@@ -381,6 +382,7 @@ function saveToTracker() {
       exercises.push({
         exId: ex.dataset.ex,
         name,
+        load: window.GymLoad ? window.GymLoad.modeOf(ex.dataset.ex) : null,   // hand / one / bar / stack / plates
         target: target.trim(),
         done: ex.classList.contains('done'),
         sets,

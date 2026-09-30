@@ -149,7 +149,7 @@
   const STANDARDS = {
     him_lA_squat:    { r: 8,  beg: 72.5, int: 110,  adv: 147.5, eli: 180, wr: '490 (Ray Williams)' },
     him_lA_legcurl:  { r: 12, beg: 35,   int: 65,   adv: 95,    eli: 125 },
-    him_lA_lunge:    { r: 10, perhand: true, beg: 10, int: 20, adv: 30, eli: 40 },
+    him_lA_lunge:    { r: 10, beg: 10, int: 20, adv: 30, eli: 40 },   // one goblet DB / sandbag, total
     him_lA_calf:     { r: 15, beg: 60,   int: 120,  adv: 180,   eli: 250 },
     him_lA_backext:  { rep: true, beg: 'BW×15', int: '+10×15', adv: '+25×15', eli: '+40×15' },
     him_lA_abs:      { rep: true, beg: '8 reps', int: '15 reps', adv: '15 +wt', eli: '20 +10kg' },
@@ -188,7 +188,7 @@
     const v = s[t];
     if (s.rep) return v;
     if (s.perhand) return `${fmtW(v)}${unit}/hd×${s.r}`;
-    return `${fmtW(v)}${unit}×${s.r}`;
+    return `${fmtW(v)}${unit} total×${s.r}`;
   }
   function nameFor(exId) { const el = document.querySelector(`.exercise[data-ex="${exId}"] .ex-name`); return el ? el.textContent.trim() : exId; }
   // w = your logged best, read in the current unit; compare to kg standards in that unit.

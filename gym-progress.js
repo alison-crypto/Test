@@ -42,8 +42,12 @@
   function lightWeek() { const w = planWeek(); return !!(w && /deload|unload|taper|race week/i.test(w.phase)); }
 
   // ---- load steps (what the gym actually has) ----
-  function increment(name) {
+  function increment(name, mode) {
     const n = name.toLowerCase(); const lb = unit() === 'lb';
+    if (mode === 'plates') return lb ? 20 : 10;
+    if (mode === 'stack') return lb ? 5 : 2.5;
+    if (mode === 'hand' || mode === 'one') return /kettlebell|\bkb\b|swing/.test(n) ? (lb ? 10 : 4) : (lb ? 5 : 2);
+    if (mode === 'bar') return /deadlift|trap-bar|hip thrust|squat|split/.test(n) ? (lb ? 10 : 5) : (lb ? 5 : 2.5);
     if (/kettlebell|\bkb\b|swing/.test(n)) return lb ? 10 : 4;
     if (/leg press/.test(n)) return lb ? 20 : 10;
     if (/deadlift|trap-bar|hip thrust|back .*squat|safety-bar/.test(n)) return lb ? 10 : 5;
@@ -86,6 +90,8 @@
     if (byPhase) tgt = phaseTarget(dayId) || tgt;
     if (!tgt) return null;
     const U = unit(); const rest = restOf(targetTxt);
+    const ld = window.GymLoad ? window.GymLoad.label(ex.dataset.ex) : null;
+    const UL = ld ? ld.short : U;          // "kg/hand", "kg total", "kg stack", …
     const last = lastSession(ex.dataset.ex);
     const reps = tgt.lo === tgt.hi ? `${tgt.lo}` : `${tgt.lo}–${tgt.hi}`;
     const unitLbl = tgt.kind === 'time' ? ' s' : tgt.steps ? ' steps' : tgt.kind === 'dist' ? ' m' : '';
@@ -98,7 +104,7 @@
     const when = last.date ? ` (${last.date})` : '';
     const lastTxt = last.sets.map((s) => `${s.w ? fmt(s.w) : 'BW'}×${s.r || '?'}`).join(', ');
     const light = lightWeek(); const ready = readiness();
-    const inc = increment(name);
+    const inc = increment(name, ld && ld.mode);
 
     // time holds / distance carries: progress the number, then the load
     if (tgt.kind === 'time') {
@@ -106,10 +112,10 @@
       return { text: allTop ? `${tgt.sets} × ${tgt.hi + 10} s${lastW ? ` @ ${fmt(lastW)} ${U}` : ''} — you held ${tgt.hi}+ s on every set; add 10 s (or a little load).` : `${scheme} — aim +5 s per set on last time.`, w: lastW || null, rest, last: lastTxt + when };
     }
     if (tgt.kind === 'dist') {
-      if (!lastW) return { text: `${scheme} — log the weight per hand to get a suggestion.`, w: null, rest, last: lastTxt + when };
+      if (!lastW) return { text: `${scheme} — log the weight (${UL}) to get a suggestion.`, w: null, rest, last: lastTxt + when };
       const up = !light && ready !== 'a' && ready !== 'r';
       const w = ready === 'r' ? roundTo(lastW * 0.9, inc) : up ? lastW + inc : lastW;
-      return { text: `${scheme} @ ${fmt(w)} ${U}${w > lastW ? ` (+${fmt(w - lastW)})` : ''} — ${up ? 'full distance last time, go heavier' : light ? 'lighter week, hold the load' : 'hold the load today'}.`, w, rest, last: lastTxt + when };
+      return { text: `${scheme} @ ${fmt(w)} ${UL}${w > lastW ? ` (+${fmt(w - lastW)})` : ''} — ${up ? 'full distance last time, go heavier' : light ? 'lighter week, hold the load' : 'hold the load today'}.`, w, rest, last: lastTxt + when };
     }
 
     // machine-assisted (negative weight = counterweight, e.g. −50 lb):
@@ -165,7 +171,7 @@
     if (ready === 'a' && w > lastW) { w = lastW; why = 'amber morning — hold the weight today'; }
     if (ready === 'r') { w = roundTo(Math.min(w, lastW) * 0.9, inc); why = 'red morning — 10% lighter, easy reps'; }
     const diff = w - lastW;
-    return { text: `${scheme} @ ${fmt(w)} ${U}${diff ? ` (${diff > 0 ? '+' : ''}${fmt(diff)})` : ''} — ${why}.`, w, rest, last: lastTxt + when };
+    return { text: `${scheme} @ ${fmt(w)} ${UL}${diff ? ` (${diff > 0 ? '+' : ''}${fmt(diff)})` : ''} — ${why}.`, w, rest, last: lastTxt + when };
   }
 
   const ASSIST_KEY = 'rtc_gym_assist_v1';
@@ -203,7 +209,8 @@
       if (!s) { el.innerHTML = ''; el.hidden = true; return; }
       el.hidden = false;
       el.innerHTML = `<span>🎯 <b>Next:</b> ${esc(s.text)}${s.rest ? ` Rest ${esc(s.rest)}.` : ''}</span>${s.w ? `<button type="button" class="next-fill" data-w="${s.w}">Fill ${esc(fmt(s.w))}</button>` : ''}`;
-      ex.querySelectorAll('.set-input[data-field^="w"]').forEach((inp) => { inp.placeholder = s.w ? fmt(s.w) : canAssist(ex) && assistOn(ex) ? `−${unit()}` : unit(); });
+      const ld = window.GymLoad ? window.GymLoad.label(ex.dataset.ex) : null;
+      ex.querySelectorAll('.set-input[data-field^="w"]').forEach((inp) => { inp.placeholder = s.w ? `${fmt(s.w)} ${ld ? ld.short : unit()}` : canAssist(ex) && assistOn(ex) ? `−${unit()}` : ld ? ld.short : unit(); });
       // carries are counted in steps (≈ 0.77 m each) — say so in the log box
       if (/steps/i.test((ex.querySelector('.ex-target') || {}).textContent || '')) ex.querySelectorAll('.set-input[data-field^="r"]').forEach((inp) => { inp.placeholder = 'steps'; });
     });

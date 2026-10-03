@@ -1,5 +1,5 @@
 // run-coach.js — the Run page (run.html). Guided run sessions from the
-// Race Plan (Tue intervals, Thu easy, Sun long), effort zones with paces from
+// Race Plan (Sat intervals, Fri easy, Sun long), effort zones with paces from
 // your 5 km time, a lap/split log, and the how-to-run guide + 3 replacement
 // options (like the station cards).
 //

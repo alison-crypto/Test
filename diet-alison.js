@@ -71,7 +71,7 @@ const MEALS = {
   ],
 };
 
-// From week 3 (Mon Oct 12) Mon–Thu training moves to 6–7 AM, with a second
+// From week 3 (Mon Oct 12) Mon + Wed training moves to 6–7 AM, with a second
 // session 4:30–5:30 PM. The eating window moves to ~7 AM–7:30 PM: eat right
 // after the morning session, smoothie before the afternoon one.
 const AM_START = '2026-10-12';

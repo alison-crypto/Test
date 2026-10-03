@@ -8,7 +8,7 @@
 //   • 2+ sets under the BOTTOM of the range → drop ~5%
 // Main lifts marked "by phase" take their sets × reps from this week of the
 // Race Plan; when the rep target changes, the load comes from your estimated
-// 1RM (Epley) at ~2 reps in reserve (RPE 8).
+// 1RM (Epley) at ~3 reps in reserve (RPE 7 — the coached circuit is the next morning).
 // Guard rails: amber morning check → no increase; red → −10%; deload / unload /
 // taper / race weeks → hold the weight (the plan cuts the sets instead).
 (function () {
@@ -152,8 +152,8 @@
     if (repsChanged) {
       // new rep target this phase → from the best set's estimated 1RM, ~2 reps in reserve
       const best = last.sets.filter((s) => s.w > 0 && s.r > 0).reduce((a, s) => Math.max(a, s.w * (1 + s.r / 30)), 0);
-      w = roundTo(best / (1 + (tgt.hi + 2) / 30), inc);
-      why = `new phase (${reps} reps) — from your best set, ~2 reps in the tank`;
+      w = roundTo(best / (1 + (tgt.hi + 3) / 30), inc);
+      why = `new phase (${reps} reps) — from your best set, ~3 reps in the tank (RPE 7, coached circuit tomorrow)`;
     } else {
       const allTop = rs.length >= Math.min(tgt.sets, last.sets.length) && rs.every((r) => r >= tgt.hi);
       // fixed targets ("3 × 12"): only count a set as short when it's 3+ reps off

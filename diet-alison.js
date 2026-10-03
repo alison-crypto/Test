@@ -26,11 +26,15 @@ const WEEK = {
 // ~3 g/kg rest, ~4.5 training, ~5.5 hard. Reassess from week 5 — a small
 // deficit (≤0.5% body weight/week) only in weeks you sleep ≥ 6.5 h; none in
 // weeks 11–12; ~8 g/kg carbs the day before the race.
+// Fat ≥ ~25% of calories every day (Oct 2026 labs: testosterone 14.1, down
+// from 20.2 — low-fat diets lower it ~10–15%; HDL 1.05 is on the low side).
+// Mostly olive oil, nuts, avocado, eggs, salmon/sardines. Same calories; the
+// difference comes out of carbs, which still sit at ~4.5–5 g/kg on hard days.
 const MACROS = {
-  EASY: { kcal: 2900, p: 190, c: 280, f: 115 },
-  MOD:  { kcal: 3200, p: 190, c: 420, f: 84 },
-  HIGH: { kcal: 3400, p: 195, c: 500, f: 69 },
-  PEAK: { kcal: 3500, p: 195, c: 540, f: 62 },
+  EASY: { kcal: 2900, p: 190, c: 310, f: 100 },
+  MOD:  { kcal: 3200, p: 190, c: 405, f: 90 },
+  HIGH: { kcal: 3400, p: 195, c: 440, f: 95 },
+  PEAK: { kcal: 3500, p: 195, c: 465, f: 95 },
 };
 
 // Same meal prep for breakfast, lunch and dinner every day (easy to cook).

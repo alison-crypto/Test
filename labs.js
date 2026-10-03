@@ -106,6 +106,15 @@ function render(rows, notes) {
     <details class="rp-card"><summary><b>All reports (${dates.length})</b></summary>
       ${dates.map((d) => { const n = notes.find((x) => x.collected === d); const lab = rows.find((r) => r.collected === d).lab; return `<div class="lab-report"><b>${esc(fmtDate(d))}</b> · <span class="rp-muted">${esc(lab || '')}</span>${n ? `<div class="lab-text">${esc(n.title ? n.title + ' — ' : '')}${esc(n.summary)}</div>` : ''}</div>`; }).join('')}
     </details>
+    <details class="rp-card"><summary><b>Before your next blood test</b></summary>
+      <ul class="rp-rules">
+        <li><b>7–9 AM</b>, after 10–12 h fasting (water is fine) — testosterone is highest early and drops through the morning.</li>
+        <li><b>No hard training for 48 h</b> before (it raises AST/ALT and CK), a normal night’s sleep, no alcohol for 48 h, skip biotin/hair-skin vitamins for 2 days.</li>
+        <li>Same lab and same time of day each time, so changes are real.</li>
+        <li>Ask for: total testosterone <b>+ SHBG + free testosterone</b>, 25-OH vitamin D, ApoB, lipids, CBC, ferritin, liver. If testosterone comes back low twice: LH, FSH and prolactin.</li>
+        <li>Doctor won’t order it? In BC you can buy it yourself at LifeLabs — the Hormone Health panel (total, free, bioavailable testosterone + SHBG) and a vitamin D test, no requisition needed.</li>
+      </ul>
+    </details>
     <p class="rp-muted lab-foot">General information to understand your results — not medical advice. Your doctor has the full picture. New report? Send the PDF to Claude: it's stored privately in your account, not in the app.</p>`;
 }
 

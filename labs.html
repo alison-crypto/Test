@@ -6,29 +6,38 @@
   <meta name="theme-color" content="#0a84ff" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Labs" />
+  <meta name="apple-mobile-web-app-title" content="Health" />
   <meta name="robots" content="noindex" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="stylesheet" href="styles.css" />
-  <title>Labs</title>
+  <title>Health</title>
   <script type="module" src="auth-gate.js"></script>
 </head>
 <body class="workouts-body theme-alison race-page">
 
 <header class="workouts-header">
   <a href="index.html" class="back-link">‹ Home</a>
-  <h1>🧪 Alison's Labs</h1>
-  <div class="workouts-subtitle">Blood work over time · where each result sits in its range · what changed · plain-language read of every report</div>
+  <h1>🩺 Alison's Health</h1>
+  <div class="workouts-subtitle">Blood work, body scans and training — what changed and what it means · send Claude a screenshot or PDF to add more</div>
+  <div class="pg-tabs" role="tablist">
+    <button type="button" class="race-preset-btn" data-tab="labs">🧪 Labs</button>
+    <button type="button" class="race-preset-btn" data-tab="body">⚖️ Body</button>
+    <button type="button" class="race-preset-btn" data-tab="workouts">⌚ Workouts</button>
+  </div>
 </header>
 
-<div id="labs-root"><section class="rp-card"><p class="rp-muted">Loading your results…</p></section></div>
+<div id="tab-labs"><div id="labs-root"><section class="rp-card"><p class="rp-muted">Loading your results…</p></section></div></div>
+<div id="tab-body" hidden><div id="body-root"><section class="rp-card"><p class="rp-muted">Loading…</p></section></div></div>
+<div id="tab-workouts" hidden><div id="workouts-root"><section class="rp-card"><p class="rp-muted">Loading…</p></section></div></div>
 
 <footer class="workouts-footer">
-  Results are stored privately in your account (never in the app's code) · send new PDFs to Claude
+  Stored privately in your account (never in the app's code) · send new PDFs or screenshots to Claude
 </footer>
 
+<script src="race-plan-data.js"></script>
 <script type="module" src="labs.js"></script>
+<script type="module" src="progress.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(() => {});

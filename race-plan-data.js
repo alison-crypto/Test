@@ -27,7 +27,7 @@
 
   // standard week builder
   function week(n, o) {
-    const satSim = o.b && (o.b.benchmark || o.b.sim);
+    const satSim = o.b && (o.b.benchmark || o.b.sim || o.b.full);
     const days = [
       Array.isArray(o.mon) ? o.mon : [
         { t: 'Strength B · full body', d: o.strB, k: M, href: L.strB, time: '5:15 PM', dur: 50 },
@@ -41,7 +41,7 @@
       Array.isArray(o.thu) ? o.thu : [coach(o.coachThu)],
       Array.isArray(o.fri) ? o.fri : [{ t: 'Rest — or easy run + core', d: `Slept ≥ 6.5 h? ${o.easy || 30} min zone 2 run + 20 min core / ankle (Strength C). Otherwise rest: walk with the baby, sauna.`, k: E, href: L.run, time: '5:00 PM', dur: o.easy || 30 }],
       Array.isArray(o.sat) ? o.sat : satSim
-        ? [{ t: o.b.sim ? 'FULL SIM' : 'Half-sim benchmark', d: o.b.text, k: H, href: L.cB, time: '9:00 AM', dur: o.b.sim ? 90 : 60 }]
+        ? [{ t: o.b.sim ? 'FULL SIM' : o.b.benchmark ? 'Half-sim benchmark' : 'Full HYROX circuit', d: o.b.text, k: H, href: L.cB, time: '9:00 AM', dur: o.b.sim || (o.b.full && o.b.runs >= 1000) ? 90 : 60 }]
         : [{ t: 'Run intervals', d: o.a.main, k: o.satKind || H, href: L.cA, time: '9:00 AM', dur: 60 }],
       Array.isArray(o.sun) ? o.sun : [{ t: 'Long easy run', d: o.sun + ' Day after Saturday’s session: zone 2 only — full sentences, no pace goal. Sore legs or < 6 h sleep → do half of it on the bike.', k: E, href: L.runLong, time: '9:00 AM', dur: 60 }],
     ];
@@ -64,7 +64,7 @@
       strB: '3 × 10 full body @ RPE 6 + mobility.', upper: '3 × 8.',
       a: { main: '4 × 6 min at threshold (RPE 7), 2 min easy between.', steps: ['10 min easy + 4 strides', '4 × 6 min threshold (RPE 7, "comfortably hard"), 2 min easy jog', '10 min easy'], rest: 120 },
       strA: '3 × 8 @ RPE 6–7.', iv: { reps: 4, secs: 360, rest: 120, zone: 'subT' }, long: 45, easy: 30,
-      b: { text: '3–4 × (500 m run + 2 stations) at 60–70% load.', runs: 500, level: 'amateur', stations: 'all' },
+      b: { text: 'FULL CIRCUIT (scaled): 8 × 500 m + all 8 stations in race order at ~60% load. RPE 7 — learn the flow and the transitions, not a race.', runs: 500, level: 'amateur', stations: 'all', full: true },
       sun: '45 min easy + mobility.' }),
     week(3, { phase: 'Build 1', km: '21–23', erg: '75 min',
       note: 'Build starts: ~10% more running a week (never more than 15%). Hard and heavy work in the 6 AM slot, the lighter piece at 4:30. Mon 12 Oct is Thanksgiving — home session, sleep in.',
@@ -80,7 +80,7 @@
       a: { main: 'Sub-threshold: 6 × 1 km at RPE 7, 60–75 s jog.', steps: ['10 min easy + 4 strides', '6 × 1 km sub-threshold (RPE 7), 60–75 s easy jog', '10 min easy'], rest: 70 },
       strA: '4 × 4–5 @ RPE 8 (~82–85%). Leg press heavy, controlled.', wedErg: '35 min easy ski / row / bike + mobility.', iv: { reps: 6, dist: 1000, rest: 70, zone: 'subT' }, long: 70, easy: 45,
       strC: 'Core, ankle, heavy carries (farmers 4 × 50 m at race weight or heavier).',
-      b: { text: 'Race-order compromised: 6 × (1 km at RPE 8 + station) — ski, leg-press push, pull, burpee broad jumps, row, wall balls. Aim for even 1 km splits.', runs: 1000, level: 'intermediate', stations: ['ski', 'push', 'pull', 'bbj', 'row', 'wb'] },
+      b: { text: 'FULL CIRCUIT: 8 × 1 km + all 8 stations in race order at ~80% load (Intermediate). RPE 7–8, even 1 km splits, jog every transition.', runs: 1000, level: 'intermediate', stations: 'all', full: true },
       sun: '70 min easy (or 50 run + 25 bike) + mobility.' }),
     week(5, { phase: 'Unload + benchmark', km: '17–19 + sim', erg: '45 min',
       coachThu: 'Thursday before the benchmark: go at ~70%, skip anything max-effort.',
@@ -101,12 +101,12 @@
       b: { text: '6 × (1 km at goal race pace + station at race load) — row, farmers, lunges, wall balls, ski, burpee broad jumps.', runs: 1000, level: 'competition', stations: ['row', 'carry', 'lunge', 'wb', 'ski', 'bbj'] },
       sun: '70 min easy (or 50 run + 20 bike).' }),
     week(7, { phase: 'Build 4 (biggest week)', km: '28–31', erg: '90–120 min',
-      note: 'Peak training load of the block. If sleep falls apart this week, drop Friday’s optional run and do Saturday as 3 × 2 km.',
+      note: 'Peak training load of the block. If sleep falls apart this week, drop Friday’s optional run and scale Saturday’s circuit to 500 m runs.',
       strB: '4 × 20 wall balls + 4 × 25 m sandbag lunges + carries @ RPE 8.', upper: '3 × 5 @ RPE 8.',
       a: { main: '4 × 2 km at threshold (RPE 8), 90 s jog — longer reps, same 8 km.', steps: ['10 min easy + 4 strides', '4 × 2 km threshold, 90 s easy jog', '10 min easy'], rest: 90 },
       iv: { reps: 4, dist: 2000, rest: 90, zone: 'T' },
       strA: '5 × 3 @ RPE 8 (~87%).', wedErg: '40 min easy ski / bike + mobility.', easy: 50, long: 80,
-      b: { text: 'Big day: 8 × (1 km at goal pace + station at race load) in race order, wall balls and lunges at full race volume. RPE 8, not all-out.', runs: 1000, level: 'competition', stations: 'all' },
+      b: { text: 'FULL CIRCUIT at race weights: 8 × 1 km + 8 stations in race order, wall balls and lunges at full race volume. RPE 8, not all-out — two weeks before the full sim.', runs: 1000, level: 'competition', stations: 'all', full: true },
       sun: '80 min easy (or 55 run + 25 bike) — longest aerobic day so far.' }),
     week(8, { phase: 'Deload', km: '20–22', erg: '60 min',
       note: 'Absorb weeks 6–7. Volume down ~35%, a little speed stays so you arrive sharp at the full sim.',
@@ -114,7 +114,7 @@
       a: { main: '5 × 1 km at goal race pace, 90 s jog.', steps: ['10 min easy + 4 strides', '5 × 1 km at goal race pace, 90 s easy', '10 min easy'], rest: 90 },
       iv: { reps: 5, dist: 1000, rest: 90, zone: 'race' },
       strA: '2 × 3 at the same load.', easy: 35, long: 55, strC: 'Ankle and core only, 20 min.',
-      b: { text: 'Mini-sim: 4 × 1 km + 4 stations, controlled. Or rest if the week was rough.', runs: 1000, level: 'intermediate', stations: ['ski', 'push', 'pull', 'bbj'] }, bKind: M,
+      b: { text: 'Mini-sim: 4 × 1 km + 4 stations, controlled. Or rest if the week was rough.', runs: 1000, level: 'intermediate', stations: ['ski', 'push', 'pull', 'bbj'] }, satKind: M,
       sun: '55 min easy.' }),
     week(9, { phase: 'Race-specific', km: '26–29', erg: '60–90 min',
       coachThu: 'Two days before the full sim: ~70%, technique only.',
@@ -143,7 +143,7 @@
       a: { main: '5 × 1 km at race pace, 90 s jog.', steps: ['10 min easy + 4 strides', '5 × 1 km at race pace, 90 s easy', '10 min easy'], rest: 90 },
       iv: { reps: 5, dist: 1000, rest: 90, zone: 'race' },
       strA: '2 × 3 @ ~80%. Last heavy legs.', easy: 35, long: 50, strC: 'Ankle and core only, 15 min.',
-      b: { text: 'Last hard: 4 × 1 km + 4 stations at race pace, reduced volume.', runs: 1000, level: 'competition', stations: ['ski', 'push', 'pull', 'bbj'] },
+      b: { text: 'LAST FULL CIRCUIT: 8 × 500 m + all 8 stations at race weights, race pace. Short and sharp — 8 days out, finish feeling you had more.', runs: 500, level: 'competition', stations: 'all', full: true },
       sun: '50 min easy.' }),
     week(12, { phase: 'Race week', km: '10–14 + race', erg: '20–40 min',
       note: 'Race is SUNDAY 20 Dec. Volume down ~50–60%, still short sessions most days. Sleep, carbs (~8 g/kg Saturday), nothing new.',

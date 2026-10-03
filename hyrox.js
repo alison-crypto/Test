@@ -587,8 +587,8 @@ function circuitCardsHTML() {
   return `
     <div class="race-plan-cards">
       <div class="race-plan-head">📋 Race Plan · Week ${w.n} · ${esc(w.phase)} <a href="race-plan.html#week">full week ›</a></div>
-      ${b.benchmark || b.sim || b.race ? `<div class="race-plan-card" id="circuit-b">
-        <div class="race-plan-top"><b>${b.race ? 'Race day · Sunday' : 'Saturday · ' + (b.sim ? 'full sim' : 'half-sim benchmark')}</b><span class="race-plan-tag hard">${b.race ? 'Race' : b.sim ? 'Full sim' : 'Benchmark'}</span></div>
+      ${b.benchmark || b.sim || b.race || b.full ? `<div class="race-plan-card" id="circuit-b">
+        <div class="race-plan-top"><b>${b.race ? 'Race day · Sunday' : 'Saturday · ' + (b.sim ? 'full sim' : b.benchmark ? 'half-sim benchmark' : 'your full circuit')}</b><span class="race-plan-tag hard">${b.race ? 'Race' : b.sim ? 'Full sim' : b.benchmark ? 'Benchmark' : 'Full circuit'}</span></div>
         <div class="race-plan-main">${esc(b.text)}</div>
         <div class="race-plan-meta">Runs <b>${runTxt}</b> · level <b>${lvl}</b> · stations: ${esc(stNames.join(', '))}</div>
         <div class="race-plan-actions">
@@ -598,7 +598,7 @@ function circuitCardsHTML() {
       </div>` : `<a class="race-plan-card race-plan-runlink" id="circuit-a" href="run.html?kind=iv">
         <div class="race-plan-top"><b>Saturday · run intervals</b><span class="race-plan-tag hard">Running</span></div>
         <div class="race-plan-main">${esc(a.main)}</div>
-        <div class="race-plan-foot">Guided on the Run page — reps, rests, splits and paces ›</div>
+        <div class="race-plan-foot">Guided on the Run page — reps, rests, splits and paces › · Your full circuit is next Saturday (they alternate).</div>
       </a>`}
     </div>`;
 }

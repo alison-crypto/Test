@@ -17,7 +17,7 @@ const WEEK = {
   wed: { type: 'MOD',  train: 'Strength A legs (5:00) + upper strength (6:00)' },
   thu: { type: 'HIGH', train: 'RTC coached HYROX circuit (5:30 AM) — hard day', coach: true },
   fri: { type: 'EASY', train: 'Rest — or easy run + core if you slept well' },
-  sat: { type: 'PEAK', train: 'Run intervals (9:00 AM) — hard day · Oct 31 / Nov 28: race sims' },
+  sat: { type: 'PEAK', train: 'Saturday 9 AM: your full HYROX circuit or run intervals (they alternate) — hard day' },
   sun: { type: 'MOD',  train: 'Long easy run (9:00 AM)' },
 };
 

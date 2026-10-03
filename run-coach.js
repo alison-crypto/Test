@@ -57,7 +57,8 @@
     if (k === 'iv') {
       const iv = w.iv || { reps: 5, dist: 1000, rest: 75, zone: 'subT' };
       const repTxt = iv.dist ? (iv.dist >= 1000 ? `${iv.dist / 1000} km` : `${iv.dist} m`) : clock(iv.secs * 1000);
-      return { kind: k, title: `${iv.reps} × ${repTxt} · ${ZONES[iv.zone].name}`, sub: w.a.main, iv, zone: iv.zone };
+      const circ = w.b && (w.b.full || w.b.sim || w.b.benchmark);
+      return { kind: k, title: `${iv.reps} × ${repTxt} · ${ZONES[iv.zone].name}`, sub: (circ ? 'This Saturday is a full HYROX circuit (Hyrox tab) — keep these intervals for next Saturday. ' : '') + w.a.main, iv, zone: iv.zone };
     }
     const mins = k === 'easy' ? (w.easy || 30) : (w.long || 45);
     // Sunday shows the plan's own wording (week 1 is 20 min run + 15 min bike)

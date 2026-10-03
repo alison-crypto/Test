@@ -112,6 +112,8 @@ function render(rows, notes) {
         <li><b>No hard training for 48 h</b> before (it raises AST/ALT and CK), a normal night’s sleep, no alcohol for 48 h, skip biotin/hair-skin vitamins for 2 days.</li>
         <li>Same lab and same time of day each time, so changes are real.</li>
         <li>Ask for: total testosterone <b>+ SHBG + free testosterone</b>, 25-OH vitamin D, ApoB, lipids, CBC, ferritin, liver. If testosterone comes back low twice: LH, FSH and prolactin.</li>
+        <li><b>Once in your life: Lp(a)</b> — an inherited cholesterol particle that diet and exercise don’t change; Canadian guidelines recommend measuring it once.</li>
+        <li>Liver enzymes up after training? Add <b>CK</b> (muscle enzyme): high CK + high AST with normal GGT = muscle from training, not liver.</li>
         <li>Doctor won’t order it? In BC you can buy it yourself at LifeLabs — the Hormone Health panel (total, free, bioavailable testosterone + SHBG) and a vitamin D test, no requisition needed.</li>
       </ul>
     </details>

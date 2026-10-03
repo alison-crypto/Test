@@ -9,14 +9,15 @@ const DAY_KEY   = 'rtc_diet_alison_day_v1';
 const CHECK_KEY = 'rtc_diet_alison_checks_v1';
 
 // HYROX race block (from Sep 28, 2026) — day types follow the Race Plan:
-// Tue/Sat hard, Mon/Wed/Thu/Sun training, Fri rest.
+// Tue/Thu coached circuits (5:30 AM) + Sat run session hard, Mon/Wed/Sun
+// training, Fri rest (or an easy run + core).
 const WEEK = {
   mon: { type: 'MOD',  train: 'Strength B full body (5:15) · volleyball for fun 7–9' },
-  tue: { type: 'HIGH', train: 'Circuit A running + upper strength (5:00) — hard day' },
-  wed: { type: 'MOD',  train: 'Strength A legs + easy bike (5:00)' },
-  thu: { type: 'MOD',  train: 'Easy run + core / ankle / carries (5:00)' },
-  fri: { type: 'EASY', train: 'Rest day · optional swim + sauna' },
-  sat: { type: 'PEAK', train: 'Circuit B stations (9:00 AM) — hard day' },
+  tue: { type: 'HIGH', train: 'RTC coached HYROX circuit (5:30 AM) — hard day', coach: true },
+  wed: { type: 'MOD',  train: 'Strength A legs (5:00) + upper strength (6:00)' },
+  thu: { type: 'HIGH', train: 'RTC coached HYROX circuit (5:30 AM) — hard day', coach: true },
+  fri: { type: 'EASY', train: 'Rest — or easy run + core if you slept well' },
+  sat: { type: 'PEAK', train: 'Run intervals (9:00 AM) — hard day · Oct 31 / Nov 28: race sims' },
   sun: { type: 'MOD',  train: 'Long easy run (9:00 AM)' },
 };
 
@@ -58,11 +59,11 @@ const MEALS = {
     prepMeal('11:00 AM', 'Breakfast', 'Window opens 11 am. Hard day — don’t skip.'),
     COFFEE,
     prepMeal('2:00 PM', 'Lunch', 'Extra rice/potato on hard days if the prep allows.'),
-    { time: '4:15 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: 'Biggest top-up of the week before Circuit A. ' + PREP_NOTE, items: ['4 scoops MRE', '1 banana', '50 g oats (blend in)', 'Creatine 5 g'] },
+    { time: '4:15 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: 'Biggest top-up of the week before training. ' + PREP_NOTE, items: ['4 scoops MRE', '1 banana', '50 g oats (blend in)', 'Creatine 5 g'] },
     prepMeal('7:30 PM', 'Dinner', 'Right after training. Window closes ~8 pm.'),
   ],
   PEAK: [
-    { time: '7:30 AM', name: 'Pre-session smoothie', tag: 'MRE', fuel: 'Saturday Circuit B is at 9 AM — no fasting on hard mornings. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana', '30 g dates', 'Creatine 5 g'] },
+    { time: '7:30 AM', name: 'Pre-session smoothie', tag: 'MRE', fuel: 'Saturday’s run session is at 9 AM — no fasting on hard mornings. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana', '30 g dates', 'Creatine 5 g'] },
     prepMeal('11:00 AM', 'Breakfast', 'Recovery meal after the circuit.'),
     prepMeal('2:30 PM', 'Lunch'),
     { time: '4:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Top-up to today’s target.', items: ['1 scoop whey', '1 banana'] },
@@ -76,9 +77,9 @@ const MEALS = {
 const AM_START = '2026-10-12';
 const WEEK_AM = {
   mon: { type: 'MOD',  train: 'Strength B full body (6:00 AM) · volleyball for fun 7–9 PM' },
-  tue: { type: 'HIGH', train: 'Circuit A running (6:00 AM) + upper strength (4:30 PM) — hard day' },
-  wed: { type: 'MOD',  train: 'Strength A legs (6:00 AM) + easy bike (4:30 PM)' },
-  thu: { type: 'MOD',  train: 'Easy run (6:00 AM) + core / ankle / carries (4:30 PM)' },
+  tue: WEEK.tue,
+  wed: { type: 'MOD',  train: 'Strength A legs (6:00 AM) + upper strength (4:30 PM)' },
+  thu: WEEK.thu,
   fri: WEEK.fri, sat: WEEK.sat, sun: WEEK.sun,
 };
 const COFFEE_AM = { time: 'by 1:00 PM', name: 'Last coffee', items: ['Coffee cutoff for sleep — early bedtime now', 'Pre-workout only for the 6 AM session'] };
@@ -101,7 +102,7 @@ const MEALS_AM = {
   ],
   HIGH: [
     PRE_AM,
-    prepMeal('7:15 AM', 'Breakfast', 'Right after Circuit A — hard day, don’t skip.'),
+    prepMeal('7:15 AM', 'Breakfast', 'Right after the morning session — hard day, don’t skip.'),
     COFFEE_AM,
     prepMeal('12:00 PM', 'Lunch', 'Extra rice/potato on hard days if the prep allows.'),
     { time: '3:45 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: 'Biggest top-up of the week, before the 4:30 upper session. ' + PREP_NOTE, items: ['4 scoops MRE', '1 banana', '50 g oats (blend in)'] },
@@ -109,9 +110,18 @@ const MEALS_AM = {
   ],
   PEAK: MEALS.PEAK,
 };
+// Coached circuit days (Tue + Thu, 5:30–6:20 AM) — every week, not just from Oct 12
+const MEALS_COACH = [
+  { time: '5:00 AM', name: 'Pre-circuit bite', tag: 'FUEL', fuel: 'Small and fast — the circuit starts 5:30. A full meal comes right after.', items: ['1 banana (or 2 dates)', 'Water + pinch of salt', 'Ghost + creatine 5 g'] },
+  prepMeal('6:45 AM', 'Breakfast', 'Right after the circuit — hard day, don’t skip. This is your recovery meal.'),
+  COFFEE_AM,
+  prepMeal('12:00 PM', 'Lunch', 'Extra rice/potato on hard days if the prep allows.'),
+  { time: '3:30 PM', name: 'Smoothie', tag: 'MRE', fuel: 'Refill after the morning circuit. ' + PREP_NOTE, items: ['3 scoops MRE', '1 banana', '40 g oats (blend in)'] },
+  prepMeal('6:30 PM', 'Dinner', 'Early bed tonight if you can — next 5:30 start is two days away. Window closes ~7:30 pm.'),
+];
 function amPhase() { return todayStr() >= AM_START; }
 function weekInfo(day) { return (amPhase() ? WEEK_AM : WEEK)[day]; }
-function mealsFor(type) { return (amPhase() ? MEALS_AM : MEALS)[type]; }
+function mealsFor(day) { const info = weekInfo(day); return info.coach ? MEALS_COACH : (amPhase() ? MEALS_AM : MEALS)[info.type]; }
 
 // ---- storage helpers ----
 function loadJSON(key, fallback) {
@@ -164,7 +174,7 @@ function mealHTML(day, meal) {
 function render(day) {
   const info = weekInfo(day);
   const m = MACROS[info.type];
-  const meals = mealsFor(info.type);
+  const meals = mealsFor(day);
   root.innerHTML = `
     <div class="diet-daymeta">
       <span class="dt-badge dt-${info.type}">${info.type}</span>
@@ -205,7 +215,7 @@ document.querySelectorAll('.day-btn').forEach((b) => {
 root.addEventListener('click', (e) => {
   const reset = e.target.closest('#diet-reset');
   if (reset) {
-    mealsFor(weekInfo(currentDay).type).forEach((meal) => { delete checks[currentDay + '|' + meal.name]; });
+    mealsFor(currentDay).forEach((meal) => { delete checks[currentDay + '|' + meal.name]; });
     persistChecks();
     render(currentDay);
     return;

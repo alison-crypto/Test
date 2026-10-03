@@ -29,15 +29,15 @@
       <div class="day-btn-name">Full body</div>
     </div>
     <div class="day-btn" data-day="upper" onclick="switchDay('upper')">
-      <div class="day-btn-label">TUE</div>
+      <div class="day-btn-label">WED PM</div>
       <div class="day-btn-name">Upper</div>
     </div>
     <div class="day-btn" data-day="strA" onclick="switchDay('strA')">
-      <div class="day-btn-label">WED</div>
+      <div class="day-btn-label">WED AM</div>
       <div class="day-btn-name">Legs</div>
     </div>
     <div class="day-btn" data-day="strC" onclick="switchDay('strC')">
-      <div class="day-btn-label">THU</div>
+      <div class="day-btn-label">FRI</div>
       <div class="day-btn-name">Core/ankle</div>
     </div>
   </div>
@@ -137,8 +137,8 @@
 <!-- ============ Upper · Tuesday ============ -->
 <div class="day-page" id="day-upper">
   <div class="day-header">
-    <div class="day-title">Upper · Tuesday</div>
-    <div class="day-meta">After Circuit A (running first) · 20–30 min · push, pull, grip</div>
+    <div class="day-title">Upper · Wednesday PM</div>
+    <div class="day-meta">Second session of Wednesday (legs in the morning) · 20–30 min · push, pull, grip</div>
     <div class="day-note">Short and focused — legs are off today. Loads follow the phase on the <a href="race-plan.html#week">Race Plan</a> (base 3 × 8, build 3 × 5, peak 2 × 3–4).</div>
   </div>
 
@@ -195,7 +195,7 @@
   <div class="day-header">
     <div class="day-title">Strength A · Wednesday</div>
     <div class="day-meta">Legs heavy · 45–50 min · then 20–30 min easy bike, row or ski</div>
-    <div class="day-note">The heavy day — 24 h after Tuesday’s run, 72 h before Saturday. Base 3 × 6–10, build 4 × 4–6, peak 2–3 × 3–5 (see <a href="race-plan.html#week">Race Plan</a>). Keep the weight heavy as sets drop. Leg press is loaded heavy for sled-push strength until we get real sled access.</div>
+    <div class="day-note">The heavy day — between the two coached circuits (Tue + Thu), 72 h before Saturday. Base 3 × 6–10, build 4 × 4–6, peak 2–3 × 3–5 (see <a href="race-plan.html#week">Race Plan</a>). Keep the weight heavy as sets drop. Leg press is loaded heavy for sled-push strength until we get real sled access.</div>
   </div>
 
   <div class="exercise" data-ex="him_lB_tbar" data-sets="4">
@@ -273,7 +273,7 @@
 <!-- ============ Strength C · Thursday ============ -->
 <div class="day-page" id="day-strC">
   <div class="day-header">
-    <div class="day-title">Strength C · Thursday</div>
+    <div class="day-title">Strength C · Friday (optional)</div>
     <div class="day-meta">Core · ankle · carries · 25–30 min · after the easy run</div>
     <div class="day-note">Durability day: lower-back care, the weak ankle and grip. Easy effort. Balance work 3× a week cuts ankle sprains by up to ~38%.</div>
   </div>
@@ -355,8 +355,8 @@
 </footer>
 
 <script>
-  // default to today's strength day (Mon full body, Tue upper, Wed legs, Thu core/ankle)
-  document.body.dataset.defaultDay = ({ 1: 'strB', 2: 'upper', 3: 'strA', 4: 'strC' })[new Date().getDay()] || 'strA';
+  // default to today's strength day (Mon full body, Wed legs → upper in the PM, Fri core/ankle)
+  document.body.dataset.defaultDay = (() => { const d = new Date(); return d.getDay() === 1 ? 'strB' : d.getDay() === 3 ? (d.getHours() >= 12 ? 'upper' : 'strA') : d.getDay() === 5 ? 'strC' : 'strA'; })();
 </script>
 <script src="gym-substitutes.js"></script>
 <script src="gym-custom.js"></script>

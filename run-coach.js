@@ -33,7 +33,7 @@
   const GOAL_PACE = 220; // sub-60 budget ≈ 3:40 / km
 
   function week() { const now = new Date(); return P ? (P.weekFor(now) || (P.daysToRace(now) > 0 ? P.WEEKS[0] : P.WEEKS[P.WEEKS.length - 1])) : null; }
-  function defaultKind() { const d = new Date().getDay(); return d === 4 ? 'easy' : d === 0 ? 'long' : 'iv'; }
+  function defaultKind() { const d = new Date().getDay(); return d === 6 ? 'iv' : d === 0 ? 'long' : 'easy'; }
   const qKind = new URLSearchParams(location.search).get('kind');
   let kind = load(LIVE, null) ? (load(LIVE, null).kind || 'iv') : (['iv', 'easy', 'long'].includes(qKind) ? qKind : defaultKind());
   let live = load(LIVE, null);
@@ -59,10 +59,10 @@
       const repTxt = iv.dist ? (iv.dist >= 1000 ? `${iv.dist / 1000} km` : `${iv.dist} m`) : clock(iv.secs * 1000);
       return { kind: k, title: `${iv.reps} × ${repTxt} · ${ZONES[iv.zone].name}`, sub: w.a.main, iv, zone: iv.zone };
     }
-    const mins = k === 'easy' ? (typeof w.thu === 'number' ? w.thu : 30) : (w.long || 45);
+    const mins = k === 'easy' ? (w.easy || 30) : (w.long || 45);
     // Sunday shows the plan's own wording (week 1 is 20 min run + 15 min bike)
     const sunTxt = typeof w.sun === 'string' && w.sun ? w.sun + ' ' : '';
-    return { kind: k, title: `${mins} min ${k === 'easy' ? 'easy run' : 'long easy'}`, sub: k === 'easy' ? 'Thursday · zone 2, quick light steps.' : `Sunday · ${sunTxt}Zone 2 — the day after Circuit B, so truly easy. Sore legs or < 6 h sleep → half on the bike.`, mins, zone: 'easy' };
+    return { kind: k, title: `${mins} min ${k === 'easy' ? 'easy run' : 'long easy'}`, sub: k === 'easy' ? 'Friday (optional — only after a decent night) · zone 2, quick light steps, then 20 min core / ankle.' : `Sunday · ${sunTxt}Zone 2 — the day after Saturday’s session, so truly easy. Sore legs or < 6 h sleep → half on the bike.`, mins, zone: 'easy' };
   }
   function phasesFor(s) {
     if (s.kind !== 'iv') return [{ type: 'run', label: s.title, secs: s.mins * 60, zone: 'easy' }];
@@ -213,7 +213,7 @@
         <span id="circuit-a" class="rc-anchor"></span>
         <div class="race-plan-top"><b>Week ${w.n} · ${esc(w.phase)}</b><span class="race-plan-tag hard">Runs</span></div>
         <div class="rc-kinds" role="tablist">
-          ${[['iv', 'Tue · Circuit A intervals'], ['easy', 'Thu · easy'], ['long', 'Sun · long']].map(([k, l]) => `<button type="button" class="race-preset-btn ${k === kind ? 'active' : ''}" data-rc-kind="${k}" ${live ? 'disabled' : ''}>${l}</button>`).join('')}
+          ${[['iv', 'Sat · intervals'], ['easy', 'Fri · easy'], ['long', 'Sun · long']].map(([k, l]) => `<button type="button" class="race-preset-btn ${k === kind ? 'active' : ''}" data-rc-kind="${k}" ${live ? 'disabled' : ''}>${l}</button>`).join('')}
         </div>
         ${live ? liveHTML() : `
           <div class="race-plan-main">${esc(s.title)}</div>
@@ -222,7 +222,7 @@
             : `<div class="rc-muted">${esc(ZONES.easy.talk)} · ${esc(ZONES.easy.hr)}${paceTxt('easy') ? ' · ' + esc(paceTxt('easy')) : ''}. Halfway buzz included.</div>`}
           <div class="race-plan-actions">
             <button type="button" class="race-plan-btn" data-rc="start">▶ Start guided run</button>
-            <a class="race-plan-btn ghost" href="${s.kind === 'iv' ? 'gym-alison.html?day=upper' : s.kind === 'easy' ? 'gym-alison.html?day=strC' : 'race-plan.html#today'}">${s.kind === 'iv' ? 'Upper strength (4:30) ›' : s.kind === 'easy' ? 'Strength C (4:30) ›' : 'Race Plan ›'}</a>
+            <a class="race-plan-btn ghost" href="${s.kind === 'easy' ? 'gym-alison.html?day=strC' : 'race-plan.html#today'}">${s.kind === 'easy' ? 'Then core / ankle ›' : 'Race Plan ›'}</a>
           </div>`}
         <label class="rc-5k">Recent 5 km time <input id="rc-5k" inputmode="numeric" placeholder="e.g. 24:30" value="${t5 ? clock(t5 * 1000) : ''}" /> <small>${t5 ? 'paces on' : 'add it for real paces — or use your benchmark 1 km average × 5'}</small></label>
         <details class="rc-sec"><summary>Effort zones &amp; paces</summary>${zonesHTML()}</details>

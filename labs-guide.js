@@ -1,0 +1,151 @@
+// labs-guide.js — the marker reference at the top of the Labs tab: every test
+// worth knowing for an active man in his 30s training for HYROX, what it
+// means, the usual lab range (Canadian SI units), a goal range, and how to
+// move it. General information only — no personal data in this file; the
+// "you" value next to each marker comes from the private database at runtime.
+//
+// goal: [low, high] numbers used to compare your latest result (null = open).
+
+export const GUIDE = [
+  // ---------- Blood & oxygen ----------
+  { key: 'hgb', group: 'Blood & oxygen', name: 'Hemoglobin', unit: 'g/L', lab: '135–170', goalTxt: '145–170', goal: [145, 170],
+    what: 'Carries oxygen to your muscles — the engine for running.',
+    up: 'Enough iron (red meat, beans + vitamin C), B12 and folate; good sleep; train consistently.',
+    down: 'Above ~175: hydrate well before the test; check sleep apnea; it rises on testosterone/EPO.' },
+  { key: 'hct', group: 'Blood & oxygen', name: 'Hematocrit', unit: 'L/L', lab: '0.40–0.50', goalTxt: '0.42–0.50', goal: [0.42, 0.50],
+    what: 'Share of your blood that is red cells. Too high = thick blood.',
+    up: 'Same as hemoglobin.',
+    down: 'Drink 0.5–1 L of water before the draw; > 0.50 needs a doctor’s look (sleep apnea, testosterone use).' },
+  { key: 'ferritin', group: 'Blood & oxygen', name: 'Ferritin (iron stores)', unit: 'ug/L', lab: '24–444', goalTxt: '50–300', goal: [50, 300],
+    what: 'Your iron savings account. Under ~50 hurts endurance even if hemoglobin is normal.',
+    up: 'Red meat 2–3×/week, iron-rich food with vitamin C, tea/coffee away from meals; iron pills only if low and advised.',
+    down: 'Don’t take iron or iron-fortified pre-workouts; donating blood lowers it. Over 400: ask for transferrin saturation.' },
+  { key: 'tsat', group: 'Blood & oxygen', name: 'Transferrin saturation', unit: '%', lab: '20–50', goalTxt: '20–45', goal: [20, 45], optional: true,
+    what: 'How much iron is actually in transit. Pairs with ferritin.',
+    up: 'Same as ferritin.', down: 'Over 45–50% with high ferritin: ask about iron overload (hemochromatosis) testing.' },
+  { key: 'b12', group: 'Blood & oxygen', name: 'Vitamin B12', unit: 'pmol/L', lab: '> 220', goalTxt: '> 300', goal: [300, null],
+    what: 'Nerves and red-cell production.',
+    up: 'Meat, fish, eggs, dairy; a B12 supplement if you eat little animal food.', down: 'High values are harmless (usually supplements).' },
+  { key: 'mcv', group: 'Blood & oxygen', name: 'MCV (red cell size)', unit: 'fL', lab: '82–98', goalTxt: '82–98', goal: [82, 98],
+    what: 'Small cells hint at low iron; big cells at low B12/folate or alcohol.',
+    up: 'Fix B12/folate if low; cut alcohol.', down: 'Fix iron if low.' },
+  { key: 'wbc', group: 'Blood & oxygen', name: 'White blood cells', unit: '10⁹/L', lab: '4.0–10.0', goalTxt: '4.0–8.0', goal: [4.0, 8.0],
+    what: 'Immune cells. Slightly low is common in endurance athletes.',
+    up: 'If low and you get sick often: more sleep, less volume, enough calories.', down: 'High usually = infection or a hard session the day before.' },
+
+  // ---------- Vitamins ----------
+  { key: 'vitd', group: 'Vitamins', name: 'Vitamin D (25-OH)', unit: 'nmol/L', lab: '> 50 sufficient', goalTxt: '75–125', goal: [75, 125],
+    what: 'Bones, muscle, immune system, mood — often low in BC from October to April.',
+    up: 'D3 1,000–2,000 IU daily Oct–Apr with a fatty meal; midday sun in summer.', down: 'Above ~200: reduce the supplement.' },
+  { key: 'folate', group: 'Vitamins', name: 'Folate', unit: 'nmol/L', lab: '> 10', goalTxt: '> 15', goal: [15, null], optional: true,
+    what: 'Red-cell production with B12.', up: 'Leafy greens, beans, lentils, oranges.', down: '—' },
+
+  // ---------- Blood sugar ----------
+  { key: 'glucose', group: 'Blood sugar', name: 'Fasting glucose', unit: 'mmol/L', lab: '3.3–5.5', goalTxt: '4.0–5.4', goal: [4.0, 5.4],
+    what: 'Blood sugar after 10–12 h without food.',
+    up: 'If low: you probably trained hard or under-ate before the test.',
+    down: 'Fibre at every meal, regular training, 7+ h sleep, fewer sugary drinks, smaller waist.' },
+  { key: 'a1c', group: 'Blood sugar', name: 'Hemoglobin A1C', unit: '%', lab: '< 6.0 (6.0–6.4 prediabetes)', goalTxt: '< 5.5', goal: [null, 5.5],
+    what: 'Your average blood sugar over ~3 months.',
+    up: '—', down: 'Same as glucose; consistency over months matters most.' },
+
+  // ---------- Kidneys & minerals ----------
+  { key: 'creat', group: 'Kidneys & minerals', name: 'Creatinine', unit: 'umol/L', lab: '45–110', goalTxt: '60–115', goal: [60, 115],
+    what: 'Muscle waste product. Runs higher with more muscle and with creatine supplements — tell the lab/doctor you take creatine.',
+    up: '—', down: 'Hydrate before the test; skip creatine 3 days before if a doctor wants a clean reading.' },
+  { key: 'egfr', group: 'Kidneys & minerals', name: 'eGFR (kidney filtration)', unit: 'mL/min', lab: '≥ 60', goalTxt: '≥ 90', goal: [90, null],
+    what: 'Estimated from creatinine, so muscular people can read a little low without any kidney problem.',
+    up: 'Hydration; if it reads low, ask for cystatin C (not affected by muscle).', down: '—' },
+  { key: 'uric', group: 'Kidneys & minerals', name: 'Uric acid', unit: 'umol/L', lab: '200–420', goalTxt: '< 360', goal: [null, 360], optional: true,
+    what: 'High levels cause gout and track with metabolic health.',
+    up: '—', down: 'Less alcohol (beer) and sugary drinks/fructose, hydrate, lose belly fat.' },
+  { key: 'na', group: 'Kidneys & minerals', name: 'Sodium', unit: 'mmol/L', lab: '135–145', goalTxt: '137–145', goal: [137, 145],
+    what: 'Fluid balance. Low after long sweaty sessions with only water.',
+    up: 'Salty electrolytes on long/hot sessions — don’t over-drink plain water.', down: 'Hydrate.' },
+  { key: 'k', group: 'Kidneys & minerals', name: 'Potassium', unit: 'mmol/L', lab: '3.5–5.0', goalTxt: '3.8–5.0', goal: [3.8, 5.0],
+    what: 'Muscle and heart function.', up: 'Potatoes, bananas, beans, yogurt.', down: 'High readings are often a lab artefact (hemolysis) — repeat.' },
+  { key: 'ca', group: 'Kidneys & minerals', name: 'Calcium', unit: 'mmol/L', lab: '2.10–2.60', goalTxt: '2.20–2.55', goal: [2.20, 2.55],
+    what: 'Bones and muscle contraction.', up: 'Dairy, fortified foods, vitamin D.', down: 'High: check you’re not over-supplementing calcium/vitamin D.' },
+  { key: 'mg', group: 'Kidneys & minerals', name: 'Magnesium', unit: 'mmol/L', lab: '0.65–1.05', goalTxt: '0.80–1.00', goal: [0.80, 1.00], optional: true,
+    what: 'Sleep, muscle and nerve function; lost in sweat.', up: 'Nuts, seeds, greens; magnesium glycinate at night (already in the plan).', down: '—' },
+
+  // ---------- Liver ----------
+  { key: 'alt', group: 'Liver', name: 'ALT', unit: 'U/L', lab: '< 50', goalTxt: '< 35', goal: [null, 35],
+    what: 'Mostly a liver enzyme. Also leaks from muscle after very hard training.',
+    up: '—', down: 'Lose belly fat (fatty liver), less alcohol and sugar, no hard training 48 h before the test.' },
+  { key: 'ast', group: 'Liver', name: 'AST', unit: 'U/L', lab: '< 36', goalTxt: '< 36 (rested)', goal: [null, 36],
+    what: 'Liver and muscle. In athletes it’s usually muscle — check CK and GGT if it’s high.',
+    up: '—', down: 'Test after 48–72 h without hard training; same levers as ALT.' },
+  { key: 'ggt', group: 'Liver', name: 'GGT', unit: 'U/L', lab: '< 65', goalTxt: '< 30', goal: [null, 30],
+    what: 'The most liver-specific — rises with alcohol, fatty liver and some medicines. Normal GGT + high AST = training.',
+    up: '—', down: 'Less alcohol, smaller waist, more vegetables and coffee (yes, coffee helps GGT).' },
+  { key: 'alp', group: 'Liver', name: 'Alkaline phosphatase', unit: 'U/L', lab: '40–145', goalTxt: '40–120', goal: [40, 120],
+    what: 'Liver bile ducts and bone.', up: 'Low can mean low zinc/magnesium — eat varied whole foods.', down: 'High: doctor checks liver vs bone.' },
+  { key: 'bili', group: 'Liver', name: 'Total bilirubin', unit: 'umol/L', lab: '< 17', goalTxt: '< 20', goal: [null, 20],
+    what: 'Breakdown product of old red cells. Mildly high and harmless in ~5% of people (Gilbert’s).',
+    up: '—', down: 'Rises with fasting and dehydration — eat and drink normally the day before.' },
+  { key: 'alb', group: 'Liver', name: 'Albumin', unit: 'g/L', lab: '35–50', goalTxt: '40–50', goal: [40, 50],
+    what: 'Main blood protein — shows nutrition and liver function.', up: 'Enough protein and calories.', down: 'High = dehydration.' },
+  { key: 'ck', group: 'Liver', name: 'CK (muscle enzyme)', unit: 'U/L', lab: '< 300 (rested)', goalTxt: '< 300 rested', goal: [null, 300], optional: true,
+    what: 'Pure muscle marker — thousands after hard training is normal. Use it to tell muscle from liver.',
+    up: '—', down: 'Rest 48–72 h before testing.' },
+
+  // ---------- Heart & cholesterol ----------
+  { key: 'ldl', group: 'Heart & cholesterol', name: 'LDL cholesterol', unit: 'mmol/L', lab: '1.5–3.4', goalTxt: '< 2.6 long-term', goal: [null, 2.6],
+    what: 'Delivers cholesterol into artery walls — lifetime exposure is what counts.',
+    up: '—', down: 'Oats/beans (soluble fibre), swap butter/fatty meat for olive oil, nuts, fish; fewer processed meats and pastries; lose belly fat.' },
+  { key: 'hdl', group: 'Heart & cholesterol', name: 'HDL cholesterol', unit: 'mmol/L', lab: '> 0.99', goalTxt: '> 1.2', goal: [1.2, null],
+    what: 'Carries cholesterol back out. Higher is better.',
+    up: 'Endurance training (you’re doing it), omega-3 / oily fish, less sugar and refined carbs, lose belly fat. Testosterone/steroid use lowers it.', down: '—' },
+  { key: 'tg', group: 'Heart & cholesterol', name: 'Triglycerides', unit: 'mmol/L', lab: '< 2.21', goalTxt: '< 1.2', goal: [null, 1.2],
+    what: 'Blood fats — sugar and alcohol push them up.', up: '—', down: 'Less alcohol and sugar, omega-3, regular training.' },
+  { key: 'nonhdl', group: 'Heart & cholesterol', name: 'Non-HDL cholesterol', unit: 'mmol/L', lab: '—', goalTxt: '< 3.4', goal: [null, 3.4],
+    what: 'All the artery-clogging particles together (total minus HDL).', up: '—', down: 'Same levers as LDL.' },
+  { key: 'apob', group: 'Heart & cholesterol', name: 'ApoB', unit: 'g/L', lab: '< 1.05', goalTxt: '< 0.90', goal: [null, 0.90],
+    what: 'Counts the actual harmful particles — the best single cholesterol risk marker. Ask for it.',
+    up: '—', down: 'Same levers as LDL.' },
+  { key: 'lpa', group: 'Heart & cholesterol', name: 'Lp(a) — once in your life', unit: 'nmol/L', lab: '< 100', goalTxt: '< 75', goal: [null, 75],
+    what: 'Inherited cholesterol particle. Diet and exercise don’t change it — if it’s high, everything else just matters more.',
+    up: '—', down: 'Can’t be lowered by lifestyle; keep LDL/ApoB, blood pressure and waist in goal.' },
+  { key: 'crp', group: 'Heart & cholesterol', name: 'hs-CRP (inflammation)', unit: 'mg/L', lab: '< 3', goalTxt: '< 1', goal: [null, 1], optional: true,
+    what: 'Low-grade inflammation. Hard training or a cold in the last few days falsely raises it.',
+    up: '—', down: 'Sleep, lose belly fat, omega-3, don’t test after hard sessions or while sick.' },
+
+  // ---------- Hormones ----------
+  { key: 'testo', group: 'Hormones', name: 'Total testosterone', unit: 'nmol/L', lab: '8.4–28.8', goalTxt: '15–28', goal: [15, 28],
+    what: 'Recovery, muscle, energy, libido, mood. Highest at 7–9 AM; drops with poor sleep, low calories, low fat, big training load and belly fat.',
+    up: '7–9 h sleep (biggest lever), eat at maintenance, fat ≥ 25% of calories, strength train, avoid chronic overreaching, waist down, alcohol low, vitamin D if low.',
+    down: '—' },
+  { key: 'freet', group: 'Hormones', name: 'Free testosterone (calculated)', unit: 'pmol/L', lab: '~170–680', goalTxt: '> 250', goal: [250, null],
+    what: 'The part your body can actually use. Below 160 is where symptoms show up.',
+    up: 'Same as total testosterone; also lower SHBG if it’s high (eat enough, don’t over-train).', down: '—' },
+  { key: 'shbg', group: 'Hormones', name: 'SHBG', unit: 'nmol/L', lab: '13–71', goalTxt: '20–50', goal: [20, 50],
+    what: 'Protein that locks testosterone up. High = less free testosterone.',
+    up: 'Low SHBG tracks with belly fat and high insulin — training and a smaller waist raise it.',
+    down: 'High SHBG: eat enough (no long deficits), enough protein, avoid chronic overtraining.' },
+  { key: 'lhfsh', group: 'Hormones', name: 'LH / FSH', unit: 'IU/L', lab: '~1.5–9', goalTxt: 'in range', goal: [null, null], optional: true,
+    what: 'Brain signals that tell the testes to work. Only needed if testosterone is low twice — shows where the problem is.',
+    up: '—', down: '—' },
+  { key: 'prl', group: 'Hormones', name: 'Prolactin', unit: 'µg/L', lab: '< 20', goalTxt: '< 15', goal: [null, 15], optional: true,
+    what: 'Checked when testosterone is low — high prolactin suppresses it.', up: '—', down: 'Stress and poor sleep raise it slightly; very high needs a doctor.' },
+  { key: 'tsh', group: 'Hormones', name: 'TSH (thyroid)', unit: 'mU/L', lab: '0.32–5.04', goalTxt: '0.5–2.5', goal: [0.5, 2.5],
+    what: 'Thyroid control — energy, weight, cold tolerance. Long calorie deficits push it up a bit.',
+    up: '—', down: 'Eat enough; if high or symptoms, ask for free T4.' },
+
+  // ---------- Body & daily ----------
+  { key: 'bp', group: 'Body & daily', name: 'Blood pressure', unit: 'mmHg', lab: '< 140/90', goalTxt: '< 120/80', goal: [null, null], nolab: true,
+    what: 'Pharmacy machines are fine — check a few times a year, seated, rested.',
+    up: '—', down: 'Less salt from processed food (not sweat salt), alcohol low, sleep, training, waist down.' },
+  { key: 'waist', group: 'Body & daily', name: 'Waist (at the belly button)', unit: 'cm', lab: '< 102', goalTxt: '< half your height', goal: [null, null], nolab: true,
+    what: 'Better than BMI for muscular people — belly fat drives testosterone, liver, sugar and cholesterol markers.',
+    up: '—', down: 'Small deficit only when sleep allows (the plan), protein high, training consistent.' },
+  { key: 'rhr', group: 'Body & daily', name: 'Resting heart rate', unit: 'bpm', lab: '—', goalTxt: 'trend down', goal: [null, null], nolab: true,
+    what: 'Fitness and recovery signal — the Race Plan morning check tracks it.', up: '—', down: 'Aerobic training lowers it over months; a jump of 5+ = poor recovery or illness.' },
+  { key: 'psa', group: 'Body & daily', name: 'PSA (prostate)', unit: 'ug/L', lab: '< 2.5 at your age', goalTxt: 'not needed yet', goal: [null, null], nolab: true,
+    what: 'Not routine until ~50 (45 with family history) — unless someone ever puts you on testosterone, then it’s required.',
+    up: '—', down: '—' },
+];
+
+// Optional + "not yet tested" markers are fine; this lists the ones worth
+// asking for next time.
+export const NEXT_TIME = ['vitd', 'apob', 'lpa', 'freet', 'shbg'];

@@ -4,6 +4,7 @@
 // Claude, who adds the rows; this page then shows the latest value, where it
 // sits in the reference range, the change since last time, and the history.
 import { supabase, getSession } from './supabase-client.js';
+import { GUIDE, NEXT_TIME } from './labs-guide.js';
 
 const root = document.getElementById('labs-root');
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -59,11 +60,49 @@ function rangeBar(r) {
 const refText = (r) => r.ref_text || (r.ref_low != null && r.ref_high != null ? `${r.ref_low}–${r.ref_high}` : r.ref_high != null ? `< ${r.ref_high}` : r.ref_low != null ? `> ${r.ref_low}` : '');
 const valText = (r) => (r.value != null ? `${Number(r.value)}${r.unit ? ' ' + r.unit : ''}` : r.value_text || '—');
 
+// ---- reference guide: every marker, goal range, your latest value, how to move it ----
+function goalStatus(m, r) {
+  if (m.nolab) return ['info', 'Track yourself'];
+  if (!r || r.value == null) return ['none', 'Not tested yet'];
+  const v = Number(r.value), [lo, hi] = m.goal;
+  if (lo != null && v < lo) return ['near', 'Below goal'];
+  if (hi != null && v > hi) return ['near', 'Above goal'];
+  return ['ok', 'In goal'];
+}
+function guideHTML(byKey) {
+  const groups = [...new Set(GUIDE.map((m) => m.group))];
+  const next = NEXT_TIME.map((k) => GUIDE.find((m) => m.key === k)).filter((m) => !byKey[m.key]).map((m) => m.name);
+  return `<section class="rp-card lab-guide" id="guide">
+    <h2>📋 Marker guide</h2>
+    <p class="rp-muted">Every marker worth knowing for an active man in his 30s training hard — what it means, the lab’s normal range, the goal range to aim for, your latest result, and how to move it. Tap a group.</p>
+    ${next.length ? `<p class="lab-next">Ask for next time: <b>${next.map(esc).join(' · ')}</b></p>` : ''}
+    ${groups.map((g) => {
+      const ms = GUIDE.filter((m) => m.group === g);
+      const st = ms.map((m) => goalStatus(m, byKey[m.key] && byKey[m.key][0])[0]);
+      const cnt = (c) => st.filter((x) => x === c).length;
+      return `<details class="lab-g">
+        <summary><b>${esc(g)}</b><span>${[cnt('ok') && `${cnt('ok')} in goal`, cnt('near') && `${cnt('near')} to improve`, cnt('none') && `${cnt('none')} not tested`, cnt('info') && `${cnt('info')} to track yourself`].filter(Boolean).join(' · ')}</span></summary>
+        ${ms.map((m) => {
+          const r = byKey[m.key] && byKey[m.key][0]; const [cls, lbl] = goalStatus(m, r);
+          return `<div class="lab-gm">
+            <div class="lab-top"><span class="lab-name">${esc(m.name)}${m.optional ? ' <small>(optional)</small>' : ''}</span>${r && r.value != null ? `<span class="lab-val">${esc(Number(r.value))} ${esc(m.unit)}</span>` : ''}<span class="lab-chip lab-${cls}">${lbl}</span></div>
+            <div class="lab-ranges"><span>Lab normal <b>${esc(m.lab)}</b></span><span>Goal <b>${esc(m.goalTxt)}</b></span><span>${esc(m.unit)}</span></div>
+            <div class="lab-info">${esc(m.what)}</div>
+            ${m.up && m.up !== '—' ? `<div class="lab-how"><b>▲ To raise:</b> ${esc(m.up)}</div>` : ''}
+            ${m.down && m.down !== '—' ? `<div class="lab-how"><b>▼ To lower:</b> ${esc(m.down)}</div>` : ''}
+          </div>`;
+        }).join('')}
+      </details>`;
+    }).join('')}
+    <p class="rp-muted lab-foot">Goal ranges are practical targets for health and training, not diagnoses — a result just outside a goal is a nudge, not a problem.</p>
+  </section>`;
+}
+
 function render(rows, notes) {
-  if (!rows.length) { root.innerHTML = '<section class="rp-card"><p class="rp-muted">No lab results yet. Send a lab PDF to Claude and it will appear here.</p></section>'; return; }
   const byKey = {};
   rows.forEach((r) => (byKey[r.test_key] = byKey[r.test_key] || []).push(r));
   Object.values(byKey).forEach((a) => a.sort((x, y) => y.collected.localeCompare(x.collected)));
+  if (!rows.length) { root.innerHTML = guideHTML(byKey) + '<section class="rp-card"><p class="rp-muted">No lab results yet. Send a lab PDF to Claude and it will appear here.</p></section>'; return; }
   const dates = [...new Set(rows.map((r) => r.collected))].sort().reverse();
   const latestNote = notes.find((n) => n.collected === dates[0]);
 
@@ -93,7 +132,7 @@ function render(rows, notes) {
     </details>`;
   };
 
-  root.innerHTML = `
+  root.innerHTML = guideHTML(byKey) + `
     ${latestNote ? `<section class="rp-card lab-summary">
       <div class="rp-eyebrow">Latest · ${esc(fmtDate(latestNote.collected))}</div>
       <h2>${esc(latestNote.title || 'Latest report')}</h2>

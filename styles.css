@@ -5044,3 +5044,13 @@ div.lab-info { background: none; font-size: 12px; color: var(--muted); margin-to
 .lab-change span:first-child { flex: 1; }
 .lab-report { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13.5px; }
 .lab-foot { margin: 6px 4px 16px; font-size: 12px; }
+.lab-guide h2 { margin: 0 0 6px; }
+.lab-next { font-size: 13px; margin: 6px 0; padding: 7px 9px; border-radius: 8px; background: rgba(10, 132, 255, 0.08); border: 1px solid rgba(10, 132, 255, 0.25); }
+.lab-g { border-top: 1px solid var(--border); }
+.lab-g summary { display: flex; justify-content: space-between; gap: 8px; padding: 9px 0; cursor: pointer; font-size: 14.5px; }
+.lab-g summary span { font-size: 12px; color: var(--muted); align-self: center; text-align: right; }
+.lab-gm { padding: 9px 0 10px; border-top: 1px dashed var(--border); }
+.lab-gm small { font-weight: 400; color: var(--muted); }
+.lab-ranges { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted-strong); margin: 4px 0 2px; }
+.lab-how { font-size: 12.5px; color: var(--muted-strong); line-height: 1.45; margin-top: 3px; }
+.lab-none { background: rgba(120, 120, 128, 0.15); color: var(--muted-strong); }

@@ -98,8 +98,8 @@ function checklist() {
   return `<section class="rp-card"><h2>This week’s check-in · ${esc(weekLabel(w))}</h2>
     <ul class="ci-check">
       ${item(s, 'Scale', 'Same day each week, on waking, after the bathroom, before food or drink. Send Claude the screenshot.')}
-      ${item(t, 'Tape — 13 sites', 'Same morning, tape snug not tight, relaxed muscles. Waist at the belly button, breathe out normally.')}
-      ${item(core === 4, `Photos — ${core}/4 core${got.size > core ? ` (+${got.size - core} flex)` : ''}`, 'Same spot, same light, same shorts, phone at belly height. Front, both sides, back; flexes optional.')}
+      ${item(t, 'Tape — 13 sites', 'Same morning, tape flat and snug (no dent in the skin), relaxed muscles, read at a normal breath out. Waist always at the belly button. Measure each site twice — if they differ, a third time — and log the average.')}
+      ${item(core === 4, `Photos — ${core}/4 core${got.size > core ? ` (+${got.size - core} flex)` : ''}`, 'Phone on a stand at belly-button height, 8–10 ft back, 2x lens, timer. Same marked spot, same light, same shorts at the same height, normal breath out, before training. Front, both sides, back; flexes optional.')}
     </ul></section>`;
 }
 

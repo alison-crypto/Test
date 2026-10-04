@@ -22,12 +22,14 @@
   <div class="workouts-subtitle">Blood work, body scans and training — what changed and what it means · send Claude a screenshot or PDF to add more</div>
   <div class="pg-tabs" role="tablist">
     <button type="button" class="race-preset-btn" data-tab="labs">🧪 Labs</button>
+    <button type="button" class="race-preset-btn" data-tab="checkin">📏 Weekly</button>
     <button type="button" class="race-preset-btn" data-tab="body">⚖️ Body</button>
     <button type="button" class="race-preset-btn" data-tab="workouts">⌚ Workouts</button>
   </div>
 </header>
 
 <div id="tab-labs"><div id="labs-root"><section class="rp-card"><p class="rp-muted">Loading your results…</p></section></div></div>
+<div id="tab-checkin" hidden><div id="checkin-root"><section class="rp-card"><p class="rp-muted">Loading…</p></section></div></div>
 <div id="tab-body" hidden><div id="body-root"><section class="rp-card"><p class="rp-muted">Loading…</p></section></div></div>
 <div id="tab-workouts" hidden><div id="workouts-root"><section class="rp-card"><p class="rp-muted">Loading…</p></section></div></div>
 
@@ -38,6 +40,7 @@
 <script src="race-plan-data.js"></script>
 <script type="module" src="labs.js"></script>
 <script type="module" src="progress.js"></script>
+<script type="module" src="checkin.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js').catch(() => {});

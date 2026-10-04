@@ -1,4 +1,5 @@
-// progress.js — the ⚖️ Body and ⌚ Workouts tabs on the Health page.
+// progress.js — tab switching on the Health page, plus the ⚖️ Body and
+// ⌚ Workouts tabs (📏 Weekly lives in checkin.js).
 // Data lives only in Supabase (body_scans, health_workouts, progress_notes —
 // owner-only); Claude adds rows from the screenshots you send. This file is
 // generic: no personal numbers in here because the app's code is public.
@@ -12,7 +13,7 @@ const pace = (s, km) => { if (!km || !s) return ''; const p = s / km; return `${
 const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
 // ---------- tabs ----------
-const TABS = ['labs', 'body', 'workouts'];
+const TABS = ['labs', 'checkin', 'body', 'workouts'];
 function show(tab) {
   if (!TABS.includes(tab)) tab = 'labs';
   TABS.forEach((t) => {

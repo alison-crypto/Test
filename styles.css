@@ -5085,3 +5085,38 @@ div.lab-info { background: none; font-size: 12px; color: var(--muted); margin-to
 .pg-e2 { background: rgba(10, 132, 255, 0.12); color: #0a6ad6; }
 .pg-e3 { background: rgba(255, 159, 10, 0.18); color: #b86e00; }
 .pg-e4 { background: rgba(255, 59, 48, 0.15); color: #d0302a; }
+
+/* Health · 📏 Weekly check-in */
+.pg-tabs .race-preset-btn { padding-left: 4px; padding-right: 4px; font-size: 12px; white-space: nowrap; }
+.ci-check { list-style: none; margin: 8px 0 0; padding: 0; }
+.ci-check li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.ci-check li:last-child { border-bottom: 0; }
+.ci-check li div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ci-check li i { font-style: normal; font-size: 12px; color: var(--muted); }
+.ci-check li.ci-ok b { color: #1f8a3c; }
+.ci-scroll { overflow-x: auto; margin-top: 6px; }
+.ci-tbl { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ci-tbl th, .ci-tbl td { padding: 6px 4px; border-bottom: 1px solid var(--border); text-align: right; white-space: nowrap; }
+.ci-tbl th:first-child { text-align: left; font-weight: 600; color: var(--muted-strong); }
+.ci-tbl thead th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; color: var(--muted); font-weight: 700; }
+.ci-tbl td small { color: var(--muted); font-size: 11px; }
+.ci-tbl td.ci-d { font-weight: 700; color: var(--muted-strong); }
+.ci-tbl td.pg-good { color: #1f8a3c; }
+.ci-tbl td.pg-bad { color: #b86e00; }
+.ci-form, .ci-up { margin-top: 8px; }
+.ci-up summary { cursor: pointer; padding: 6px 0; }
+.ci-date { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted-strong); margin: 8px 0; }
+.ci-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ci-fields label { display: flex; flex-direction: column; gap: 3px; font-size: 12px; color: var(--muted-strong); min-width: 0; }
+.ci-fields input, .ci-date input { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg, var(--card)); color: var(--text); font-size: 16px; font-family: inherit; min-width: 0; box-sizing: border-box; width: 100%; }
+.ci-date input { width: auto; }
+.ci-file input { font-size: 12px; padding: 6px; }
+.ci-save { margin-top: 8px; }
+.ci-msg { margin-left: 8px; font-size: 12px; color: var(--muted-strong); }
+.ci-poses { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.ci-poses .race-preset-btn { font-size: 12px; padding: 6px 10px; }
+.ci-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+.ci-compare figure { margin: 0; min-width: 0; }
+.ci-compare img { width: 100%; aspect-ratio: 9 / 16; object-fit: cover; border-radius: 10px; background: var(--border); display: block; }
+.ci-compare figcaption { font-size: 12px; color: var(--muted-strong); text-align: center; margin-top: 4px; }
+.ci-none { aspect-ratio: 9 / 16; border: 1px dashed var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); text-align: center; padding: 8px; }

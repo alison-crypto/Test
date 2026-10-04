@@ -1,4 +1,4 @@
-const CACHE = 'assistant-v93';
+const CACHE = 'assistant-v94';
 const ASSETS = [
   './',
   './index.html',
@@ -41,6 +41,7 @@ const ASSETS = [
   './labs-guide.js',
   './progress.js',
   './checkin.js',
+  './units.js',
   './library.html',
   './library.js',
   './library-data.js',

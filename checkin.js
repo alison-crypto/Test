@@ -46,13 +46,18 @@ function byWeek(rows, key) {
   return [...m.entries()].sort((a, b) => (a[0] < b[0] ? 1 : -1)).map(([w, r]) => ({ w, r }));
 }
 const fmtIn = (v) => { const n = Number(v); const whole = Math.floor(n), frac = n - whole; const f = { 0.25: '¼', 0.5: '½', 0.75: '¾' }[Math.round(frac * 4) / 4]; return frac && f ? `${whole}${f}` : String(+n.toFixed(2)); };
+// every number is shown in both systems: lb + kg, in + cm
+const ALT = { lb: ['kg', 0.45359237, 1], in: ['cm', 2.54, 1] };
+const altOf = (v, unit) => (ALT[unit] ? `${(Number(v) * ALT[unit][1]).toFixed(ALT[unit][2])} ${ALT[unit][0]}` : '');
 function delta(v, prev, dec, better, unit) {
   if (prev == null || v == null) return '<td class="ci-d">—</td>';
   const d = Number(v) - Number(prev);
   if (Math.abs(d) < 1e-9) return '<td class="ci-d">0</td>';
   const cls = !better ? '' : (better === 'up') === (d > 0) ? 'pg-good' : 'pg-bad';
-  const txt = unit === 'in' ? `${d > 0 ? '+' : '−'}${fmtIn(Math.abs(d))}` : `${d > 0 ? '+' : '−'}${Math.abs(d).toFixed(dec)}`;
-  return `<td class="ci-d ${cls}">${esc(txt)}</td>`;
+  const sign = d > 0 ? '+' : '−';
+  const txt = unit === 'in' ? `${sign}${fmtIn(Math.abs(d))}` : `${sign}${Math.abs(d).toFixed(dec)}`;
+  const alt = ALT[unit] ? `<small>${sign}${esc(altOf(Math.abs(d), unit))}</small>` : '';
+  return `<td class="ci-d ${cls}">${esc(txt)}${alt}</td>`;
 }
 const weekLabel = (w) => { const P = window.RACE_PLAN; const wk = P && P.weekFor ? P.weekFor(new Date(w + "T12:00:00")) : null; return wk && wk.n ? `Week ${wk.n}` : `Week of ${fmtDate(w)}`; };
 
@@ -61,11 +66,11 @@ function table(title, rows, defs, getVal, unitOf, dec) {
   const cur = rows[0], prev = rows[1], first = rows[rows.length - 1];
   return `<section class="rp-card"><h2>${esc(title)}</h2>
     <p class="rp-muted">${esc(weekLabel(cur.w))} · ${esc(fmtDate(cur.date))}${prev ? ` · vs ${esc(fmtDate(prev.date))}` : ''}${rows.length > 2 ? ` · start ${esc(fmtDate(first.date))}` : ''}</p>
-    <div class="ci-scroll"><table class="ci-tbl"><thead><tr><th></th><th>Now</th><th>Δ last</th>${rows.length > 2 ? '<th>Δ start</th>' : ''}</tr></thead><tbody>
+    <div class="ci-scroll" data-units="done"><table class="ci-tbl"><thead><tr><th></th><th>Now</th><th>Δ last</th>${rows.length > 2 ? '<th>Δ start</th>' : ''}</tr></thead><tbody>
     ${defs.map((d) => {
       const v = getVal(cur.r, d[0]); if (v == null) return '';
       const u = unitOf(d), dc = dec(d), better = d[d.length - 1];
-      return `<tr><th>${esc(d[1])}</th><td><b>${esc(u === 'in' ? fmtIn(v) : Number(v).toFixed(dc))}</b><small> ${esc(u)}</small></td>
+      return `<tr><th>${esc(d[1])}</th><td><b>${esc(u === 'in' ? fmtIn(v) : Number(v).toFixed(dc))}</b><small> ${esc(u)}</small>${ALT[u] ? `<small class="ci-alt">${esc(altOf(v, u))}</small>` : ''}</td>
         ${delta(v, prev ? getVal(prev.r, d[0]) : null, dc, better, u)}
         ${rows.length > 2 ? delta(v, getVal(first.r, d[0]), dc, better, u) : ''}</tr>`;
     }).join('')}
@@ -79,7 +84,7 @@ function history() {
     ${weeks.map((w) => {
       const s = byWeek(scans, 'measured').find((x) => x.w === w), t = byWeek(tapes, 'measured').find((x) => x.w === w);
       const ph = photos.filter((p) => weekOf(p.taken) === w).length;
-      return `<div class="lab-report"><b>${esc(weekLabel(w))}</b> · ${s ? `${esc(s.r.weight_lb)} lb · ${esc(s.r.body_fat_pct)}% fat` : 'no scale'} · ${t ? `waist ${esc(fmtIn(t.r.waist))} in` : 'no tape'} · ${ph ? `${ph} photos` : 'no photos'}</div>`;
+      return `<div class="lab-report" data-units="done"><b>${esc(weekLabel(w))}</b> · ${s ? `${esc(s.r.weight_lb)} lb (${esc(altOf(s.r.weight_lb, 'lb'))}) · ${esc(s.r.body_fat_pct)}% fat` : 'no scale'} · ${t && t.r.waist != null ? `waist ${esc(fmtIn(t.r.waist))} in (${esc(altOf(t.r.waist, 'in'))})` : 'no tape'} · ${ph ? `${ph} photos` : 'no photos'}</div>`;
     }).join('')}</details>`;
 }
 
@@ -102,9 +107,10 @@ function tapeForm() {
   const last = tapes[0] || {};
   return `<details class="rp-card" id="ci-tape-card"><summary><b>✏️ Log tape measurements</b></summary>
     <form id="ci-tape" class="ci-form">
-      <label class="ci-date">Date <input type="date" name="measured" value="${esc(iso(new Date()))}" required></label>
-      <div class="ci-fields">${TAPE.map(([k, label]) => `<label>${esc(label)}<input name="${k}" inputmode="decimal" placeholder="${last[k] != null ? esc(fmtIn(last[k])) : 'in'}"></label>`).join('')}</div>
-      <p class="rp-muted">Inches. You can type ½ ¼ ¾ or decimals (e.g. 12.25). Leave a box empty to skip it.</p>
+      <label class="ci-date">Date <input type="date" name="measured" value="${esc(iso(new Date()))}" required>
+        <select name="unit"><option value="in">inches</option><option value="cm">cm</option></select></label>
+      <div class="ci-fields" data-units="done">${TAPE.map(([k, label]) => `<label>${esc(label)}<input name="${k}" inputmode="decimal" placeholder="${last[k] != null ? esc(`${fmtIn(last[k])} in · ${altOf(last[k], 'in')}`) : ''}"></label>`).join('')}</div>
+      <p class="rp-muted">Inches (½ ¼ ¾ or decimals, e.g. 12.25) or centimetres — pick above. Saved in both. Leave a box empty to skip it.</p>
       <button type="submit" class="race-preset-btn ci-save">Save tape</button><span class="ci-msg" id="ci-tape-msg"></span>
     </form></details>`;
 }
@@ -115,11 +121,19 @@ function photoBlock() {
   return `<section class="rp-card"><h2>📸 Progress photos</h2>
     ${dates.length ? `<div class="ci-poses">${POSES.filter(([k]) => photos.some((p) => p.pose === k)).map(([k, l]) => `<button type="button" class="race-preset-btn ${k === comparePose ? 'active' : ''}" data-pose="${k}">${esc(l)}</button>`).join('')}</div>
       <div class="ci-compare" id="ci-compare">${dates.length > 1 ? `<figure data-path-date="${esc(first)}"></figure><figure data-path-date="${esc(latest)}"></figure>` : `<figure data-path-date="${esc(latest)}"></figure>`}</div>` : '<p class="rp-muted">No photos yet — add this week’s below. They’re stored privately in your account.</p>'}
+    ${photoReviews()}
     <details class="ci-up"${photos.some((p) => weekOf(p.taken) === weekOf(iso(new Date()))) ? '' : ' open'}><summary><b>＋ Add this week’s photos</b></summary>
       <label class="ci-date">Date <input type="date" id="ci-photo-date" value="${esc(iso(new Date()))}"></label>
       <div class="ci-fields">${POSES.map(([k, l]) => `<label class="ci-file">${esc(l)}<input type="file" accept="image/*" data-upload="${k}"><span class="ci-msg" data-msg="${k}"></span></label>`).join('')}</div>
       <p class="rp-muted">Photos are shrunk on your phone first, then saved to your private folder — only you can see them.</p>
     </details></section>`;
+}
+
+function photoReviews() {
+  const rs = notes.filter((n) => n.kind === 'photos');
+  if (!rs.length) return '';
+  const one = (n) => `<div class="ci-review"><div class="rp-eyebrow">Claude’s photo review · ${esc(fmtDate(n.noted))}</div><h3>${esc(n.title || '')}</h3><div class="lab-text">${esc(n.summary)}</div></div>`;
+  return `${one(rs[0])}${rs.length > 1 ? `<details class="ci-up"><summary><b>Earlier photo reviews (${rs.length - 1})</b></summary>${rs.slice(1).map(one).join('')}</details>` : ''}`;
 }
 
 async function fillCompare() {
@@ -150,7 +164,7 @@ async function compress(file, maxDim = 1400, quality = 0.85) {
 
 function render() {
   const host = document.getElementById('checkin-root');
-  const note = notes[0];
+  const note = notes.find((n) => n.kind === 'checkin');
   const sw = byWeek(scans, 'measured').map((x) => ({ ...x, date: x.r.measured }));
   const tw = byWeek(tapes, 'measured').map((x) => ({ ...x, date: x.r.measured }));
   host.innerHTML = `
@@ -170,7 +184,7 @@ async function load() {
     supabase.from('body_scans').select('*').order('measured', { ascending: false }),
     supabase.from('body_measures').select('*').order('measured', { ascending: false }),
     supabase.from('progress_photos').select('taken,pose,path').order('taken', { ascending: false }),
-    supabase.from('progress_notes').select('kind,noted,title,summary').eq('kind', 'checkin').order('noted', { ascending: false }),
+    supabase.from('progress_notes').select('kind,noted,title,summary').in('kind', ['checkin', 'photos']).order('noted', { ascending: false }),
   ]);
   scans = s.data || []; tapes = t.data || []; photos = p.data || []; notes = n.data || [];
   if (!photos.some((x) => x.pose === comparePose) && photos.length) comparePose = photos[0].pose;
@@ -190,8 +204,10 @@ document.addEventListener('submit', async (e) => {
   const f = new FormData(e.target), msg = document.getElementById('ci-tape-msg');
   const row = { user_id: uid, measured: f.get('measured'), updated_at: new Date().toISOString() };
   let n = 0;
+  const cm = f.get('unit') === 'cm';
   for (const [k, label] of TAPE) {
-    const v = parseIn(f.get(k));
+    let v = parseIn(f.get(k));
+    if (cm && v != null && !Number.isNaN(v)) v = Math.round((v / 2.54) * 100) / 100;
     if (Number.isNaN(v)) { msg.textContent = `Check ${label}`; return; }
     if (v != null) { row[k] = v; n++; }
   }

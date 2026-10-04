@@ -50,7 +50,7 @@ const HX_OPTIONS = {
     "why": "Loads the same quads/glutes that limit the sled push, with continuous reps that reproduce the leg burn and heart rate of a 2-4 min push.",
     "equip": "45° leg press (hack squat works too)",
     "scale": "weight",
-    "compNote": "4 x 15 reps, 10 s rack between sets to mirror lane turns; ~140 kg added ≈ race sled 152 kg effort for a 94 kg athlete",
+    "compNote": "4 x 15 reps, 10 s rack between sets to mirror lane turns; ~140 kg added ≈ race sled 152 kg effort for a heavier athlete on a gym sled",
     "times": {
      "beginner": 240000,
      "amateur": 195000,
@@ -280,7 +280,7 @@ const HX_OPTIONS = {
      "Reach tall onto the toes, then slam with the lats and abs while hinging, as on a ski stroke",
      "Squat-hinge to pick up with a flat back and go straight into the next rep"
     ],
-    "mistake": "Rounding the lower back on the pick-up once fatigued. At 94 kg and 188 cm, bend the knees to meet the ball and don't bend over it.",
+    "mistake": "Rounding the lower back on the pick-up once fatigued. Tall athletes: bend the knees to meet the ball and don't bend over it.",
     "video": "medicine ball slam technique hyrox skierg alternative",
     "img": "Overhead_Slam",
     "unit": "reps",

@@ -5120,3 +5120,12 @@ div.lab-info { background: none; font-size: 12px; color: var(--muted); margin-to
 .ci-compare img { width: 100%; aspect-ratio: 9 / 16; object-fit: cover; border-radius: 10px; background: var(--border); display: block; }
 .ci-compare figcaption { font-size: 12px; color: var(--muted-strong); text-align: center; margin-top: 4px; }
 .ci-none { aspect-ratio: 9 / 16; border: 1px dashed var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); text-align: center; padding: 8px; }
+.ci-tbl td small { display: block; }
+.ci-tbl td b + small { display: inline; }
+.ci-tbl td small.ci-alt { display: block; font-size: 11px; }
+.ci-tbl td.ci-d small { font-weight: 600; font-size: 11px; opacity: 0.85; }
+.ci-review { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.ci-review h3 { margin: 4px 0 6px; font-size: 16px; }
+.ci-date select { padding: 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg, var(--card)); color: var(--text); font-size: 15px; }
+.pg-cell small.pg-alt { font-size: 12px; color: var(--muted-strong); margin-top: -2px; }
+.pg-cell em small { font-weight: 600; }

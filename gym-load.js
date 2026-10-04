@@ -24,7 +24,7 @@
   const MAP = {
     // Alison
     him_lA_lunge: ['one', 'hand'], him_sB_thruster: ['hand'], him_uA_row: ['hand', 'stack'],
-    him_sB_swing: ['one'], him_sB_carry: ['hand'], him_uA_bench: ['hand', 'bar'], him_uB_row: ['stack'],
+    him_sB_swing: ['one'], him_sB_carry: ['hand'], him_uA_bench: ['hand', 'bar'], him_uB_row: ['stack'], him_uP_facepull: ['stack'],
     him_lB_tbar: ['bar'], him_lA_squat: ['bar', 'one'], him_sA_bss: ['hand', 'bar'], him_sA_legpress: ['plates'],
     him_lB_hipthrust: ['bar', 'hand'], him_lA_calf: ['stack', 'hand'], him_sC_pallof: ['stack'],
     him_sC_calfiso: ['stack', 'hand'], him_sC_carry: ['hand'],

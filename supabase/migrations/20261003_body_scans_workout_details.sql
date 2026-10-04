@@ -70,3 +70,7 @@ create policy "own photos delete" on public.progress_photos for delete using ((s
 
 alter table public.progress_notes drop constraint progress_notes_kind_check;
 alter table public.progress_notes add constraint progress_notes_kind_check check (kind in ('body', 'workouts', 'checkin'));
+
+-- 2026-10-04 · Claude's photo reviews shown under the progress photos
+alter table public.progress_notes drop constraint progress_notes_kind_check;
+alter table public.progress_notes add constraint progress_notes_kind_check check (kind in ('body', 'workouts', 'checkin', 'photos'));

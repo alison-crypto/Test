@@ -21,18 +21,18 @@ const WEEK = {
   sun: { type: 'MOD',  train: 'Long easy run (9:00 AM)' },
 };
 
-// MAINTENANCE for weeks 1–4 of the race block (cut paused: short sleep in a
-// deficit costs muscle, not fat). ~94 kg: protein ~2 g/kg every day; carbs
-// ~3 g/kg rest, ~4.5 training, ~5.5 hard. Reassess from week 5 — a small
-// deficit (≤0.5% body weight/week) only in weeks you sleep ≥ 6.5 h; none in
-// weeks 11–12; ~8 g/kg carbs the day before the race.
-// Fat ≥ ~25% of calories every day (Oct 2026 labs: testosterone 14.1, down
-// from 20.2 — low-fat diets lower it ~10–15%; HDL 1.05 is on the low side).
-// Mostly olive oil, nuts, avocado, eggs, salmon/sardines. Same calories; the
-// difference comes out of carbs, which still sit at ~4.5–5 g/kg on hard days.
+// Calories by day type. Protein ~2 g/kg every day; carbs scale with the
+// session (lowest on rest days, highest on hard days); fat ≥ ~25% of
+// calories every day (low-fat diets lower testosterone and HDL) — mostly olive
+// oil, nuts, avocado, eggs, salmon/sardines.
+// From week 1 (Oct 2026 check-in): a small deficit on EASY and MOD days only;
+// HIGH and PEAK days stay fully fuelled for the coached circuits and Saturday.
+// Guardrails: sleep under ~6 h → eat that day at the old numbers (+200–300
+// kcal of carbs); none in weeks 11–12; ~8 g/kg carbs the day before the race.
+// Personal numbers (labs, scans) live only in the database, never in here.
 const MACROS = {
-  EASY: { kcal: 2900, p: 190, c: 310, f: 100 },
-  MOD:  { kcal: 3200, p: 190, c: 405, f: 90 },
+  EASY: { kcal: 2600, p: 190, c: 270, f: 85 },
+  MOD:  { kcal: 3000, p: 190, c: 370, f: 85 },
   HIGH: { kcal: 3400, p: 195, c: 440, f: 95 },
   PEAK: { kcal: 3500, p: 195, c: 465, f: 95 },
 };
@@ -49,14 +49,14 @@ const MEALS = {
     prepMeal('11:00 AM', 'Breakfast', 'Window opens 11 am.'),
     COFFEE,
     prepMeal('2:00 PM', 'Lunch'),
-    { time: '4:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Rest day: small top-up. ' + PREP_NOTE, items: ['1 scoop whey', '1 banana', 'Creatine 5 g'] },
+    { time: '4:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Rest day: protein only (small cut day). ' + PREP_NOTE, items: ['1 scoop whey in water', 'Creatine 5 g'] },
     prepMeal('7:00 PM', 'Dinner', 'Window closes 8 pm.'),
   ],
   MOD: [
     prepMeal('11:00 AM', 'Breakfast', 'Window opens 11 am.'),
     COFFEE,
     prepMeal('2:00 PM', 'Lunch'),
-    { time: '4:15 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: '~45 min before training. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana', '40 g oats (blend in)', 'Creatine 5 g'] },
+    { time: '4:15 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: '~45 min before training. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana', 'Creatine 5 g'] },
     prepMeal('7:30 PM', 'Dinner', 'After training. Mondays: eat ~6:45 PM before volleyball. Window closes ~8 pm (9 pm on Mondays).'),
   ],
   HIGH: [
@@ -93,7 +93,7 @@ const MEALS_AM = {
     prepMeal('8:00 AM', 'Breakfast', 'Window opens ~7–8 am on the new schedule.'),
     COFFEE_AM,
     prepMeal('12:30 PM', 'Lunch'),
-    { time: '3:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Rest day: small top-up. ' + PREP_NOTE, items: ['1 scoop whey', '1 banana'] },
+    { time: '3:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Rest day: protein only (small cut day). ' + PREP_NOTE, items: ['1 scoop whey in water'] },
     prepMeal('6:30 PM', 'Dinner', 'Window closes ~7:30 pm.'),
   ],
   MOD: [
@@ -101,7 +101,7 @@ const MEALS_AM = {
     prepMeal('7:15 AM', 'Breakfast', 'Right after the 6 AM session — this is your recovery meal.'),
     COFFEE_AM,
     prepMeal('12:00 PM', 'Lunch'),
-    { time: '3:45 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: '~45 min before the 4:30 session. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana', '40 g oats (blend in)'] },
+    { time: '3:45 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: '~45 min before the 4:30 session. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana'] },
     prepMeal('6:30 PM', 'Dinner', 'Mondays: eat by ~6:15 PM before volleyball. Window closes ~7:30 pm (9 pm Mondays).'),
   ],
   HIGH: [

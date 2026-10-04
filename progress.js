@@ -45,6 +45,8 @@ const BODY = [
   ['bmr_kcal', 'BMR (estimate)', 'kcal', 0, 'scale estimate', [null, null], null],
   ['waist_cm', 'Waist', 'cm', 1, '< half your height', [null, null], 'down'],
 ];
+// both systems everywhere: lb ↔ kg, cm ↔ in
+const ALT = { lb: ['kg', 0.45359237], cm: ['in', 1 / 2.54] };
 function spark(points) {
   if (points.length < 2) return '';
   const vs = points.map((p) => p[1]); const min = Math.min(...vs), max = Math.max(...vs), span = max - min || 1;
@@ -66,8 +68,10 @@ function renderBody(scans, notes) {
         const good = d == null || d === 0 || !better ? '' : (better === 'up') === (d > 0) ? 'pg-good' : 'pg-bad';
         const out = (goal[0] != null && v < goal[0]) || (goal[1] != null && v > goal[1]);
         const series = scans.slice().reverse().filter((s) => s[k] != null).map((s) => [s.measured, Number(s[k])]);
-        return `<div class="pg-cell ${out ? 'pg-out' : ''}"><span>${esc(label)}</span><b>${esc(v.toFixed(dec))}<small> ${esc(unit)}</small></b>
-          ${d != null ? `<em class="${good}">${d > 0 ? '+' : ''}${esc(d.toFixed(dec))}</em>` : ''}
+        const alt = ALT[unit] ? (x) => `${(x * ALT[unit][1]).toFixed(1)} ${ALT[unit][0]}` : null;
+        return `<div class="pg-cell ${out ? 'pg-out' : ''}" data-units="done"><span>${esc(label)}</span><b>${esc(v.toFixed(dec))}<small> ${esc(unit)}</small></b>
+          ${alt ? `<small class="pg-alt">${esc(alt(v))}</small>` : ''}
+          ${d != null ? `<em class="${good}">${d > 0 ? '+' : ''}${esc(d.toFixed(dec))}${alt ? ` <small>(${d > 0 ? '+' : ''}${esc(alt(d))})</small>` : ''}</em>` : ''}
           ${spark(series)}<i>Goal: ${esc(goalTxt)}</i></div>`;
       }).join('')}</div>
     </section>

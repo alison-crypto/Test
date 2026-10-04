@@ -104,7 +104,7 @@ function tapeForm() {
     <form id="ci-tape" class="ci-form">
       <label class="ci-date">Date <input type="date" name="measured" value="${esc(iso(new Date()))}" required></label>
       <div class="ci-fields">${TAPE.map(([k, label]) => `<label>${esc(label)}<input name="${k}" inputmode="decimal" placeholder="${last[k] != null ? esc(fmtIn(last[k])) : 'in'}"></label>`).join('')}</div>
-      <p class="rp-muted">Inches. You can type ½ ¼ ¾ or decimals (e.g. 39.25). Leave a box empty to skip it.</p>
+      <p class="rp-muted">Inches. You can type ½ ¼ ¾ or decimals (e.g. 12.25). Leave a box empty to skip it.</p>
       <button type="submit" class="race-preset-btn ci-save">Save tape</button><span class="ci-msg" id="ci-tape-msg"></span>
     </form></details>`;
 }

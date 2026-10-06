@@ -112,10 +112,10 @@
     const fuelHTML = `<section class="rp-card" id="rules">
       <h2>Sleep &amp; fuel rules</h2>
       <ul class="rp-rules">
-        <li>Small cut from week 1, only on rest and moderate days (hard days fully fuelled); under ~6 h sleep → eat more that day; no cut in weeks 11–12. Weeks 1–2 window ~11 am–8 pm; from week 3 (6 AM training) ~7 am–7:30 pm, breakfast right after the morning session.</li>
+        <li>Small cut from week 1 (~300 kcal a day — same 3 meals daily, the smoothie/snack/starch change with the day; hard days fully fuelled); under ~6 h sleep → eat more that day; no cut in weeks 11–12. Weeks 1–2 window ~11 am–8 pm; from week 3 (6 AM training) ~7 am–7:30 pm, breakfast right after the morning session.</li>
         <li>Daily steps 8,000–10,000 (walks with the stroller count) — the cheapest fat loss there is, with no recovery cost. Weekly check-in every Saturday on waking: scale, tape, photos (Health → 📏 Weekly).</li>
         <li>BC stat holidays (Sep 30, Oct 12, Nov 11) have home / outdoor sessions — the gym is closed.</li>
-        <li>Protein 170–205 g a day; keep creatine; carbs up on hard days.</li>
+        <li>Protein 185–225 g a day; keep creatine; carbs up on hard days (double starch, banana, sandwich).</li>
         <li>Last coffee ~1:30 pm, no stimulant pre-workout in the evening.</li>
         <li>Finish hard sessions ≥ 90 min before bed. Nap 20–90 min (1–4 pm) when you can.</li>
         <li>Runs: grow ~10% a week (never more than 15%), flat even surfaces, quick steps; extra aerobic work on bike/row/ski.</li>

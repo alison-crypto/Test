@@ -21,63 +21,83 @@ const WEEK = {
   sun: { type: 'MOD',  train: 'Long easy run (9:00 AM)' },
 };
 
-// Calories by day type. Protein ~2 g/kg every day; carbs scale with the
-// session (lowest on rest days, highest on hard days); fat ≥ ~25% of
-// calories every day (low-fat diets lower testosterone and HDL) — mostly olive
-// oil, nuts, avocado, eggs, salmon/sardines.
-// From week 1 (Oct 2026 check-in): a small deficit on EASY and MOD days only;
-// HIGH and PEAK days stay fully fuelled for the coached circuits and Saturday.
-// Guardrails: sleep under ~6 h → eat that day at the old numbers (+200–300
-// kcal of carbs); none in weeks 11–12; ~8 g/kg carbs the day before the race.
+// Calories by day type, built from one simple meal prep (see PLANS).
+// Protein ~2–2.4 g/kg every day; fat ~30% of calories (low-fat diets lower
+// testosterone and HDL); carbs scale with the day: rest < training < hard.
+// Average ~3,000 kcal/day ≈ a ~300 kcal/day deficit → ~0.25–0.4 kg/week.
+// Guardrails: sleep under ~6 h → add a banana + 50 g oats that day; no cut in
+// weeks 11–12; ~8 g/kg carbs the day before the race.
 // Personal numbers (labs, scans) live only in the database, never in here.
+
 const MACROS = {
-  EASY: { kcal: 2600, p: 190, c: 270, f: 85 },
-  MOD:  { kcal: 3000, p: 190, c: 370, f: 85 },
-  HIGH: { kcal: 3400, p: 195, c: 440, f: 95 },
-  PEAK: { kcal: 3500, p: 195, c: 465, f: 95 },
+  // Totals of the plan below (rice + alternating chicken / lean beef).
+  EASY: { kcal: 2500, p: 185, c: 225, f: 88 },
+  MOD:  { kcal: 2800, p: 205, c: 275, f: 95 },
+  HIGH: { kcal: 3300, p: 225, c: 365, f: 97 },
+  PEAK: { kcal: 3300, p: 225, c: 365, f: 97 },
 };
 
-// Same meal prep for breakfast, lunch and dinner every day (easy to cook).
-// The whey / MRE smoothie is the dial that tops each day up to its target —
-// sizes below are placeholders until the meal-prep recipe is in.
-const PREP = 'Meal prep portion (same every day)';
-const PREP_NOTE = 'Tell Claude what’s in the meal prep — calories get calculated and the smoothie resized to hit today’s target.';
-const COFFEE = { time: 'by 1:30 PM', name: 'Last coffee', items: ['Coffee cutoff for sleep', 'No stimulant pre-workout in the evening'] };
-function prepMeal(time, name, extra) { return { time, name, tag: 'PREP', fuel: extra || '', items: [PREP] }; }
-const MEALS = {
-  EASY: [
-    prepMeal('11:00 AM', 'Breakfast', 'Window opens 11 am.'),
-    COFFEE,
-    prepMeal('2:00 PM', 'Lunch'),
-    { time: '4:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Rest day: protein only (small cut day). ' + PREP_NOTE, items: ['1 scoop whey in water', 'Creatine 5 g'] },
-    prepMeal('7:00 PM', 'Dinner', 'Window closes 8 pm.'),
+// The same three meals every day — one meal prep. The smoothie and the snack
+// are the dials: the day type only changes the starch portion, the pre-session
+// banana and the afternoon snack.
+const B = ['3 eggs', '½ avocado'];
+const SMOOTHIE = ['100 g strawberries', '100 g oats', '1 scoop whey', '2 scoops MRE', 'creatine 5 g'];
+const plate = (starch) => [
+  '200 g chicken breast or lean beef (weighed raw)',
+  `${starch} g cooked rice or mashed potato`,
+  '200 g greens',
+  '1 tbsp olive oil',
+];
+const BANANA = ['1 banana', 'water + pinch of salt'];
+const BAR = ['protein bar (~20 g protein)'];
+const SANDWICH = ['2 slices whole-grain bread', '100 g turkey or chicken', '1 slice cheese', 'mustard / lettuce'];
+const meal = (time, name, items, fuel, tag) => ({ time, name, tag: tag || '', fuel: fuel || '', items });
+
+// Supplements ride along with the meals (full protocol on the page below).
+const SUPP_AM = 'With breakfast: D3, omega-3, ashwagandha.';
+const SUPP_PM = 'With dinner: omega-3, ashwagandha (if splitting the dose).';
+
+// Day plans by schedule. Hard days (Tue/Thu circuits, Sat) get 300 g starch at
+// lunch and dinner, a banana before and a sandwich in the afternoon.
+const PLANS = {
+  // Tue + Thu — coached circuit 5:30 AM
+  coach: [
+    meal('5:00 AM', 'Pre-circuit', BANANA, 'Small and fast. Ghost here (creatine stays in the smoothie).', 'FUEL'),
+    meal('6:45 AM', 'Breakfast', B, 'Right after the circuit. ' + SUPP_AM, 'PREP'),
+    meal('7:00 AM', 'Smoothie', SMOOTHIE, 'Recovery — with or right after breakfast.', 'SHAKE'),
+    meal('12:00 PM', 'Lunch', plate(300), 'Hard day: double starch.', 'PREP'),
+    meal('3:30 PM', 'Sandwich', SANDWICH, 'Set a phone reminder — this is the meal that gets forgotten.', 'SNACK'),
+    meal('6:30 PM', 'Dinner', plate(300), 'Hard day: double starch. ' + SUPP_PM, 'PREP'),
   ],
-  MOD: [
-    prepMeal('11:00 AM', 'Breakfast', 'Window opens 11 am.'),
-    COFFEE,
-    prepMeal('2:00 PM', 'Lunch'),
-    { time: '4:15 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: '~45 min before training. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana', 'Creatine 5 g'] },
-    prepMeal('7:30 PM', 'Dinner', 'After training. Mondays: eat ~6:45 PM before volleyball. Window closes ~8 pm (9 pm on Mondays).'),
+  // Mon / Wed / Sun — training day
+  train: [
+    meal('7:30 AM', 'Breakfast', B, SUPP_AM, 'PREP'),
+    meal('Before training', 'Pre-session', ['1 banana'], 'Morning session: 30–45 min before. Evening session: ~1 h before.', 'FUEL'),
+    meal('After training', 'Smoothie', SMOOTHIE, 'Within ~1 h after the session (or 1–2 h before if you train late in the day).', 'SHAKE'),
+    meal('12:00 PM', 'Lunch', plate(150), '', 'PREP'),
+    meal('3:30 PM', 'Protein bar', BAR, 'Afternoon / before volleyball.', 'SNACK'),
+    meal('6:30 PM', 'Dinner', plate(150), SUPP_PM, 'PREP'),
   ],
-  HIGH: [
-    prepMeal('11:00 AM', 'Breakfast', 'Window opens 11 am. Hard day — don’t skip.'),
-    COFFEE,
-    prepMeal('2:00 PM', 'Lunch', 'Extra rice/potato on hard days if the prep allows.'),
-    { time: '4:15 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: 'Biggest top-up of the week before training. ' + PREP_NOTE, items: ['4 scoops MRE', '1 banana', '50 g oats (blend in)', 'Creatine 5 g'] },
-    prepMeal('7:30 PM', 'Dinner', 'Right after training. Window closes ~8 pm.'),
+  // Sat — your circuit or intervals at 9 AM
+  sat: [
+    meal('7:30 AM', 'Pre-session', BANANA, 'Ghost here. No fasting on hard mornings.', 'FUEL'),
+    meal('10:45 AM', 'Breakfast', B, 'After the session. ' + SUPP_AM, 'PREP'),
+    meal('11:00 AM', 'Smoothie', SMOOTHIE, 'Recovery — with breakfast.', 'SHAKE'),
+    meal('1:30 PM', 'Lunch', plate(300), 'Hard day: double starch.', 'PREP'),
+    meal('4:30 PM', 'Sandwich', SANDWICH, '', 'SNACK'),
+    meal('7:00 PM', 'Dinner', plate(300), 'Hard day: double starch. ' + SUPP_PM, 'PREP'),
   ],
-  PEAK: [
-    { time: '7:30 AM', name: 'Pre-session smoothie', tag: 'MRE', fuel: 'Saturday’s run session is at 9 AM — no fasting on hard mornings. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana', '30 g dates', 'Creatine 5 g'] },
-    prepMeal('11:00 AM', 'Breakfast', 'Recovery meal after the circuit.'),
-    prepMeal('2:30 PM', 'Lunch'),
-    { time: '4:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Top-up to today’s target.', items: ['1 scoop whey', '1 banana'] },
-    prepMeal('7:00 PM', 'Dinner', 'Window closes ~8 pm.'),
+  // Fri — rest
+  rest: [
+    meal('7:30 AM', 'Breakfast', B, SUPP_AM, 'PREP'),
+    meal('12:00 PM', 'Lunch', plate(150), '', 'PREP'),
+    meal('3:30 PM', 'Smoothie', SMOOTHIE, 'Rest day: the smoothie is your snack — no bar.', 'SHAKE'),
+    meal('6:30 PM', 'Dinner', plate(150), SUPP_PM, 'PREP'),
   ],
 };
 
 // From week 3 (Mon Oct 12) Mon + Wed training moves to 6–7 AM, with a second
-// session 4:30–5:30 PM. The eating window moves to ~7 AM–7:30 PM: eat right
-// after the morning session, smoothie before the afternoon one.
+// session 4:30–5:30 PM on Wednesday.
 const AM_START = '2026-10-12';
 const WEEK_AM = {
   mon: { type: 'MOD',  train: 'Strength B full body (6:00 AM) · volleyball for fun 7–9 PM' },
@@ -86,46 +106,15 @@ const WEEK_AM = {
   thu: WEEK.thu,
   fri: WEEK.fri, sat: WEEK.sat, sun: WEEK.sun,
 };
-const COFFEE_AM = { time: 'by 1:00 PM', name: 'Last coffee', items: ['Coffee cutoff for sleep — early bedtime now', 'Pre-workout only for the 6 AM session'] };
-const PRE_AM = { time: '5:30 AM', name: 'Pre-session bite', tag: 'FUEL', fuel: 'Small and fast — a full meal comes right after.', items: ['1 banana (or 2 dates)', 'Water + pinch of salt', 'Ghost + creatine 5 g'] };
-const MEALS_AM = {
-  EASY: [
-    prepMeal('8:00 AM', 'Breakfast', 'Window opens ~7–8 am on the new schedule.'),
-    COFFEE_AM,
-    prepMeal('12:30 PM', 'Lunch'),
-    { time: '3:30 PM', name: 'Smoothie', tag: 'WHEY', fuel: 'Rest day: protein only (small cut day). ' + PREP_NOTE, items: ['1 scoop whey in water'] },
-    prepMeal('6:30 PM', 'Dinner', 'Window closes ~7:30 pm.'),
-  ],
-  MOD: [
-    PRE_AM,
-    prepMeal('7:15 AM', 'Breakfast', 'Right after the 6 AM session — this is your recovery meal.'),
-    COFFEE_AM,
-    prepMeal('12:00 PM', 'Lunch'),
-    { time: '3:45 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: '~45 min before the 4:30 session. ' + PREP_NOTE, items: ['2 scoops MRE', '1 banana'] },
-    prepMeal('6:30 PM', 'Dinner', 'Mondays: eat by ~6:15 PM before volleyball. Window closes ~7:30 pm (9 pm Mondays).'),
-  ],
-  HIGH: [
-    PRE_AM,
-    prepMeal('7:15 AM', 'Breakfast', 'Right after the morning session — hard day, don’t skip.'),
-    COFFEE_AM,
-    prepMeal('12:00 PM', 'Lunch', 'Extra rice/potato on hard days if the prep allows.'),
-    { time: '3:45 PM', name: 'Pre-training smoothie', tag: 'MRE', fuel: 'Biggest top-up of the week, before the 4:30 upper session. ' + PREP_NOTE, items: ['4 scoops MRE', '1 banana', '50 g oats (blend in)'] },
-    prepMeal('6:30 PM', 'Dinner', 'After training. Window closes ~7:30 pm.'),
-  ],
-  PEAK: MEALS.PEAK,
-};
-// Coached circuit days (Tue + Thu, 5:30–6:20 AM) — every week, not just from Oct 12
-const MEALS_COACH = [
-  { time: '5:00 AM', name: 'Pre-circuit bite', tag: 'FUEL', fuel: 'Small and fast — the circuit starts 5:30. A full meal comes right after.', items: ['1 banana (or 2 dates)', 'Water + pinch of salt', 'Ghost + creatine 5 g'] },
-  prepMeal('6:45 AM', 'Breakfast', 'Right after the circuit — hard day, don’t skip. This is your recovery meal.'),
-  COFFEE_AM,
-  prepMeal('12:00 PM', 'Lunch', 'Extra rice/potato on hard days if the prep allows.'),
-  { time: '3:30 PM', name: 'Smoothie', tag: 'MRE', fuel: 'Refill after the morning circuit. ' + PREP_NOTE, items: ['3 scoops MRE', '1 banana', '40 g oats (blend in)'] },
-  prepMeal('6:30 PM', 'Dinner', 'Early bed tonight if you can — next 5:30 start is two days away. Window closes ~7:30 pm.'),
-];
 function amPhase() { return todayStr() >= AM_START; }
 function weekInfo(day) { return (amPhase() ? WEEK_AM : WEEK)[day]; }
-function mealsFor(day) { const info = weekInfo(day); return info.coach ? MEALS_COACH : (amPhase() ? MEALS_AM : MEALS)[info.type]; }
+function mealsFor(day) {
+  const info = weekInfo(day);
+  if (info.coach) return PLANS.coach;
+  if (day === 'sat') return PLANS.sat;
+  if (info.type === 'EASY') return PLANS.rest;
+  return PLANS.train;
+}
 
 // ---- storage helpers ----
 function loadJSON(key, fallback) {

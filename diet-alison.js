@@ -57,26 +57,47 @@ const meal = (time, name, items, fuel, tag) => ({ time, name, tag: tag || '', fu
 const SUPP_AM = 'With breakfast: D3, omega-3, ashwagandha.';
 const SUPP_PM = 'With dinner: omega-3, ashwagandha (if splitting the dose).';
 
-// Day plans by schedule. Hard days (Tue/Thu circuits, Sat) get 300 g starch at
-// lunch and dinner, a banana before and a sandwich in the afternoon.
+// Day plans by schedule. Work is Mon–Fri 7:30 AM–4 PM, so on weekdays
+// breakfast is before work or at the morning break (boil the eggs in the
+// prep), lunch is the packed box at noon and the snack goes in the afternoon
+// break. Hard days (Tue/Thu circuits, Sat) get 300 g starch per plate, a
+// banana before and a sandwich instead of the bar.
 const PLANS = {
-  // Tue + Thu — coached circuit 5:30 AM
+  // Tue + Thu — coached circuit 5:30 AM, work 7:30
   coach: [
     meal('5:00 AM', 'Pre-circuit', BANANA, 'Small and fast. Ghost here (creatine stays in the smoothie).', 'FUEL'),
-    meal('6:45 AM', 'Breakfast', B, 'Right after the circuit. ' + SUPP_AM, 'PREP'),
-    meal('7:00 AM', 'Smoothie', SMOOTHIE, 'Recovery — with or right after breakfast.', 'SHAKE'),
-    meal('12:00 PM', 'Lunch', plate(300), 'Hard day: double starch.', 'PREP'),
-    meal('3:30 PM', 'Sandwich', SANDWICH, 'Set a phone reminder — this is the meal that gets forgotten.', 'SNACK'),
+    meal('6:35 AM', 'Breakfast', B, 'Straight after the circuit, before work. ' + SUPP_AM, 'PREP'),
+    meal('10:00 AM', 'Smoothie', SMOOTHIE, 'Morning break at work — blend it before you leave, keep it cold in a shaker.', 'SHAKE'),
+    meal('12:00 PM', 'Lunch', plate(300), 'Packed box. Hard day: double starch.', 'PREP'),
+    meal('2:30 PM', 'Sandwich', SANDWICH, 'Afternoon break — the meal that gets forgotten, pack it with the lunch box.', 'SNACK'),
     meal('6:30 PM', 'Dinner', plate(300), 'Hard day: double starch. ' + SUPP_PM, 'PREP'),
   ],
-  // Mon / Wed / Sun — training day
-  train: [
-    meal('7:30 AM', 'Breakfast', B, SUPP_AM, 'PREP'),
-    meal('Before training', 'Pre-session', ['1 banana'], 'Morning session: 30–45 min before. Evening session: ~1 h before.', 'FUEL'),
-    meal('After training', 'Smoothie', SMOOTHIE, 'Within ~1 h after the session (or 1–2 h before if you train late in the day).', 'SHAKE'),
-    meal('12:00 PM', 'Lunch', plate(150), '', 'PREP'),
-    meal('3:30 PM', 'Protein bar', BAR, 'Afternoon / before volleyball.', 'SNACK'),
-    meal('6:30 PM', 'Dinner', plate(150), SUPP_PM, 'PREP'),
+  // Mon / Wed until Oct 11 — training after work
+  trainPM: [
+    meal('6:45 AM', 'Breakfast', B, 'Before work. ' + SUPP_AM, 'PREP'),
+    meal('10:00 AM', 'Protein bar', BAR, 'Morning break.', 'SNACK'),
+    meal('12:00 PM', 'Lunch', plate(150), 'Packed box.', 'PREP'),
+    meal('4:15 PM', 'Pre-session', ['1 banana'], 'Right after work, ~1 h before the gym.', 'FUEL'),
+    meal('6:30 PM', 'Smoothie', SMOOTHIE, 'Straight after the session.', 'SHAKE'),
+    meal('7:15 PM', 'Dinner', plate(150), 'Mondays: before volleyball if you go — have the smoothie after instead. ' + SUPP_PM, 'PREP'),
+  ],
+  // Mon / Wed from Oct 12 — 6 AM session, work 7:30
+  trainAM: [
+    meal('5:30 AM', 'Pre-session', ['1 banana'], '30 min before the 6 AM session.', 'FUEL'),
+    meal('7:05 AM', 'Smoothie', SMOOTHIE, 'Straight after the session — drink it on the way to work.', 'SHAKE'),
+    meal('10:00 AM', 'Breakfast', ['3 boiled eggs', '½ avocado'], 'Morning break — boil the eggs in the prep. ' + SUPP_AM, 'PREP'),
+    meal('12:00 PM', 'Lunch', plate(150), 'Packed box.', 'PREP'),
+    meal('2:30 PM', 'Protein bar', BAR, 'Afternoon break — fuel for Wednesday’s 4:30 session / Monday volleyball.', 'SNACK'),
+    meal('6:15 PM', 'Dinner', plate(150), 'Mondays: eat before volleyball (7–9). ' + SUPP_PM, 'PREP'),
+  ],
+  // Sun — long easy run 9 AM
+  sun: [
+    meal('7:30 AM', 'Pre-run', BANANA, 'Ghost (½ scoop) if you want it.', 'FUEL'),
+    meal('10:45 AM', 'Breakfast', B, 'After the run. ' + SUPP_AM, 'PREP'),
+    meal('11:00 AM', 'Smoothie', SMOOTHIE, 'Recovery — with breakfast.', 'SHAKE'),
+    meal('1:30 PM', 'Lunch', plate(150), 'Meal-prep day — cook the next 3–4 days.', 'PREP'),
+    meal('4:30 PM', 'Protein bar', BAR, '', 'SNACK'),
+    meal('7:00 PM', 'Dinner', plate(150), SUPP_PM, 'PREP'),
   ],
   // Sat — your circuit or intervals at 9 AM
   sat: [
@@ -87,11 +108,11 @@ const PLANS = {
     meal('4:30 PM', 'Sandwich', SANDWICH, '', 'SNACK'),
     meal('7:00 PM', 'Dinner', plate(300), 'Hard day: double starch. ' + SUPP_PM, 'PREP'),
   ],
-  // Fri — rest
+  // Fri — rest (or easy run + core after work)
   rest: [
-    meal('7:30 AM', 'Breakfast', B, SUPP_AM, 'PREP'),
-    meal('12:00 PM', 'Lunch', plate(150), '', 'PREP'),
-    meal('3:30 PM', 'Smoothie', SMOOTHIE, 'Rest day: the smoothie is your snack — no bar.', 'SHAKE'),
+    meal('6:45 AM', 'Breakfast', B, 'Before work. ' + SUPP_AM, 'PREP'),
+    meal('12:00 PM', 'Lunch', plate(150), 'Packed box.', 'PREP'),
+    meal('2:30 PM', 'Smoothie', SMOOTHIE, 'Afternoon break — rest day, the smoothie is your snack (no bar).', 'SHAKE'),
     meal('6:30 PM', 'Dinner', plate(150), SUPP_PM, 'PREP'),
   ],
 };
@@ -112,8 +133,9 @@ function mealsFor(day) {
   const info = weekInfo(day);
   if (info.coach) return PLANS.coach;
   if (day === 'sat') return PLANS.sat;
+  if (day === 'sun') return PLANS.sun;
   if (info.type === 'EASY') return PLANS.rest;
-  return PLANS.train;
+  return amPhase() ? PLANS.trainAM : PLANS.trainPM;
 }
 
 // ---- storage helpers ----

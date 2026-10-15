@@ -1,0 +1,642 @@
+<title>Litter Cabinet Shop Drawings</title>
+<style>
+  :root{
+    --paper:#F2F1ED; --sheet:#FCFBF8; --ink:#1C1F21; --muted:#6A6E70;
+    --hair:#D3D1C9; --grid:#E6E4DC; --accent:#12605E; --alert:#9B4A1E;
+    --partfill:rgba(18,96,94,.09); --alertfill:rgba(155,74,30,.08);
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --serif:"Iowan Old Style",Charter,"Palatino Linotype",Palatino,Georgia,serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --paper:#14181A; --sheet:#1A1F21; --ink:#E4E5E1; --muted:#979C9D;
+      --hair:#2E3538; --grid:#232A2C; --accent:#57B6AC; --alert:#DC8B52;
+      --partfill:rgba(87,182,172,.14); --alertfill:rgba(220,139,82,.12);
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#14181A; --sheet:#1A1F21; --ink:#E4E5E1; --muted:#979C9D;
+    --hair:#2E3538; --grid:#232A2C; --accent:#57B6AC; --alert:#DC8B52;
+    --partfill:rgba(87,182,172,.14); --alertfill:rgba(220,139,82,.12);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--serif); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1000px; margin:0 auto; padding:48px 24px 96px; display:flex; flex-direction:column; gap:32px}
+
+  /* ---- title block ---- */
+  .titleblock{
+    border:1.5px solid var(--ink); background:var(--sheet);
+    display:grid; grid-template-columns:1fr;
+  }
+  .tb-main{padding:26px 24px 20px; border-bottom:1px solid var(--hair)}
+  .tb-eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--accent); margin:0 0 10px;
+  }
+  h1{
+    font-family:var(--mono); font-size:clamp(21px,3.4vw,30px); font-weight:700;
+    letter-spacing:-.01em; line-height:1.15; margin:0; text-wrap:balance;
+  }
+  .tb-sub{font-size:15px; color:var(--muted); margin:10px 0 0; max-width:62ch}
+  .tb-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    font-family:var(--mono);
+  }
+  .tb-cell{padding:12px 16px; border-right:1px solid var(--hair)}
+  .tb-cell:last-child{border-right:0}
+  .tb-k{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+  .tb-v{font-size:14px; margin-top:3px; font-variant-numeric:tabular-nums}
+
+  /* ---- drawing sheets ---- */
+  .sheet{border:1px solid var(--hair); background:var(--sheet)}
+  .sheet-head{
+    display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;
+    padding:12px 18px; border-bottom:1px solid var(--hair);
+    font-family:var(--mono);
+  }
+  .dwg-no{
+    font-size:12px; font-weight:700; letter-spacing:.12em; color:var(--accent);
+    border:1px solid var(--accent); padding:2px 8px; border-radius:2px;
+  }
+  .dwg-title{font-size:13px; letter-spacing:.12em; text-transform:uppercase; font-weight:700}
+  .dwg-note{font-size:12px; color:var(--muted); margin-left:auto}
+  .sheet-body{padding:18px; overflow-x:auto}
+  figure{margin:0}
+  svg{display:block; width:100%; max-width:100%; height:auto; color:var(--ink); min-width:520px}
+  figcaption{
+    font-family:var(--serif); font-size:14px; color:var(--muted);
+    padding:4px 2px 0; max-width:70ch;
+  }
+
+  /* ---- svg linework ---- */
+  .ln{fill:none; stroke:currentColor; stroke-width:1.6; stroke-linejoin:miter}
+  .ln-t{fill:none; stroke:currentColor; stroke-width:1}
+  .heavy{fill:none; stroke:currentColor; stroke-width:2.6}
+  .fill-sheet{fill:var(--sheet)}
+  .fill-part{fill:var(--partfill)}
+  .dash{stroke-dasharray:7 5}
+  .dot{stroke-dasharray:2 4}
+  .dim{fill:none; stroke:var(--muted); stroke-width:1}
+  .tick{stroke:var(--muted); stroke-width:1.4}
+  .acc{fill:none; stroke:var(--accent); stroke-width:2}
+  .t{font-family:var(--mono); font-size:11px; fill:currentColor}
+  .t-d{font-family:var(--mono); font-size:11px; fill:var(--muted); font-variant-numeric:tabular-nums}
+  .t-s{font-family:var(--mono); font-size:10px; fill:var(--muted); letter-spacing:.06em}
+  .t-a{font-family:var(--mono); font-size:11px; fill:var(--alert)}
+  .t-k{font-family:var(--mono); font-size:11.5px; font-weight:700; fill:currentColor; letter-spacing:.04em}
+  .hl{stroke:var(--muted); stroke-width:1; opacity:.42}
+  .alert-ln{fill:none; stroke:var(--alert); stroke-width:1.4}
+  .mid{text-anchor:middle}
+  .end{text-anchor:end}
+
+  /* ---- tables ---- */
+  table{width:100%; border-collapse:collapse; font-family:var(--mono); font-size:13px}
+  caption{text-align:left; font-family:var(--mono); font-size:10px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); padding:0 0 10px}
+  th{
+    text-align:left; font-size:10px; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--muted); font-weight:400; padding:0 12px 8px 0;
+    border-bottom:1.5px solid var(--ink); white-space:nowrap;
+  }
+  td{padding:9px 12px 9px 0; border-bottom:1px solid var(--hair); vertical-align:top;
+     font-variant-numeric:tabular-nums}
+  td.pn{font-weight:700; color:var(--accent); width:2.5em}
+  tbody tr:last-child td{border-bottom:0}
+  .sub{font-family:var(--serif); font-size:13px; color:var(--muted)}
+
+  /* ---- notes ---- */
+  .notes{border:1px solid var(--hair); background:var(--sheet); padding:22px 24px}
+  .notes h2, .verify h2{
+    font-family:var(--mono); font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+    margin:0 0 14px; font-weight:700;
+  }
+  .notes ol{margin:0; padding-left:1.3em; display:flex; flex-direction:column; gap:11px}
+  .notes li{padding-left:4px}
+  .notes strong{font-family:var(--mono); font-size:14px; font-weight:700}
+  .verify{
+    border:1.5px solid var(--alert); background:var(--alertfill); padding:20px 24px;
+  }
+  .verify h2{color:var(--alert)}
+  .verify p{margin:0; max-width:68ch}
+  .verify p + p{margin-top:10px}
+  .legend{display:flex; gap:22px; flex-wrap:wrap; font-family:var(--mono); font-size:11px;
+    color:var(--muted); padding:14px 18px; border-top:1px solid var(--hair)}
+  .legend span{display:flex; align-items:center; gap:7px}
+  .sw{width:26px; height:0; border-top-width:2px; border-top-style:solid; display:inline-block}
+  footer{font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:.08em;
+    text-transform:uppercase; text-align:center; padding-top:8px}
+
+  @media print{
+    body{background:#fff}
+    .wrap{padding:0; gap:18px; max-width:none}
+    .sheet,.notes,.verify,.titleblock{break-inside:avoid; page-break-inside:avoid}
+    svg{min-width:0}
+  }
+  @media (max-width:640px){ .wrap{padding:24px 12px 64px} .sheet-body{padding:10px} }
+</style>
+
+<div class="wrap">
+
+  <!-- ============ TITLE BLOCK ============ -->
+  <div class="titleblock">
+    <div class="tb-main">
+      <p class="tb-eyebrow">Shop drawings &middot; 4 sheets</p>
+      <h1>Two-Box Cat Litter Cabinet</h1>
+      <p class="tb-sub">Plywood carcass with a butcher-block top, housing two 53.3 &times; 49.8 &times; 66&nbsp;cm automatic
+      litter boxes. Cat entrances cut through the front doors. Everything dimensioned in inches.</p>
+    </div>
+    <div class="tb-grid">
+      <div class="tb-cell"><div class="tb-k">Overall</div><div class="tb-v">72 &times; 25 &times; 32&frac12;</div></div>
+      <div class="tb-cell"><div class="tb-k">Carcass</div><div class="tb-v">70&frac12; &times; 22&frac12; &times; 31</div></div>
+      <div class="tb-cell"><div class="tb-k">Material</div><div class="tb-v">&frac34;&Prime; ply &middot; 2 sheets</div></div>
+      <div class="tb-cell"><div class="tb-k">Top</div><div class="tb-v">6&prime; butcher block</div></div>
+      <div class="tb-cell"><div class="tb-k">Litter box</div><div class="tb-v">21 &times; 19&frac34; &times; 26</div></div>
+    </div>
+  </div>
+
+  <!-- ============ D-1  FRONT ELEVATION ============ -->
+  <section class="sheet">
+    <div class="sheet-head">
+      <span class="dwg-no">D-1</span>
+      <span class="dwg-title">Front Elevation</span>
+      <span class="dwg-note">Doors closed &middot; 1&Prime; = 10 units</span>
+    </div>
+    <div class="sheet-body">
+      <figure>
+        <svg viewBox="0 0 880 480" role="img"
+          aria-label="Front elevation: a 72 inch butcher block top over a 70 and a half inch carcass divided into a 24 inch litter bay with a door, a 19 and a half inch open shelf bay, and a second 24 inch litter bay with a door. Each door has an 8 by 9 inch arched cat entrance.">
+          <defs>
+            <pattern id="woodA" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(12)">
+              <line class="hl" x1="0" y1="0" x2="0" y2="10"/>
+            </pattern>
+          </defs>
+
+          <!-- butcher block -->
+          <rect x="80" y="60" width="720" height="15" class="ln" fill="url(#woodA)"/>
+          <text class="t-s" x="440" y="52" text-anchor="middle">BUTCHER BLOCK 72 &times; 25 &times; 1&frac12;</text>
+
+          <!-- carcass outline -->
+          <rect x="87.5" y="75" width="705" height="310" class="ln fill-sheet"/>
+          <!-- top rail band -->
+          <line x1="87.5" y1="82.5" x2="792.5" y2="82.5" class="ln-t"/>
+          <!-- bottom deck -->
+          <line x1="95" y1="377.5" x2="785" y2="377.5" class="ln-t"/>
+          <!-- side panels -->
+          <line x1="95" y1="82.5" x2="95" y2="377.5" class="ln-t"/>
+          <line x1="785" y1="82.5" x2="785" y2="377.5" class="ln-t"/>
+          <!-- dividers -->
+          <rect x="335" y="82.5" width="7.5" height="295" class="ln-t fill-part"/>
+          <rect x="537.5" y="82.5" width="7.5" height="295" class="ln-t fill-part"/>
+
+          <!-- centre bay shelves -->
+          <rect x="342.5" y="277.5" width="195" height="7.5" class="ln-t fill-part"/>
+          <rect x="342.5" y="177.5" width="195" height="7.5" class="ln-t fill-part"/>
+          <text class="t-s mid" x="440" y="120">OPEN BAY</text>
+          <text class="t-s mid" x="440" y="134">2 SHELVES</text>
+          <text class="t-d mid" x="440" y="240">D</text>
+          <text class="t-d mid" x="440" y="340">D</text>
+
+          <!-- left door -->
+          <rect x="90" y="83.75" width="250" height="301.25" class="ln fill-part"/>
+          <path d="M175,330 L175,285 A40,45 0 0 1 255,285 L255,330 Z" class="ln fill-sheet"/>
+          <rect x="326" y="200" width="8" height="16" class="ln-t"/>
+          <text class="t-k mid" x="215" y="110">E &middot; DOOR</text>
+          <text class="t-d mid" x="215" y="126">25 &times; 30&frac18;</text>
+          <text class="t-d mid" x="215" y="352">8 &times; 9 ENTRY</text>
+
+          <!-- right door -->
+          <rect x="540" y="83.75" width="250" height="301.25" class="ln fill-part"/>
+          <path d="M625,330 L625,285 A40,45 0 0 1 705,285 L705,330 Z" class="ln fill-sheet"/>
+          <rect x="546" y="200" width="8" height="16" class="ln-t"/>
+          <text class="t-k mid" x="665" y="110">E &middot; DOOR</text>
+          <text class="t-d mid" x="665" y="126">25 &times; 30&frac18;</text>
+          <text class="t-d mid" x="665" y="352">8 &times; 9 ENTRY</text>
+
+          <!-- floor -->
+          <line x1="60" y1="385" x2="810" y2="385" class="heavy"/>
+
+          <!-- bay dimension string -->
+          <line x1="95" y1="388" x2="95" y2="418" class="dim"/>
+          <line x1="335" y1="388" x2="335" y2="418" class="dim"/>
+          <line x1="342.5" y1="388" x2="342.5" y2="418" class="dim"/>
+          <line x1="537.5" y1="388" x2="537.5" y2="418" class="dim"/>
+          <line x1="545" y1="388" x2="545" y2="418" class="dim"/>
+          <line x1="785" y1="388" x2="785" y2="418" class="dim"/>
+          <line x1="95" y1="412" x2="335" y2="412" class="dim"/>
+          <line x1="342.5" y1="412" x2="537.5" y2="412" class="dim"/>
+          <line x1="545" y1="412" x2="785" y2="412" class="dim"/>
+          <line x1="90" y1="417" x2="100" y2="407" class="tick"/>
+          <line x1="330" y1="417" x2="340" y2="407" class="tick"/>
+          <line x1="337.5" y1="417" x2="347.5" y2="407" class="tick"/>
+          <line x1="532.5" y1="417" x2="542.5" y2="407" class="tick"/>
+          <line x1="540" y1="417" x2="550" y2="407" class="tick"/>
+          <line x1="780" y1="417" x2="790" y2="407" class="tick"/>
+          <text class="t-d mid" x="215" y="407">24 BAY</text>
+          <text class="t-d mid" x="440" y="407">19&frac12;</text>
+          <text class="t-d mid" x="665" y="407">24 BAY</text>
+
+          <!-- overall dimension -->
+          <line x1="80" y1="420" x2="80" y2="456" class="dim"/>
+          <line x1="800" y1="420" x2="800" y2="456" class="dim"/>
+          <line x1="80" y1="450" x2="800" y2="450" class="dim"/>
+          <line x1="75" y1="455" x2="85" y2="445" class="tick"/>
+          <line x1="795" y1="455" x2="805" y2="445" class="tick"/>
+          <text class="t-d mid" x="440" y="445">72 OVERALL &mdash; MAX</text>
+
+          <!-- height dimensions -->
+          <line x1="52" y1="60" x2="75" y2="60" class="dim"/>
+          <line x1="52" y1="385" x2="55" y2="385" class="dim"/>
+          <line x1="52" y1="60" x2="52" y2="385" class="dim"/>
+          <line x1="47" y1="65" x2="57" y2="55" class="tick"/>
+          <line x1="47" y1="390" x2="57" y2="380" class="tick"/>
+          <text class="t-d" x="44" y="222" text-anchor="middle" transform="rotate(-90 44 222)">32&frac12; OVERALL</text>
+
+          <line x1="800" y1="82.5" x2="828" y2="82.5" class="dim"/>
+          <line x1="792.5" y1="377.5" x2="828" y2="377.5" class="dim"/>
+          <line x1="828" y1="82.5" x2="828" y2="377.5" class="dim"/>
+          <line x1="823" y1="87.5" x2="833" y2="77.5" class="tick"/>
+          <line x1="823" y1="382.5" x2="833" y2="372.5" class="tick"/>
+          <text class="t-d" x="845" y="230" text-anchor="middle" transform="rotate(-90 845 230)">29&frac12; CLEAR</text>
+        </svg>
+        <figcaption>The 26&Prime; box height is what sets everything: 29&frac12;&Prime; of clear opening leaves 3&frac12;&Prime; overhead
+        and still lets the box slide straight out the front. The block runs &frac34;&Prime; past the carcass at each end, so
+        end-cut error never shows.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ D-2  PLAN ============ -->
+  <section class="sheet">
+    <div class="sheet-head">
+      <span class="dwg-no">D-2</span>
+      <span class="dwg-title">Plan &mdash; Top Removed</span>
+      <span class="dwg-note">Wall at top &middot; front at bottom</span>
+    </div>
+    <div class="sheet-body">
+      <figure>
+        <svg viewBox="0 0 880 430" role="img"
+          aria-label="Plan view showing both litter boxes pushed to the back wall of their bays, each leaving a two and three quarter inch landing strip inside the door, with the cat entry holes aligned in front of them.">
+          <defs>
+            <marker id="arrP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+
+          <!-- block outline -->
+          <rect x="80" y="78" width="720" height="250" class="ln-t dash"/>
+          <text class="t-s" x="86" y="70">WALL SIDE &mdash; BACK OF CABINET</text>
+
+          <!-- back panel -->
+          <rect x="87.5" y="78" width="705" height="2.5" class="ln-t fill-part"/>
+
+          <!-- carcass -->
+          <rect x="87.5" y="80.5" width="705" height="225" class="ln fill-sheet"/>
+          <rect x="87.5" y="80.5" width="7.5" height="225" class="ln-t fill-part"/>
+          <rect x="785" y="80.5" width="7.5" height="225" class="ln-t fill-part"/>
+          <rect x="335" y="80.5" width="7.5" height="225" class="ln-t fill-part"/>
+          <rect x="537.5" y="80.5" width="7.5" height="225" class="ln-t fill-part"/>
+
+          <!-- shelf in centre bay -->
+          <rect x="342.5" y="80.5" width="195" height="225" class="ln-t dot"/>
+          <text class="t-s mid" x="440" y="188">SHELF D</text>
+          <text class="t-s mid" x="440" y="202">19&frac38; &times; 22&frac12;</text>
+
+          <!-- litter boxes -->
+          <rect x="110" y="80.5" width="210" height="197.5" class="ln fill-part"/>
+          <text class="t-k mid" x="215" y="170">AUTO LITTER BOX</text>
+          <text class="t-d mid" x="215" y="186">21 &times; 19&frac34;</text>
+          <rect x="560" y="80.5" width="210" height="197.5" class="ln fill-part"/>
+          <text class="t-k mid" x="665" y="170">AUTO LITTER BOX</text>
+          <text class="t-d mid" x="665" y="186">21 &times; 19&frac34;</text>
+
+          <!-- doors with entry gaps -->
+          <rect x="90" y="305.5" width="85" height="7.5" class="ln fill-part"/>
+          <rect x="255" y="305.5" width="85" height="7.5" class="ln fill-part"/>
+          <rect x="540" y="305.5" width="85" height="7.5" class="ln fill-part"/>
+          <rect x="705" y="305.5" width="85" height="7.5" class="ln fill-part"/>
+
+          <!-- entry arrows -->
+          <line x1="215" y1="348" x2="215" y2="292" class="acc" marker-end="url(#arrP)"/>
+          <line x1="665" y1="348" x2="665" y2="292" class="acc" marker-end="url(#arrP)"/>
+          <text class="t-d mid" x="215" y="364">CAT ENTRY</text>
+          <text class="t-d mid" x="665" y="364">CAT ENTRY</text>
+
+          <!-- landing note -->
+          <line x1="330" y1="292" x2="410" y2="292" class="dim"/>
+          <text class="t-d" x="414" y="295">2&frac34; LANDING</text>
+
+          <!-- depth dimensions -->
+          <line x1="52" y1="80.5" x2="84" y2="80.5" class="dim"/>
+          <line x1="52" y1="305.5" x2="84" y2="305.5" class="dim"/>
+          <line x1="52" y1="80.5" x2="52" y2="305.5" class="dim"/>
+          <line x1="47" y1="85.5" x2="57" y2="75.5" class="tick"/>
+          <line x1="47" y1="310.5" x2="57" y2="300.5" class="tick"/>
+          <text class="t-d" x="44" y="193" text-anchor="middle" transform="rotate(-90 44 193)">22&frac12; CARCASS</text>
+
+          <line x1="804" y1="78" x2="828" y2="78" class="dim"/>
+          <line x1="804" y1="328" x2="828" y2="328" class="dim"/>
+          <line x1="828" y1="78" x2="828" y2="328" class="dim"/>
+          <line x1="823" y1="83" x2="833" y2="73" class="tick"/>
+          <line x1="823" y1="333" x2="833" y2="323" class="tick"/>
+          <text class="t-d" x="845" y="203" text-anchor="middle" transform="rotate(-90 845 203)">25 BLOCK</text>
+
+          <!-- bay widths -->
+          <line x1="95" y1="372" x2="95" y2="398" class="dim"/>
+          <line x1="335" y1="372" x2="335" y2="398" class="dim"/>
+          <line x1="545" y1="372" x2="545" y2="398" class="dim"/>
+          <line x1="785" y1="372" x2="785" y2="398" class="dim"/>
+          <line x1="95" y1="392" x2="335" y2="392" class="dim"/>
+          <line x1="545" y1="392" x2="785" y2="392" class="dim"/>
+          <line x1="90" y1="397" x2="100" y2="387" class="tick"/>
+          <line x1="330" y1="397" x2="340" y2="387" class="tick"/>
+          <line x1="540" y1="397" x2="550" y2="387" class="tick"/>
+          <line x1="780" y1="397" x2="790" y2="387" class="tick"/>
+          <text class="t-d mid" x="215" y="387">24 BAY</text>
+          <text class="t-d mid" x="665" y="387">24 BAY</text>
+        </svg>
+        <figcaption>Both boxes sit hard against the back panel. That is what buys the 2&frac34;&Prime; landing strip inside each
+        door &mdash; the cat steps through the hole onto plywood, not straight into the litter.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ D-3  SECTION ============ -->
+  <section class="sheet">
+    <div class="sheet-head">
+      <span class="dwg-no">D-3</span>
+      <span class="dwg-title">Section Through Litter Bay</span>
+      <span class="dwg-note">Front at left</span>
+    </div>
+    <div class="sheet-body">
+      <figure>
+        <svg viewBox="0 0 690 470" role="img"
+          aria-label="Vertical section through one litter bay showing the butcher block on flat one-by-four rails, three and a half inches of headroom above the twenty-six inch litter box, the three quarter inch bottom deck, and the cat hole cut through the door.">
+          <defs>
+            <pattern id="cutS" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line class="hl" x1="0" y1="0" x2="0" y2="6"/>
+            </pattern>
+            <marker id="arrS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+            </marker>
+          </defs>
+
+          <!-- block -->
+          <rect x="150" y="60" width="250" height="15" class="ln" fill="url(#cutS)"/>
+          <!-- rails -->
+          <rect x="172.5" y="75" width="35" height="7.5" class="ln-t fill-part"/>
+          <rect x="362.5" y="75" width="35" height="7.5" class="ln-t fill-part"/>
+          <!-- back panel with vent + cord gaps -->
+          <rect x="397.5" y="75" width="2.5" height="70" class="ln-t fill-part"/>
+          <rect x="397.5" y="165" width="2.5" height="180" class="ln-t fill-part"/>
+          <rect x="397.5" y="368" width="2.5" height="17" class="ln-t fill-part"/>
+          <!-- deck -->
+          <rect x="172.5" y="377.5" width="225" height="7.5" class="ln-t fill-part"/>
+          <!-- door, split by the cat hole -->
+          <rect x="165" y="83.75" width="7.5" height="156.25" class="ln-t fill-part"/>
+          <rect x="165" y="330" width="7.5" height="55" class="ln-t fill-part"/>
+          <!-- litter box -->
+          <rect x="200" y="117.5" width="197.5" height="260" class="ln fill-sheet"/>
+          <!-- floor -->
+          <line x1="135" y1="385" x2="430" y2="385" class="heavy"/>
+
+          <!-- headroom arrow -->
+          <line x1="300" y1="117.5" x2="300" y2="82.5" class="dim" marker-start="url(#arrS)" marker-end="url(#arrS)"/>
+
+          <!-- overall height dim -->
+          <line x1="95" y1="60" x2="146" y2="60" class="dim"/>
+          <line x1="95" y1="385" x2="131" y2="385" class="dim"/>
+          <line x1="95" y1="60" x2="95" y2="385" class="dim"/>
+          <line x1="90" y1="65" x2="100" y2="55" class="tick"/>
+          <line x1="90" y1="390" x2="100" y2="380" class="tick"/>
+          <text class="t-d" x="87" y="222" text-anchor="middle" transform="rotate(-90 87 222)">32&frac12; OVERALL</text>
+
+          <!-- clear opening dim -->
+          <line x1="125" y1="82.5" x2="161" y2="82.5" class="dim"/>
+          <line x1="125" y1="377.5" x2="161" y2="377.5" class="dim"/>
+          <line x1="125" y1="82.5" x2="125" y2="377.5" class="dim"/>
+          <line x1="120" y1="87.5" x2="130" y2="77.5" class="tick"/>
+          <line x1="120" y1="382.5" x2="130" y2="372.5" class="tick"/>
+          <text class="t-d" x="117" y="230" text-anchor="middle" transform="rotate(-90 117 230)">29&frac12; CLEAR</text>
+
+          <!-- leaders -->
+          <circle cx="380" cy="67" r="2.2" fill="var(--muted)"/>
+          <line x1="380" y1="67" x2="432" y2="60" class="dim"/>
+          <text class="t" x="438" y="63">BUTCHER BLOCK 1&frac12;</text>
+
+          <circle cx="380" cy="79" r="2.2" fill="var(--muted)"/>
+          <line x1="380" y1="79" x2="432" y2="86" class="dim"/>
+          <text class="t" x="438" y="89">1&times;4 RAIL, LAID FLAT</text>
+
+          <circle cx="300" cy="100" r="2.2" fill="var(--muted)"/>
+          <line x1="300" y1="100" x2="432" y2="112" class="dim"/>
+          <text class="t" x="438" y="115">3&frac12; HEADROOM</text>
+
+          <circle cx="398.75" cy="155" r="2.2" fill="var(--muted)"/>
+          <line x1="398.75" y1="155" x2="432" y2="155" class="dim"/>
+          <text class="t" x="438" y="158">VENT HOLES 2&Prime; DIA</text>
+
+          <circle cx="300" cy="250" r="2.2" fill="var(--muted)"/>
+          <line x1="300" y1="250" x2="432" y2="250" class="dim"/>
+          <text class="t" x="438" y="253">AUTO LITTER BOX 26 H</text>
+
+          <circle cx="398.75" cy="320" r="2.2" fill="var(--muted)"/>
+          <line x1="398.75" y1="320" x2="432" y2="320" class="dim"/>
+          <text class="t" x="438" y="323">&frac14;&Prime; BACK PANEL</text>
+
+          <circle cx="398.75" cy="376" r="2.2" fill="var(--muted)"/>
+          <line x1="398.75" y1="376" x2="432" y2="370" class="dim"/>
+          <text class="t" x="438" y="373">CORD HOLE 2&Prime; DIA</text>
+
+          <circle cx="300" cy="381" r="2.2" fill="var(--muted)"/>
+          <line x1="300" y1="381" x2="432" y2="392" class="dim"/>
+          <text class="t" x="438" y="395">&frac34;&Prime; BOTTOM DECK</text>
+
+          <!-- cat hole callout, in alert -->
+          <line x1="165" y1="330" x2="150" y2="345" class="alert-ln"/>
+          <line x1="150" y1="345" x2="150" y2="412" class="alert-ln"/>
+          <line x1="168.75" y1="330" x2="168.75" y2="385" class="dim"/>
+          <line x1="164" y1="335" x2="174" y2="325" class="tick"/>
+          <line x1="164" y1="390" x2="174" y2="380" class="tick"/>
+          <text class="t-d" x="182" y="360">5&frac12;</text>
+          <text class="t-a" x="146" y="428">CAT HOLE 8 &times; 9 &mdash; BOTTOM EDGE SHOWN AT 5&frac12; ABOVE THE</text>
+          <text class="t-a" x="146" y="443">DOOR BASE. VERIFY AGAINST YOUR BOX BEFORE CUTTING.</text>
+        </svg>
+        <figcaption>The rails lie flat on the panel tops rather than on edge &mdash; that single choice is what preserves the
+        full 29&frac12;&Prime; opening. Stood on edge, a 1&times;4 would drop it to 26&Prime; and the box would not go in.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ D-4  CUT DIAGRAMS ============ -->
+  <section class="sheet">
+    <div class="sheet-head">
+      <span class="dwg-no">D-4</span>
+      <span class="dwg-title">Sheet Cutting Diagrams</span>
+      <span class="dwg-note">4&times;8 sheets &middot; kerf not to scale</span>
+    </div>
+    <div class="sheet-body">
+      <figure>
+        <svg viewBox="0 0 900 610" role="img"
+          aria-label="Cutting diagrams for three four-by-eight sheets. Sheet one is ripped into two 22 and a half inch strips yielding both sides, one divider and the bottom deck. Sheet two is ripped into a 22 and a half inch strip and a 25 inch strip yielding the second divider, two shelves and both doors. Sheet three in quarter inch plywood yields the two back panels.">
+          <defs>
+            <pattern id="wasteC" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line class="hl" x1="0" y1="0" x2="0" y2="7"/>
+            </pattern>
+          </defs>
+
+          <!-- ===== SHEET 1 ===== -->
+          <text class="t-k" x="60" y="52">SHEET 1</text>
+          <text class="t-s" x="60" y="68">&frac34;&Prime; PLYWOOD &middot; 48 &times; 96</text>
+          <rect x="60" y="80" width="240" height="480" class="ln fill-sheet"/>
+          <rect x="60" y="80" width="112.5" height="151.25" class="ln-t fill-part"/>
+          <text class="t-k mid" x="116" y="152">A &middot; SIDE</text>
+          <text class="t-d mid" x="116" y="167">22&frac12; &times; 30&frac14;</text>
+          <rect x="60" y="231.25" width="112.5" height="151.25" class="ln-t fill-part"/>
+          <text class="t-k mid" x="116" y="303">A &middot; SIDE</text>
+          <text class="t-d mid" x="116" y="318">22&frac12; &times; 30&frac14;</text>
+          <rect x="60" y="382.5" width="112.5" height="147.5" class="ln-t fill-part"/>
+          <text class="t-k mid" x="116" y="452">B &middot; DIVIDER</text>
+          <text class="t-d mid" x="116" y="467">22&frac12; &times; 29&frac12;</text>
+          <rect x="60" y="530" width="112.5" height="30" fill="url(#wasteC)" class="ln-t"/>
+          <rect x="172.5" y="80" width="112.5" height="345" class="ln-t fill-part"/>
+          <text class="t-k mid" x="228" y="245">C &middot; BOTTOM DECK</text>
+          <text class="t-d mid" x="228" y="260">22&frac12; &times; 69</text>
+          <rect x="172.5" y="425" width="112.5" height="135" fill="url(#wasteC)" class="ln-t"/>
+          <text class="t-s mid" x="228" y="496">OFFCUT</text>
+          <rect x="285" y="80" width="15" height="480" fill="url(#wasteC)" class="ln-t"/>
+          <line x1="172.5" y1="80" x2="172.5" y2="560" class="acc"/>
+          <line x1="285" y1="80" x2="285" y2="560" class="acc"/>
+
+          <!-- ===== SHEET 2 ===== -->
+          <text class="t-k" x="340" y="52">SHEET 2</text>
+          <text class="t-s" x="340" y="68">&frac34;&Prime; PLYWOOD &middot; 48 &times; 96</text>
+          <rect x="340" y="80" width="240" height="480" class="ln fill-sheet"/>
+          <rect x="340" y="80" width="112.5" height="147.5" class="ln-t fill-part"/>
+          <text class="t-k mid" x="396" y="150">B &middot; DIVIDER</text>
+          <text class="t-d mid" x="396" y="165">22&frac12; &times; 29&frac12;</text>
+          <rect x="340" y="227.5" width="112.5" height="96.875" class="ln-t fill-part"/>
+          <text class="t-k mid" x="396" y="272">D &middot; SHELF</text>
+          <text class="t-d mid" x="396" y="287">22&frac12; &times; 19&frac38;</text>
+          <rect x="340" y="324.375" width="112.5" height="96.875" class="ln-t fill-part"/>
+          <text class="t-k mid" x="396" y="369">D &middot; SHELF</text>
+          <text class="t-d mid" x="396" y="384">22&frac12; &times; 19&frac38;</text>
+          <rect x="340" y="421.25" width="112.5" height="138.75" fill="url(#wasteC)" class="ln-t"/>
+          <text class="t-s mid" x="396" y="494">OFFCUT</text>
+          <rect x="452.5" y="80" width="125" height="150.625" class="ln-t fill-part"/>
+          <text class="t-k mid" x="515" y="150">E &middot; DOOR</text>
+          <text class="t-d mid" x="515" y="165">25 &times; 30&frac18;</text>
+          <rect x="452.5" y="230.625" width="125" height="150.625" class="ln-t fill-part"/>
+          <text class="t-k mid" x="515" y="300">E &middot; DOOR</text>
+          <text class="t-d mid" x="515" y="315">25 &times; 30&frac18;</text>
+          <rect x="452.5" y="381.25" width="125" height="178.75" fill="url(#wasteC)" class="ln-t"/>
+          <text class="t-s mid" x="515" y="466">OFFCUT 25 &times; 35&frac78;</text>
+          <text class="t-s mid" x="515" y="480">SPARE 3RD DOOR</text>
+          <rect x="577.5" y="80" width="2.5" height="480" fill="url(#wasteC)"/>
+          <line x1="452.5" y1="80" x2="452.5" y2="560" class="acc"/>
+          <line x1="577.5" y1="80" x2="577.5" y2="560" class="acc"/>
+
+          <!-- ===== SHEET 3 ===== -->
+          <text class="t-k" x="620" y="52">SHEET 3</text>
+          <text class="t-s" x="620" y="68">&frac14;&Prime; PLYWOOD &middot; 48 &times; 96</text>
+          <rect x="620" y="80" width="240" height="480" class="ln fill-sheet"/>
+          <rect x="620" y="80" width="155" height="226.875" class="ln-t fill-part"/>
+          <text class="t-k mid" x="697" y="186">F &middot; BACK LEFT</text>
+          <text class="t-d mid" x="697" y="201">31 &times; 45&frac38;</text>
+          <rect x="620" y="306.875" width="155" height="125.625" class="ln-t fill-part"/>
+          <text class="t-k mid" x="697" y="364">G &middot; BACK RIGHT</text>
+          <text class="t-d mid" x="697" y="379">31 &times; 25&frac18;</text>
+          <rect x="620" y="432.5" width="155" height="127.5" fill="url(#wasteC)" class="ln-t"/>
+          <text class="t-s mid" x="697" y="500">OFFCUT</text>
+          <rect x="775" y="80" width="85" height="480" fill="url(#wasteC)" class="ln-t"/>
+          <text class="t-s mid" x="817" y="320">OFFCUT 17 &times; 96</text>
+          <line x1="775" y1="80" x2="775" y2="560" class="acc"/>
+
+          <!-- legend -->
+          <line x1="60" y1="588" x2="86" y2="588" class="acc"/>
+          <text class="t-s" x="92" y="592">RIP &mdash; MAKE THESE FIRST</text>
+          <line x1="270" y1="588" x2="296" y2="588" class="ln-t"/>
+          <text class="t-s" x="302" y="592">CROSSCUT</text>
+          <rect x="410" y="581" width="26" height="13" fill="url(#wasteC)" class="ln-t"/>
+          <text class="t-s" x="442" y="592">OFFCUT / WASTE</text>
+          <rect x="590" y="581" width="26" height="13" class="ln-t fill-part"/>
+          <text class="t-s" x="622" y="592">KEEPER PART</text>
+        </svg>
+        <figcaption>Rip each sheet into full-length strips first, then crosscut parts off the strips. Sheet&nbsp;2's two rips
+        total 47&frac12;&Prime;, which leaves &frac12;&Prime; of slack for the saw kerf and a ragged factory edge.</figcaption>
+      </figure>
+    </div>
+    <div class="legend">
+      <span>Every part is cut with the &ldquo;22&frac12;&Prime;&rdquo; or &ldquo;25&Prime;&rdquo; figure running <em>across</em> the sheet &mdash; that is the rip width.</span>
+    </div>
+  </section>
+
+  <!-- ============ PARTS SCHEDULE ============ -->
+  <section class="sheet">
+    <div class="sheet-head">
+      <span class="dwg-no">P-1</span>
+      <span class="dwg-title">Parts Schedule</span>
+      <span class="dwg-note">Hand this list to the cutting desk</span>
+    </div>
+    <div class="sheet-body">
+      <table>
+        <caption>Rip width &times; length, in inches</caption>
+        <thead>
+          <tr><th>ID</th><th>Part</th><th>Qty</th><th>Size</th><th>Material</th><th>From</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="pn">A</td><td>Side panel</td><td>2</td><td>22&frac12; &times; 30&frac14;</td><td>&frac34;&Prime; ply</td><td>Sheet 1</td></tr>
+          <tr><td class="pn">B</td><td>Divider</td><td>2</td><td>22&frac12; &times; 29&frac12;</td><td>&frac34;&Prime; ply</td><td>Sheets 1 &amp; 2</td></tr>
+          <tr><td class="pn">C</td><td>Bottom deck</td><td>1</td><td>22&frac12; &times; 69</td><td>&frac34;&Prime; ply</td><td>Sheet 1</td></tr>
+          <tr><td class="pn">D</td><td>Centre shelf</td><td>2</td><td>22&frac12; &times; 19&frac38;</td><td>&frac34;&Prime; ply</td><td>Sheet 2</td></tr>
+          <tr><td class="pn">E</td><td>Door</td><td>2</td><td>25 &times; 30&frac18;</td><td>&frac34;&Prime; ply</td><td>Sheet 2</td></tr>
+          <tr><td class="pn">F</td><td>Back, left</td><td>1</td><td>31 &times; 45&frac38;</td><td>&frac14;&Prime; ply</td><td>Sheet 3</td></tr>
+          <tr><td class="pn">G</td><td>Back, right</td><td>1</td><td>31 &times; 25&frac18;</td><td>&frac14;&Prime; ply</td><td>Sheet 3</td></tr>
+          <tr><td class="pn">H</td><td>Top rail</td><td>2</td><td>3&frac12; &times; 69</td><td>1&times;4 pine</td><td>Cut at home</td></tr>
+          <tr><td class="pn">J</td><td>Butcher block</td><td>1</td><td>25 &times; 72 &times; 1&frac12;</td><td>6&prime; stock</td><td>No cut needed</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ VERIFY ============ -->
+  <section class="verify">
+    <h2>Verify before you cut the doors</h2>
+    <p>Every dimension on these sheets comes from the published box size, except one: the height of the cat holes.
+    Dry-fit a litter box in its bay, stand the door (part&nbsp;E) up against the opening, and mark the hole so its
+    bottom edge sits level with the bottom of the box's own entry. The 5&frac12;&Prime; shown on D-3 is a starting point,
+    not a measurement.</p>
+    <p>Cut the carcass parts with confidence &mdash; they are all independent of this. The doors are the last thing
+    you need to commit to.</p>
+  </section>
+
+  <!-- ============ NOTES ============ -->
+  <section class="notes">
+    <h2>General notes</h2>
+    <ol>
+      <li><strong>Cutting desk.</strong> Ask for the rips first &mdash; five in total &mdash; then the crosscuts. Their panel saw
+      holds about &plusmn;&frac18;&Prime;, which is fine here: nothing is inset, the doors are full overlay, and the block
+      overhangs both ends. Most stores won't cut anything narrower than about 2&ndash;3&Prime;, which is why parts&nbsp;H are
+      1&times;4 pine rather than ripped plywood.</li>
+      <li><strong>Divider layout.</strong> Measuring from the left end of the bottom deck (part&nbsp;C), the dividers land at
+      24&Prime; and 44&frac14;&Prime;. That gives clear bays of 24&Prime; / 19&frac12;&Prime; / 24&Prime;.</li>
+      <li><strong>Joinery.</strong> Glue and countersunk #8 &times; 1&frac58;&Prime; screws through the faces, filled and painted.
+      No dados, no pocket-hole jig.</li>
+      <li><strong>Service holes, cut before the back goes on.</strong> One 2&Prime; cord hole low in each litter bay &mdash; both
+      boxes need power &mdash; and two 2&Prime; vent holes high in each bay. Enclosed litter without airflow just concentrates
+      the smell.</li>
+      <li><strong>Doors.</strong> Three full-overlay cup hinges each; two is not enough for 30&Prime; of &frac34;&Prime; plywood.
+      Hinge them on the outer edges so both doors swing away from the centre bay.</li>
+      <li><strong>Fixing the top.</strong> Screw up through the rails into the block with the rail holes drilled &frac14;&Prime;
+      oversized, or use figure-8 fasteners. Solid wood that wide has to be free to move seasonally or it will split.</li>
+      <li><strong>Waste drawer.</strong> Before you settle each box's position, check that its waste drawer clears the door
+      opening &mdash; otherwise you'll be dragging the whole unit out every time.</li>
+    </ol>
+  </section>
+
+  <footer>Rolling Tides &middot; Shop drawings D-1 to D-4 &middot; Dimensions in inches</footer>
+</div>

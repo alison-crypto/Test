@@ -12,7 +12,7 @@
 //   4. Photos are intentionally NOT synced in this PR — they stay in
 //      IndexedDB on the device. Moving them to Supabase Storage is PR 3.
 
-import { supabase } from './supabase-client.js';
+import { supabase, isUnreachable } from './supabase-client.js';
 
 const SHADOW_PREFIX = 'rtc_sync_shadow_';
 const PUSH_DEBOUNCE_MS = 500;
@@ -176,8 +176,8 @@ function recipeBookToRow(recipeId, v) {
   return {
     user_id: userId,
     recipe_id: recipeId,
-    alison_rating: v.alisonRating ?? null,
-    darlene_rating: v.darleneRating ?? null,
+    alison_rating: v.alisonRating || null,   // 0 = not rated; the column only takes 1–5
+    darlene_rating: v.darleneRating || null,
     last_cooked: v.lastCooked || null,
     times_made: v.timesMade ?? 0,
   };
@@ -386,6 +386,11 @@ const fridgeHandler = {
 };
 
 // Chores: one localStorage key, two tables.
+// chores.js keys the monthly reset as 'YYYY-MM'; chores_resets.last_reset is a
+// date column, so store it as the 1st of the month and convert back on pull.
+const resetToDb = (section, v) => (section === 'monthly' && /^\d{4}-\d{2}$/.test(v) ? `${v}-01` : v);
+const resetFromDb = (section, v) => (section === 'monthly' && typeof v === 'string' ? v.slice(0, 7) : v);
+
 const choresHandler = {
   async push() {
     const state  = readJson('rtc_chores_v1', {});
@@ -413,7 +418,7 @@ const choresHandler = {
     const resetUpserts = [];
     for (const section of ['daily', 'weekly', 'monthly']) {
       const c = cur.lastReset[section], s = sh.lastReset[section];
-      if (c && c !== s) resetUpserts.push({ user_id: userId, section, last_reset: c });
+      if (c && c !== s) resetUpserts.push({ user_id: userId, section, last_reset: resetToDb(section, c) });
     }
 
     if (stateUpserts.length) {
@@ -423,6 +428,13 @@ const choresHandler = {
     if (stateDeletes.length) {
       const { error } = await supabase.from('chores_state').delete().eq('user_id', userId).in('chore_id', stateDeletes);
       if (error) throw error;
+    }
+    // Record the chore part as synced before trying the resets, so a later
+    // failure can't make the next push re-send (and revert) these rows.
+    if (stateUpserts.length || stateDeletes.length) {
+      withSuppressed(() => {
+        window.localStorage.setItem(shadowKey('rtc_chores_v1'), JSON.stringify({ ...state, lastReset: sh.lastReset }));
+      });
     }
     if (resetUpserts.length) {
       const { error } = await supabase.from('chores_resets').upsert(resetUpserts, { onConflict: 'user_id,section' });
@@ -445,7 +457,7 @@ const choresHandler = {
       if (row.checked) sChecked[row.chore_id] = true;
       if (row.note)    sNotes[row.chore_id]   = row.note;
     }
-    for (const row of resetsRes.data) sLastReset[row.section] = row.last_reset;
+    for (const row of resetsRes.data) sLastReset[row.section] = resetFromDb(row.section, row.last_reset);
 
     const local  = readJson('rtc_chores_v1', {});
     const shadow = readJson(shadowKey('rtc_chores_v1'), {});
@@ -637,31 +649,87 @@ Storage.prototype.setItem = function (k, v) {
   schedulePush(k);
 };
 
-function schedulePush(key) {
+const RETRY_MS = 30000;
+function schedulePush(key, delay = PUSH_DEBOUNCE_MS) {
   if (pushTimers.has(key)) clearTimeout(pushTimers.get(key));
   pushTimers.set(key, setTimeout(() => {
     pushTimers.delete(key);
-    HANDLERS[key].push().catch((e) => console.warn('[sync] push failed', key, e?.message || e));
-  }, PUSH_DEBOUNCE_MS));
+    HANDLERS[key].push().catch((e) => {
+      if (isUnreachable(e)) {
+        // Server unreachable / waking up: the edit is safe in localStorage
+        // and the shadow is untouched, so just try again a bit later.
+        console.warn('[sync] push failed, retrying in 30 s', key, e?.message || e);
+        schedulePush(key, RETRY_MS);
+      } else {
+        // The server rejected the data — retrying won't help.
+        console.warn('[sync] push rejected', key, e?.message || e);
+      }
+    });
+  }, delay));
 }
 
 // ----------------------------------------------------------------------
 // Public API
 // ----------------------------------------------------------------------
 
-export async function initSync(supabaseUserId) {
-  userId = supabaseUserId;
+// The account this phone's synced data belongs to. Shadows aren't per-user,
+// so syncing a different account would read its (empty) tables as "everything
+// was deleted" and drop this phone's data.
+const OWNER_KEY = 'rtc_sync_owner_v1';
+
+// Push first so local edits made before sync runs (incl. the chores auto-reset
+// write on page load) aren't clobbered by the pull. If a handler's push failed
+// because the server couldn't be reached, its pull is skipped — the server copy
+// would overwrite edits that haven't been uploaded yet. A push the server
+// *rejected* (bad data) is only logged; the pull still runs.
+async function runCycle() {
   const uniqueHandlers = [...new Set(Object.values(HANDLERS))];
-  // Push first so local edits made before sync runs (incl. the chores
-  // auto-reset write on page load) aren't clobbered by the subsequent pull.
-  // Then pull to bring in updates from other devices.
+  const pushFailed = new Set();
   await Promise.all(uniqueHandlers.map(async (h) => {
-    try { await h.push(); } catch (e) { console.warn('[sync] init push failed', e?.message || e); }
+    try { await h.push(); }
+    catch (e) {
+      if (isUnreachable(e)) pushFailed.add(h);
+      console.warn('[sync] push failed', e?.message || e);
+    }
   }));
+  let pulled = 0;
   await Promise.all(uniqueHandlers.map(async (h) => {
-    try { await h.pull(); } catch (e) { console.warn('[sync] init pull failed', e?.message || e); }
+    if (pushFailed.has(h)) return;
+    try { await h.pull(); pulled++; } catch (e) { console.warn('[sync] pull failed', e?.message || e); }
   }));
+  return { pulled, pushFailed: pushFailed.size };
+}
+
+// After a reconnect / when the app comes back to the screen: upload anything
+// that failed earlier. Upload only — pulling here would change storage behind
+// pages that are already open (their next save would revert the other
+// phone's changes). Fresh server data is pulled on the next page load.
+let pushRunning = false;
+async function retryPushes() {
+  if (!initialized || pushRunning) return;
+  pushRunning = true;
+  try {
+    const uniqueHandlers = [...new Set(Object.values(HANDLERS))];
+    await Promise.all(uniqueHandlers.map((h) => h.push().catch((e) => console.warn('[sync] retry push failed', e?.message || e))));
+  } finally { pushRunning = false; }
+}
+
+export async function initSync(supabaseUserId) {
+  let owner = null;
+  try { owner = window.localStorage.getItem(OWNER_KEY); } catch {}
+  if (owner && owner !== supabaseUserId) {
+    console.warn('[sync] this device holds another account\'s data; sync disabled');
+    try { window.dispatchEvent(new CustomEvent('rtc-sync-owner-mismatch')); } catch {}
+    return;
+  }
+  userId = supabaseUserId;
+  const result = await runCycle();
+  // Reached the server as this account → remember who owns this phone's data.
+  if (result.pulled > 0) { try { withSuppressed(() => window.localStorage.setItem(OWNER_KEY, supabaseUserId)); } catch {} }
   initialized = true;
+  window.addEventListener('online', retryPushes);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') retryPushes(); });
+  if (result.pushFailed) setTimeout(retryPushes, RETRY_MS);
   // Notify any page that wants to re-render with the freshly-pulled state.
   try { window.dispatchEvent(new CustomEvent('rtc-sync-done')); } catch {}
 }

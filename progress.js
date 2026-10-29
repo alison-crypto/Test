@@ -3,7 +3,7 @@
 // Data lives only in Supabase (body_scans, health_workouts, progress_notes —
 // owner-only); Claude adds rows from the screenshots you send. This file is
 // generic: no personal numbers in here because the app's code is public.
-import { supabase, getSession } from './supabase-client.js';
+import { supabase, getSessionState, serverDownHTML, onReconnect, loadErrorHTML } from './supabase-client.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -141,14 +141,22 @@ function renderWorkouts(ws, notes) {
 }
 
 (async () => {
-  const session = await getSession().catch(() => null);
-  const msg = '<section class="rp-card"><p class="rp-muted">Sign in to see your data.</p></section>';
-  if (!session) { document.getElementById('body-root').innerHTML = msg; document.getElementById('workouts-root').innerHTML = msg; return; }
+  const { session, unreachable } = await getSessionState({ timeoutMs: 6000 });
+  const roots = [document.getElementById('body-root'), document.getElementById('workouts-root')];
+  if (!session) {
+    const msg = unreachable ? serverDownHTML() : '<section class="rp-card"><p class="rp-muted">Sign in to see your data.</p></section>';
+    roots.forEach((r) => { r.innerHTML = msg; });
+    if (unreachable) onReconnect(() => location.reload());
+    return;
+  }
   const [s, w, n] = await Promise.all([
     supabase.from('body_scans').select('*').order('measured', { ascending: false }),
     supabase.from('health_workouts').select('name,start_ts,duration_s,distance_km,avg_hr,max_hr,energy_kcal,active_kcal,effort,cadence_spm,elev_m,place,note').order('start_ts', { ascending: false }).limit(60),
     supabase.from('progress_notes').select('kind,noted,title,summary').order('noted', { ascending: false }),
   ]);
+  // A failed query is an outage, not "no data yet".
+  const qErr = s.error || w.error || n.error;
+  if (qErr) { const h = loadErrorHTML(qErr); roots.forEach((r) => { r.innerHTML = h; }); return; }
   const notes = n.data || [];
   renderBody(s.data || [], notes.filter((x) => x.kind === 'body'));
   renderWorkouts(w.data || [], notes.filter((x) => x.kind === 'workouts'));

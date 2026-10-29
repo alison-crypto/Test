@@ -19,7 +19,7 @@
       <p class="auth-subtitle">Sign in to sync across devices</p>
     </header>
 
-    <form id="auth-form" class="auth-form" autocomplete="on">
+    <form id="auth-form" class="auth-form" autocomplete="on" method="post" action="javascript:void(0)">
       <label class="auth-field">
         <span>Email</span>
         <input type="email" name="email" required autocomplete="email" inputmode="email" autocapitalize="off" autocorrect="off" />
@@ -38,6 +38,15 @@
   </main>
 
   <script type="module" src="auth.js"></script>
+  <script>
+    // If the sign-in code can't load (no connection), say so instead of doing nothing.
+    setTimeout(function () {
+      if (!window.RTC_AUTH_READY) {
+        var m = document.getElementById('auth-message');
+        if (m) { m.textContent = "Couldn't load the sign-in page — check your connection and reload."; m.dataset.kind = 'err'; }
+      }
+    }, 8000);
+  </script>
 <script src="units.js" defer></script>
 </body>
 </html>

@@ -1,4 +1,8 @@
-import { supabase, getSession } from './supabase-client.js';
+import { supabase, getSessionState, isUnreachable } from './supabase-client.js';
+
+window.RTC_AUTH_READY = true;
+// Clear the "couldn't load" note if this code arrived late on a slow connection.
+{ const m = document.getElementById('auth-message'); if (m && m.dataset.kind === 'err') { m.textContent = ''; m.dataset.kind = ''; } }
 
 const form = document.getElementById('auth-form');
 const messageEl = document.getElementById('auth-message');
@@ -16,10 +20,20 @@ function getReturnUrl() {
   const ret = params.get('return');
   if (!ret) return 'index.html';
   try {
-    const decoded = decodeURIComponent(ret);
-    if (decoded.startsWith('/') || /^[a-z0-9_-]+\.html/i.test(decoded.replace(/^\//, ''))) return decoded;
+    // Same-site only: resolve it the way the browser will, then compare origins
+    // (catches '//evil', '/\\evil' and tab/newline tricks like '/%09/evil').
+    const u = new URL(decodeURIComponent(ret), location.href);
+    if (u.origin === location.origin) return u.pathname + u.search + u.hash;
   } catch {}
   return 'index.html';
+}
+
+// Plain-English errors instead of "Load failed" / "Failed to fetch" / "{}".
+function friendlyError(err) {
+  if (navigator.onLine === false) return "You're offline. Connect to Wi-Fi or mobile data and try again.";
+  if (isUnreachable(err)) return "The sign-in server isn't responding — it may be waking up after a quiet spell, which takes a minute or two. Wait a moment and tap Sign in again. Your data on this phone is safe.";
+  if (err?.code === 'invalid_credentials' || /invalid login credentials/i.test(err?.message || '')) return 'Wrong email or password.';
+  return err?.message || 'Something went wrong. Try again.';
 }
 
 function setMessage(text, kind) {
@@ -92,13 +106,19 @@ form.addEventListener('submit', async (e) => {
       }
     }
   } catch (err) {
-    setMessage(err?.message || 'Something went wrong. Try again.', 'err');
+    setMessage(friendlyError(err), 'err');
   } finally {
     submitBtn.disabled = false;
   }
 });
 
-(async () => {
-  const session = await getSession();
-  if (session) location.replace(getReturnUrl());
+// Already signed in → go back. Signed in but the server is asleep → wait for it
+// and continue on its own, so you don't have to type the password again.
+(async function check() {
+  const { session, unreachable } = await getSessionState();
+  if (session) { location.replace(getReturnUrl()); return; }
+  if (unreachable) {
+    setMessage("You're still signed in on this phone. Waiting for the server to wake up… (this page continues on its own)", 'ok');
+    setTimeout(check, 15000);
+  }
 })();

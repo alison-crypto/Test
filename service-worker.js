@@ -1,4 +1,4 @@
-const CACHE = 'assistant-v97';
+const CACHE = 'assistant-v98';
 const ASSETS = [
   './',
   './index.html',
@@ -106,7 +106,9 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE).then((c) => c.put(event.request, copy));
           return res;
         })
-        .catch(() => caches.match(event.request))
+        // Offline: serve the cached page even when the URL has a query string
+        // (e.g. auth.html?return=…, run.html?kind=iv).
+        .catch(() => caches.match(event.request, { ignoreSearch: event.request.mode === 'navigate' }))
     );
     return;
   }

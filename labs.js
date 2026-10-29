@@ -3,7 +3,7 @@
 // because the app's static files are public. New reports: send the PDF to
 // Claude, who adds the rows; this page then shows the latest value, where it
 // sits in the reference range, the change since last time, and the history.
-import { supabase, getSession } from './supabase-client.js';
+import { supabase, getSessionState, serverDownHTML, onReconnect, loadErrorHTML } from './supabase-client.js';
 import { GUIDE, NEXT_TIME } from './labs-guide.js';
 
 const root = document.getElementById('labs-root');
@@ -160,12 +160,16 @@ function render(rows, notes) {
 }
 
 (async () => {
-  const session = await getSession().catch(() => null);
-  if (!session) { root.innerHTML = '<section class="rp-card"><p class="rp-muted">Sign in to see your lab results.</p></section>'; return; }
+  const { session, unreachable } = await getSessionState({ timeoutMs: 6000 });
+  if (!session) {
+    root.innerHTML = unreachable ? serverDownHTML() : '<section class="rp-card"><p class="rp-muted">Sign in to see your lab results.</p></section>';
+    if (unreachable) onReconnect(() => location.reload());
+    return;
+  }
   const [r, n] = await Promise.all([
     supabase.from('lab_results').select('collected,lab,panel,test_key,test,value,value_text,unit,ref_low,ref_high,ref_text,note').order('collected', { ascending: false }),
     supabase.from('lab_notes').select('collected,title,summary').order('collected', { ascending: false }),
   ]);
-  if (r.error || n.error) { root.innerHTML = `<section class="rp-card"><p class="rp-muted">Couldn’t load results: ${esc((r.error || n.error).message)}</p></section>`; return; }
+  if (r.error || n.error) { root.innerHTML = loadErrorHTML(r.error || n.error); return; }
   render(r.data || [], n.data || []);
 })();

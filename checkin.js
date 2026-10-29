@@ -2,7 +2,7 @@
 // one check-in a week, with the change vs last week and since the start.
 // Data lives only in Supabase (body_scans, body_measures, progress_photos and
 // the private body-photos bucket, all owner-only). No personal numbers here.
-import { supabase, getSession } from './supabase-client.js';
+import { supabase, getSessionState, serverDownHTML, onReconnect, loadErrorHTML } from './supabase-client.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
@@ -186,6 +186,8 @@ async function load() {
     supabase.from('progress_photos').select('taken,pose,path').order('taken', { ascending: false }),
     supabase.from('progress_notes').select('kind,noted,title,summary').in('kind', ['checkin', 'photos']).order('noted', { ascending: false }),
   ]);
+  const qErr = s.error || t.error || p.error || n.error;
+  if (qErr) { document.getElementById('checkin-root').innerHTML = loadErrorHTML(qErr); return; }
   scans = s.data || []; tapes = t.data || []; photos = p.data || []; notes = n.data || [];
   if (!photos.some((x) => x.pose === comparePose) && photos.length) comparePose = photos[0].pose;
   render();
@@ -244,8 +246,12 @@ document.addEventListener('change', async (e) => {
 
 (async () => {
   const host = document.getElementById('checkin-root'); if (!host) return;
-  const session = await getSession().catch(() => null);
-  if (!session) { host.innerHTML = '<section class="rp-card"><p class="rp-muted">Sign in to see your data.</p></section>'; return; }
+  const { session, unreachable } = await getSessionState({ timeoutMs: 6000 });
+  if (!session) {
+    host.innerHTML = unreachable ? serverDownHTML() : '<section class="rp-card"><p class="rp-muted">Sign in to see your data.</p></section>';
+    if (unreachable) onReconnect(() => location.reload());
+    return;
+  }
   uid = session.user.id;
   await load();
 })();
